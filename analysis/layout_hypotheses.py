@@ -9,7 +9,8 @@ from pathlib import Path
 from itertools import combinations, permutations
 
 root = Path(__file__).resolve().parent
-CORR = np.load(root / 'thermal_corr_24x24.npy')
+import os
+CORR = np.load(root / os.environ.get('THERM_MATRIX', 'thermal_corr_24x24.npy'))
 NC, NP = 24, 12
 rng = np.random.default_rng(5)
 

@@ -18,3 +18,8 @@ ipmi2103/
 # in-flight sweep extraction
 .sweep_tmp/
 sweep.log
+
+# large extraction scratch dirs (never commit)
+.therm/
+.a2/
+.a1_tmp/

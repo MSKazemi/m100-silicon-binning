@@ -31,11 +31,13 @@ sensors, and the eight absent sensors always form four complete \emph{slice} pai
 $(2k,2k{+}1)$---the POWER9 unit that shares an L2/L3 block~\cite{thompto2016power9,wikichip_power9}---with
 zero exceptions. We observe 442 of the 495 combinatorially possible patterns, establishing that the
 map is per-die rather than a fixed SKU. Using a curveball null that preserves both per-socket and
-per-slice marginals, we show harvested slices cluster in sensor-index space ($z=-20.8$). Thermal
-analysis confirms that the two cores of a slice are physically abutted (residual correlation
-$r=+0.51$ within-slice versus $+0.29$ for cross-slice neighbours at identical index distance), but
-we find only weak evidence that the slice index itself is monotonic in physical die position
-($p=0.025$; a $3\times4$ grid fits the thermal coupling better than a linear arrangement).
+per-slice marginals, we show harvested slices cluster ($z=-20.2$), and a fitted pairwise-interaction
+model separates that clustering from per-slice propensity, showing both are present and that the two
+procurement lots differ in each. Thermal analysis over 240 sockets independently recovers the
+sensor-index ordering as the physical arrangement of slices on the die (linear fit $z=-6.13$; an
+unconstrained search returns the same ordering reversed, $|\rho|=0.993$), so the clustering is
+spatial rather than merely index-space, and confirms that the two cores of a slice are physically
+abutted ($r=+0.41$ within-slice versus $+0.32$ across a slice boundary at identical index distance).
 We detect a sharp procurement-lot boundary at rack~22 (Welch $t=27.3$) separating two populations
 with markedly different harvesting statistics. Finally, tracking every socket across the full
 2.5-year, 1.67-million-socket-day record, we find harvest maps behave as near-static manufacturing
@@ -143,8 +145,8 @@ on contrasts \emph{at identical index distance}, which control for this exactly.
 \caption{POWER9 slice organisation (after~\cite{thompto2016power9}) annotated with the measured
 per-slice harvest rate across 1{,}960 Marconi100 sockets. Each slice holds two SMT4 cores sharing
 512\,kB L2 and 10\,MB L3 on a common fabric port. Harvesting always removes whole slices.
-\textbf{The horizontal ordering is the IPMI sensor index, which we show is \emph{not} established
-as the physical die ordering} (Sec.~\ref{sec:layout}).}
+\textbf{The horizontal ordering is the IPMI sensor index, which Sec.~\ref{sec:layout} shows is the
+physical die ordering, recovered independently from thermal coupling.}}
 \label{fig:schematic}
 \end{figure*}
 
@@ -189,30 +191,52 @@ tests ($|z|>3.83$), 17 pairs remain significant (Fig.~\ref{fig:cooc}). The posit
 0\&1 ($z=+16.7$), 6\&7 ($+9.2$), 2\&3 ($+8.0$), 8\&9 ($+7.7$), 10\&11 ($+7.5$), 4\&5 ($+7.1$),
 1\&2 ($+6.9$) and 0\&2 ($+6.3$): \textbf{eight of the nine positive-excess pairs have
 $|\Delta k|\le2$}, and every significant \emph{deficit} is a distant pair. We report the single
-exception rather than rounding it away.
+exception rather than rounding it away. Because Sec.~\ref{sec:layout} shows index adjacency
+\emph{is} physical adjacency, this is spatial clustering, not merely index-space clustering.
 
 \subsection{Slice siblings are physically abutted}
-Fig.~\ref{fig:thermal} shows residual correlation against core index distance. At \emph{identical}
-distance of~1, within-slice siblings reach $r=+0.51$ versus $+0.29$ for cross-slice neighbours;
-per-node the contrast between near ($\le2$) and far ($\ge12$) pairs is $+0.45\pm0.20$ with
-40/40 nodes positive (paired $t=+13.9$). The two cores of a slice are roughly twice as coupled as
-equally-numbered cores across a slice boundary, confirming both physical abutment and the slice as
-a physical unit.
+We probe 240 sockets---120 nodes, \emph{both} p0 and p1---across the full 31-day month 2022-08,
+aligning all core streams on a common one-minute grid (Fig.~\ref{fig:thermal}). At
+\emph{identical} index distance of~1, within-slice siblings reach $r=+0.407$
+(95\,\% CI $[0.396,0.419]$) against $+0.318$ ($[0.299,0.337]$) for cross-slice neighbours;
+the $+0.089$ gap has permutation $p<10^{-4}$ and the intervals do not overlap. It replicates
+independently on each socket (p0: $+0.462$ vs $+0.336$; p1: $+0.353$ vs $+0.300$). The two cores of
+a slice are measurably more coupled than equally-numbered cores across a slice boundary, confirming
+physical abutment and the slice as a physical unit.
 
-\subsection{The slice index is \emph{not} established as the physical ordering}
+\paragraph*{A correction to an earlier estimate} An initial version of this analysis used 40
+sockets in 2020-04, a month with only three reporting days, and reported a contrast of
+$+0.51$ vs $+0.29$. That overstated the effect roughly threefold. The direction, the significance
+and the replication across sockets survive; the magnitude does not. We report the full-month
+estimate.
+
+\subsection{The sensor index recovers the physical slice ordering}
 \label{sec:layout}
-Free classical MDS on the pooled $24\times24$ matrix is dominated by noise (leading axis 21.3\% of
-variance, correlation with core index only $+0.28$), so we instead score explicit candidate
-floorplans by correlating predicted physical distance against measured thermal coupling
-(Fig.~\ref{fig:layout}). The identity $1\times12$ linear arrangement scores $-0.283$, better than a
-random ordering ($z=-2.34$, $p=0.023$) but \emph{worse} than a $3\times4$ grid ($-0.585$); a
-hill-climbing search finds an ordering scoring $-0.760$ whose rank correlation with the identity
-ordering is $-0.36$.
+Is the sensor index merely a label, or does it track physical position? We answer it by scoring
+explicit candidate floorplans: for each, correlate the predicted physical distance between two
+slices against their measured thermal coupling (Fig.~\ref{fig:layout}). Coupling should fall with
+distance, so a better floorplan gives a more negative correlation.
 
-\textbf{We therefore do not claim the sensor index is monotonic in physical die position.} The
-index-space clustering of Fig.~\ref{fig:cooc} is a robust empirical fact, but its interpretation as
-\emph{spatial} defect clustering is not established by our data and must be stated as a hypothesis.
-\todo{obtain an annotated POWER9 die shot or OpenBMC sensor-ID mapping to settle this.}
+The identity $1\times12$ linear arrangement wins decisively, at $-0.754$ against a
+random-ordering null of $+0.001\pm0.123$ ($z=-6.13$, $p<10^{-4}$), and beats every two-dimensional
+alternative tried ($6\times2$: $-0.716$; $4\times3$: $-0.555$; $3\times4$: $-0.488$; $2\times6$:
+$-0.213$). More stringently, an unconstrained hill-climbing search over one-dimensional
+orderings---free to return any of the $12!/2$ arrangements---converges to
+$[10,11,9,8,7,6,5,4,3,2,1,0]$ at $-0.759$, barely better than the identity's $-0.754$. That is the
+sensor ordering \emph{reversed}; since distance is invariant under reflection it is the same
+physical arrangement, differing by one adjacent transposition. Rank correlation with the identity
+is $|\rho|=0.993$.
+
+\textbf{The thermal data therefore recovers the sensor-index ordering independently, up to
+reflection.} This licenses reading Sec.~\ref{sec:cluster} spatially: slices adjacent in index are
+adjacent on the die, so the co-harvest excess is genuine \emph{spatial} clustering of the kind the
+yield literature describes~\cite{koren1993negbinom,bae2007waferyield}.
+
+\paragraph*{A correction to an earlier estimate} On the three-day 2020-04 sample this test was
+inconclusive---the linear ordering scored only $-0.283$ ($p=0.023$) and was beaten by a $3\times4$
+grid---and we previously declined to claim a physical ordering. The full-month, both-socket
+measurement reverses that conclusion. We report both so the reader can judge how much the earlier
+sample size mattered.
 
 \subsection{A procurement-lot boundary at node 440}
 \label{sec:lot}
@@ -326,8 +350,9 @@ cannot separate these from telemetry alone. \todo{seek CINECA maintenance logs f
 contrast at distance~1 controls exactly for index gap.}\label{fig:thermal}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f5_layout_hypotheses.pdf}
-\caption{Candidate floorplans scored against measured thermal coupling. The linear index ordering
-(red) beats a random ordering only marginally and is outperformed by a $3\times4$ grid.}
+\caption{Candidate floorplans scored against measured thermal coupling (more negative = better
+fit). The linear index ordering (red) wins decisively and is matched only by an unconstrained
+search that converges to the same arrangement reversed.}
 \label{fig:layout}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f6_rack_heatmap.pdf}
@@ -483,9 +508,10 @@ marked \emph{blocking} below must be resolved before this paper is submitted.}
 reporting exactly 16 cores, agreement with the published 16-core SKU~\cite{ibm_ac922}, the perfect
 slice-pair structure, and the control of Sec.~\ref{sec:lifecycle} showing that when core sensors do
 vanish, every other sensor on the socket keeps reporting.
-\item \textbf{[OI-1, \emph{blocking}] The sensor index may not be the physical die position}
-(Sec.~\ref{sec:layout}). The spatial reading of the clustering in Sec.~\ref{sec:cluster} is a
-hypothesis, not a result. Needs an annotated die shot or the hostboot sensor-ID mapping.
+\item \textbf{[OI-1] Resolved.} The sensor index is recovered as the physical slice ordering from
+thermal coupling (Sec.~\ref{sec:layout}), so the spatial reading of Sec.~\ref{sec:cluster} is
+supported. It remains an inference from thermal coupling rather than from a vendor floorplan; an
+annotated die shot would confirm it directly.
 \item \textbf{[OI-2, \emph{blocking}] A March 2020 BMC firmware update could have remapped sensor
 IDs}, mimicking reconfiguration; 86 of the 235 transitions fall in the three days 2020-03-19--21.
 Needs CINECA maintenance logs. Does not affect the boot-time-only conclusion.
@@ -500,8 +526,10 @@ extraction defect on our side, now gated; the nine that survive are the guard ep
 Sec.~\ref{sec:lifecycle}. The two nodes appearing to change within a day are same-day reboots.
 \item \textbf{[OI-8] The mechanism behind p0/p1 relabelling is unknown}; any per-socket
 longitudinal study on this dataset risks silently mixing two dies.
-\item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts;
-the pooled estimator may be improvable [OI-11].
+\item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts.
+\textbf{Sample size matters more than we first appreciated}: the three-day 2020-04 sample
+overstated the within/cross-slice contrast threefold and inverted the floorplan conclusion. All
+thermal results here use a full month and both sockets.
 \item \textbf{[OI-10] Single system}; findings may reflect CINECA procurement rather than POWER9
 generally.
 \end{enumerate}
@@ -517,10 +545,12 @@ binning statistics. Over 2.5 years the maps are static to within 0.25 percentage
 change only across reboots, and exhibit three field core-guard episodes, each removing exactly one
 slice while every other sensor on the socket keeps reporting.
 
-Two boundaries deserve emphasis. We do \emph{not} establish that the sensor index tracks physical
-die position, so the clustering result is stated in index space and its spatial reading remains a
-hypothesis. And the harvest map turns out to have no measurable operational effect---a negative
-result we consider as useful as the positive ones, since it tells operators what they can ignore.
+Two things deserve emphasis. The thermal probe recovers the physical slice ordering from telemetry
+alone, which is what licenses reading the clustering spatially and connects the measurement to the
+yield literature; it also shows how much this depends on sample size, since a three-day sample gave
+the opposite answer. And the harvest map turns out to have no measurable operational effect---a
+negative result we consider as useful as the positive ones, since it tells operators what they can
+safely ignore.
 The broader point is that fleet telemetry is a viable instrument for hardware provenance, and that
 its unintended disclosures deserve attention from those who publish such datasets.
 
