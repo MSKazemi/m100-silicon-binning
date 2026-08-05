@@ -38,8 +38,10 @@ ordering of slices on the die ($z=-6.13$; an unconstrained search returns the sa
 reversed, $|\rho|=0.993$), which establishes that harvested slices cluster \emph{spatially}. A
 fitted pairwise-interaction model separates that clustering from per-slice propensity and shows a
 sharp procurement boundary at node~440: the two lots differ in both. Maps are static---changing
-only across reboots---and we isolate three field core-guard episodes. Finally, the harvest map has
-no measurable effect on socket power, so schedulers need not model it.
+only across reboots---and we isolate three field core-guard episodes. A taxonomy separates processor replacements from node
+replacements, socket relabelling and firmware deconfiguration, giving an annualised socket
+replacement rate of 1.96\,\% with no asset database. Finally, the harvest map has no measurable
+effect on socket power, so schedulers need not model it.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -76,11 +78,34 @@ Top-10 system, from a public dataset, and to track them across 858 days. Our con
       populations with markedly different binning statistics---from telemetry alone.
 \item A longitudinal result over 1.67\,M socket-days: maps are static, configuration changes occur
       only at reboot, and three field core-guard episodes are isolated and corroborated.
+\item A taxonomy that separates processor replacements, node replacements, socket relabelling and
+      firmware deconfiguration from one another (Sec.~\ref{sec:taxonomy}), yielding an annualised
+      socket replacement rate of 1.96\,\% with no asset database.
 \item A negative result that matters operationally: the harvest map has no practical effect on
       socket power (Sec.~\ref{sec:impact}), so schedulers need not model it.
 \end{itemize}
 
 \section{Background}
+
+\begin{figure*}[t]\centering
+\includegraphics[width=\textwidth]{f0_hierarchy.pdf}
+\caption{The physical hierarchy this paper reasons over, and what a change in a recovered map
+means at each level. A socket's harvest map identifies the \emph{die currently seated in that
+position}, so a change in the map is a change of die, of position labelling, or of configuration---
+and Sec.~\ref{sec:taxonomy} shows these are distinguishable from telemetry alone.}
+\label{fig:hier}
+\end{figure*}
+
+\subsection{The machine, from room to core}
+Marconi100's 980 compute nodes occupy 49 rack cabinets of 20 nodes each, arranged in three rows of
+the machine room, with $\mathrm{id}=20\,\mathrm{rack}+\mathrm{slot}$ and every rack's $(X,Y)$
+floor position documented~\cite{exadata_repo}. Each node is an AC922 8335-GTG chassis carrying
+\emph{two} CPU sockets and four V100 GPUs. Each socket holds one POWER9 die; each die carries 24
+SMT4 core positions organised as 12 slices; each slice is two cores plus their shared L2 and L3.
+Fig.~\ref{fig:hier} shows the chain. Two consequences matter throughout: the unit we recover a map
+for is a \emph{socket} (1{,}960 of them, not 980), and the unit that gets fused is a \emph{slice},
+not a core.
+
 \subsection{POWER9 slice organisation}
 The POWER9 die used in the IBM Power System AC922 contains 24 SMT4 cores (equivalently 12 SMT8
 cores) on a $695\,\mathrm{mm}^2$ die in 14\,nm FinFET with 17 metal layers~\cite{wikichip_power9}.
@@ -420,6 +445,43 @@ of parts, not of a room effect.}\label{fig:rack}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f7_pattern_rank.pdf}
 \caption{Rank--frequency of disable patterns. Lot B is markedly more diverse.}\label{fig:rank}\end{figure}
+
+\subsection{A taxonomy of hardware changes}
+\label{sec:taxonomy}
+A harvest map identifies the die in a socket, so a change in the map is informative about what
+physically happened---but only if the possible causes can be told apart. They can
+(Fig.~\ref{fig:hier}, bottom). If p0 loses exactly the slices p1 gains and vice versa, the same two
+dies are present and only the tags moved (\textsc{relabel}). If exactly one socket's map changes
+while the other is observed and unchanged across the same interval, one processor was replaced
+(\textsc{cpu-swap}). If both change and it is not a mirror, the node or both processors were
+replaced (\textsc{node-swap}). And a count dropping below 16 by exactly one slice, later restored,
+is a firmware deconfiguration with no hardware movement at all (\textsc{guard},
+Sec.~\ref{sec:lifecycle}).
+
+\begin{table}[h]\centering\caption{Hardware-change events, classified at node level.}
+\label{tab:taxonomy}
+\begin{tabular}{lrrl}\toprule
+Kind & Commissioning & Steady state & Interpretation\\\midrule
+\textsc{relabel}   &  3 &  20 & no silicon moved\\
+\textsc{cpu-swap}  & 11 &  68 & one processor replaced\\
+\textsc{cpu-swap?} &  2 &   6 & as above, partner unobserved\\
+\textsc{node-swap} & 40 &  11 & node or both processors replaced\\\midrule
+Total              & 56 & 105 & \\
+\bottomrule\end{tabular}\end{table}
+
+The split validates the taxonomy on its own terms. During commissioning \textsc{node-swap}
+dominates (40 of 56, 71\,\%)---whole machines are being installed and reconfigured. In steady state
+the picture inverts: \textsc{cpu-swap} accounts for 70\,\% and \textsc{node-swap} for 11\,\%,
+which is what a maintenance regime that replaces individual failed processors looks like. Steady
+state contains 105 events on 87 distinct nodes over 28 months, about 3.8 per month.
+
+Two consequences are worth stating. First, \textbf{19\,\% of steady-state map changes move no
+silicon}; a study that read every change as a replacement would overcount by that much. Second,
+counting one die per \textsc{cpu-swap} and two per \textsc{node-swap} gives \textbf{96 processor
+replacements among 1{,}960 sockets over 2.5 years---an annualised socket replacement rate of
+1.96\,\%}, recovered without any asset database or maintenance log. Replacements are mildly
+clustered by rack (37 of 49 racks touched; concentration $z=+2.55$), consistent with correlated
+failures or with servicing being batched by cabinet.
 
 \subsection{A clustering parameter, fitted per lot}
 \label{sec:yield}
