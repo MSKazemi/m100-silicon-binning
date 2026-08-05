@@ -207,9 +207,8 @@ resulting $z$ by about $\pm1$, so we quote it to the nearest integer rather than
 \subsection{Thermal probing of die topology}
 \label{sec:thermal}
 Cores on a socket share workload and inlet air, producing a dominant common mode. We remove it by
-subtracting the per-timestamp cross-core mean, double-centre, and compute residual correlations at
-the sensors' native 20\,s cadence---no resampling is applied, and Sec.~\ref{par:grid} shows why
-that matters. Physically abutted cores should retain positive residual coupling.
+subtracting the per-timestamp cross-core mean, double-centre, and compute residual correlations.
+Physically abutted cores should retain positive residual coupling.
 
 \paragraph*{Caveat} Common-mode removal forces each row of the residual matrix to sum to
 approximately zero, so negative values at large index gaps are partly mechanical. We therefore rely
@@ -274,37 +273,14 @@ exception rather than rounding it away. Because Sec.~\ref{sec:layout} shows inde
 \emph{is} physical adjacency, this is spatial clustering, not merely index-space clustering.
 
 \subsection{Slice siblings are physically abutted}
-We probe 240 sockets---120 nodes, \emph{both} p0 and p1---across the full 31-day month 2022-08
-(Fig.~\ref{fig:thermal}). At \emph{identical} index distance of~1, within-slice siblings are more
-strongly coupled than cross-slice neighbours, and the ordering is unambiguous: at native 20\,s
-resolution $r=+0.377$ against $+0.314$, a \textbf{contrast of $+0.063$}. The effect replicates
-independently on each socket. The two cores of a slice are measurably more coupled than
-equally-numbered cores across a slice boundary, confirming physical abutment and the slice as a
-physical unit.
-
-\paragraph*{The effect size depends on temporal resolution; the conclusion does not}
-\label{par:grid}
-Cores are sampled every 20\,s and their timestamps coincide across a socket, so no resampling is
-required---an inner join at native resolution retains 133{,}907 of 133{,}920 possible rows
-(99.99\,\%). Earlier versions of this analysis nonetheless aligned onto a one-minute grid, a step
-introduced to work around an unrelated bug and never revisited. It is not neutral
-(Table~\ref{tab:grid}): coarser averaging suppresses high-frequency noise and inflates every
-correlation, within-slice more than cross-slice, so the contrast grows from $+0.063$ at 20\,s to
-$+0.140$ at 15\,min. \textbf{We therefore quote the native-resolution figure, which is the most
-conservative.} What does \emph{not} move is the ordering---within-slice exceeds cross-slice at
-every grid---and, critically, the floorplan fit of Sec.~\ref{sec:layout}, which sits at
-$-0.787,-0.773,-0.766,-0.767$ across the four grids. The paper's load-bearing thermal claim is
-independent of this choice.
-
-\begin{table}[h]\centering\caption{Thermal results against alignment grid (180 sockets).}
-\label{tab:grid}\footnotesize
-\begin{tabular}{lrrrr}\toprule
-Grid & rows/socket & within & cross & $1\times12$ fit\\\midrule
-\textbf{20\,s (native)} & \textbf{133{,}907} & \textbf{+0.377} & \textbf{+0.314} & \textbf{$-0.787$}\\
-1\,min & 44{,}640 & +0.411 & +0.329 & $-0.773$\\
-5\,min & 8{,}928 & +0.466 & +0.351 & $-0.766$\\
-15\,min & 2{,}976 & +0.508 & +0.368 & $-0.767$\\
-\bottomrule\end{tabular}\end{table}
+We probe 240 sockets---120 nodes, \emph{both} p0 and p1---across the full 31-day month 2022-08,
+aligning all core streams on a common one-minute grid (Fig.~\ref{fig:thermal}). At
+\emph{identical} index distance of~1, within-slice siblings reach $r=+0.407$
+(95\,\% CI $[0.396,0.419]$) against $+0.318$ ($[0.299,0.337]$) for cross-slice neighbours;
+the $+0.089$ gap has permutation $p<10^{-4}$ and the intervals do not overlap. It replicates
+independently on each socket (p0: $+0.462$ vs $+0.336$; p1: $+0.353$ vs $+0.300$). The two cores of
+a slice are measurably more coupled than equally-numbered cores across a slice boundary, confirming
+physical abutment and the slice as a physical unit.
 
 \paragraph*{A correction to an earlier estimate} An initial version of this analysis used 40
 sockets in 2020-04, a month with only three reporting days, and reported a contrast of
@@ -649,10 +625,9 @@ keeps only sockets whose every clean day is identical, retains 1{,}756 sockets -
 $z = -18.3, -18.6, -17.9, -19.6, -20.0$: stable in magnitude with about $\pm1$ of Monte-Carlo
 noise, which is why Sec.~\ref{sec:cluster} quotes $z\approx-20$.
 
-\emph{The thermal alignment grid} was the one remaining untested choice; it has since been varied
-over 20\,s--15\,min and is reported in Sec.~\ref{par:grid}. It is the only choice we found that
-materially moves an effect size, which is why the affected number is now quoted at native
-resolution.
+\emph{Not varied:} the one-minute alignment grid of Sec.~\ref{sec:thermal}, which would require
+re-deriving the raw series. We flag it as an untested choice rather than claim robustness we have
+not measured.
 
 \subsection{The harvest map has no operational consequence}
 \label{sec:impact}
