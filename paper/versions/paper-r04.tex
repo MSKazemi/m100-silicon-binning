@@ -296,31 +296,6 @@ every grid---and, critically, the floorplan fit of Sec.~\ref{sec:layout}, which 
 $-0.787,-0.773,-0.766,-0.767$ across the four grids. The paper's load-bearing thermal claim is
 independent of this choice.
 
-\paragraph*{Abutment or shared cache?} The two cores of a slice are physically adjacent
-\emph{and} share an L2/L3 block, so shared \emph{activity} is an alternative explanation for the
-excess that would need no thermal path. Core-to-core thermal time constants on a die are far
-shorter than a 20\,s sample, so both mechanisms peak at lag zero; what distinguishes them is the
-\emph{shape} of the lagged profile. Instantaneous activity sharing predicts a sharp lag-0 peak
-decaying with the workload's own autocorrelation. We measure the opposite
-(Table~\ref{tab:lag}): the excess is \emph{smallest} at lag~0 and grows monotonically to
-$1.66\times$ that value at $\pm10$ samples (200\,s), while the cores' own autocorrelation falls to
-0.60 over the same span. A broad, lag-persistent excess is the signature of a slowly varying shared
-physical environment. (Both curves spike at lag~0 relative to their neighbours, consistent with a
-shared same-sample measurement artefact---so the excess is least trustworthy at exactly the lag an
-activity explanation would need it to be largest.)
-
-\begin{table}[h]\centering\caption{Lagged cross-correlation, 60 nodes, common mode removed,
-native cadence. The within-slice excess grows with lag; instantaneous activity sharing predicts the
-opposite.}\label{tab:lag}\footnotesize
-\begin{tabular}{rrrrr}\toprule
-lag (20\,s) & within & cross & excess & core autocorr.\\\midrule
-0 & 0.3522 & 0.3023 & 0.0499 & 1.000\\
-$\pm1$ & 0.2759 & 0.2144 & 0.0615 & 0.680\\
-$\pm2$ & 0.2804 & 0.2141 & 0.0663 & 0.663\\
-$\pm5$ & 0.2858 & 0.2110 & 0.0748 & 0.630\\
-$\pm10$ & 0.2907 & 0.2077 & 0.0830 & 0.604\\
-\bottomrule\end{tabular}\end{table}
-
 \begin{table}[h]\centering\caption{Thermal results against alignment grid (180 sockets).}
 \label{tab:grid}\footnotesize
 \begin{tabular}{lrrrr}\toprule
@@ -353,13 +328,6 @@ $[10,11,9,8,7,6,5,4,3,2,1,0]$ at $-0.759$, barely better than the identity's $-0
 sensor ordering \emph{reversed}; since distance is invariant under reflection it is the same
 physical arrangement, differing by one adjacent transposition. Rank correlation with the identity
 is $|\rho|=0.993$.
-
-\paragraph*{This result cannot be cache sharing} The slice-level coupling above is computed from
-\textbf{cross-slice pairs only}, and two cores in different slices share no L2 and no L3. Measured
-over those pairs alone, coupling decays monotonically with slice distance---from $+0.215$ at
-adjacent slices to $-0.353$ at distance~10, giving corr(distance, coupling) $=-0.929$. Whatever
-explains the within-slice excess, it cannot explain this: the pairs that share cache are excluded
-from the floorplan estimate by construction.
 
 \textbf{The thermal data therefore recovers the sensor-index ordering independently, up to
 reflection.} This licenses reading Sec.~\ref{sec:cluster} spatially: slices adjacent in index are
