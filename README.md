@@ -4,8 +4,14 @@ Recovering per-die **core-harvesting maps** for CINECA's Marconi100 (M100) from 
 BMC/IPMI telemetry in the public [M100 ExaData](https://doi.org/10.1038/s41597-023-02174-3)
 release.
 
-> **Status: unpublished working draft.** See [`PAPER.md`](PAPER.md). Sections and references
-> marked ⚠️ are not yet verified.
+> **Status: unpublished working draft.** The paper is [`paper/paper.tex`](paper/paper.tex)
+> (compiles to `paper/paper.pdf`). [`PAPER.md`](PAPER.md) is the earlier markdown draft, partly
+> superseded.
+>
+> **Read [`OPEN_ISSUES.md`](OPEN_ISSUES.md) before relying on any result here.** Three issues are
+> marked BLOCKING for submission: the sensor-index→physical-die mapping is unresolved (OI-1), a
+> March 2020 BMC firmware update may have mimicked reconfiguration (OI-2), and five references are
+> unverified (OI-4).
 
 ## Summary of findings
 
