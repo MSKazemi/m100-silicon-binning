@@ -229,10 +229,22 @@ grid---and we previously declined to claim a physical ordering. The full-month, 
 measurement reverses that conclusion. We report both so the reader can judge how much the earlier
 sample size mattered.
 
-\subsection{A procurement-lot boundary at node 440}
+\subsection{A procurement-lot boundary at node 439}
 \label{sec:lot}
-Node IDs map to position as $\mathrm{rack}=\lfloor \mathrm{id}/20\rfloor$~\cite{exadata_repo}. A
-changepoint scan maximises Welch $t$ at rack~22 (node~440), $t=26.6$ (Fig.~\ref{fig:rack}).
+\paragraph*{What a rack is here} Marconi100's nodes occupy 49 physical rack cabinets of 20 nodes
+each, with $\mathrm{id}=20\,\mathrm{rack}+\mathrm{slot}$, and the dataset documents every rack's
+$(X,Y)$ position on the machine-room floor in three rows~\cite{exadata_repo}. The rack index is a
+real physical coordinate, not a label---which is why it is informative, and why it must be handled
+carefully: it conflates \emph{procurement batch} (hardware arrives and is racked in deliveries, in
+id order) with \emph{room position} (cooling, airflow, height in cabinet). We separate the two
+below.
+
+A changepoint scan maximises Welch $t$ at rack~22, $t=26.6$ (Fig.~\ref{fig:rack}). At node
+granularity the boundary is sharper still: $t=26.8$ between nodes 438 and 439, with the 40 sockets
+immediately before at 95.0\,\% slice-0 harvested and the 40 immediately after at 42.5\,\%.
+Node~439 sits in the topmost slot of rack~21 yet behaves like the later population (0 of its 2
+sockets have slice~0 harvested, against 2 of 2 for each of nodes 430--438), so the delivery
+boundary is rack-aligned to within a single node.
 
 \begin{table}[h]\centering\caption{Two populations either side of the lot boundary.}
 \begin{tabular}{lrrr}\toprule
@@ -244,6 +256,24 @@ Lot B (racks 22--48) & 1{,}082 & 39.3\% & 416\\
 Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation tests confirm
 between-rack heterogeneity for slices 0, 1, 2, 5 ($p<0.01$), and same-rack sockets share more
 harvested slices than chance ($1.568$ vs $1.454\pm0.008$, $z=+14.1$).
+
+\paragraph*{Two deliveries, not more} Recursive binary segmentation over the node-ordered
+sequence, splitting wherever $|t|>4$, finds \emph{no} changepoint beyond the primary one. The
+fleet is two populations---nodes 0--438 at 88.4\,\% and 439--979 at 39.1\,\%---not a gradient and
+not a sequence of many small batches.
+
+\paragraph*{Procurement, not room position} \label{par:geom} Because rack index conflates batch
+with geometry, we test the geometric alternative directly. Raw correlations with slice-0 status are
+substantial for the machine-room row ($r=-0.414$ for $Y$) and visible for aisle position
+($r=+0.124$), exactly as expected when both track rack index. \textbf{Once the lot is accounted
+for, they vanish}: partial correlations are $+0.017$ for $Y$ ($p=0.44$) and $+0.014$ for $X$
+($p=0.53$). Only the slot---height within the cabinet---retains a residual $-0.054$ ($p=0.017$,
+0.3\,\% of variance), which is marginal under a three-test correction and would in any case be
+consistent with racks being filled in delivery order.
+
+This is the empirical form of an argument that also holds \emph{a priori}: fusing happens at
+manufacture, months before a part is installed, so no property of the machine room can influence a
+harvest map. The only admissible causal direction runs from procurement batch to rack position.
 
 \paragraph*{The boundary is not an artefact of the coverage filter} Because every structural
 result is computed on \emph{clean} socket-days, a lot-correlated dropout could in principle
@@ -354,8 +384,10 @@ search that converges to the same arrangement reversed.}
 \label{fig:layout}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f6_rack_heatmap.pdf}
-\caption{Harvest probability by rack and slice. The lot boundary at rack~22 is
-visible as an abrupt change.}\label{fig:rack}\end{figure}
+\caption{Harvest probability by rack (rows: the 49 physical cabinets, 20 nodes each, in
+installation-id order) and slice (columns: position on the die). The procurement boundary is
+visible as an abrupt change across the whole die at once---the signature of a different population
+of parts, not of a room effect.}\label{fig:rack}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f7_pattern_rank.pdf}
 \caption{Rank--frequency of disable patterns. Lot B is markedly more diverse.}\label{fig:rank}\end{figure}
