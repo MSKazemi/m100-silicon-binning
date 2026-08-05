@@ -35,8 +35,13 @@ analysis confirms that the two cores of a slice are physically abutted (residual
 $r=+0.51$ within-slice versus $+0.29$ for cross-slice neighbours at identical index distance), but
 we find only weak evidence that the slice index itself is monotonic in physical die position
 ($p=0.025$; a $3\times4$ grid fits the thermal coupling better than a linear arrangement).
-Finally, we detect a sharp procurement-lot boundary at rack~22 (Welch $t=27.3$) separating two
-populations with markedly different harvesting statistics.
+We detect a sharp procurement-lot boundary at rack~22 (Welch $t=27.3$) separating two populations
+with markedly different harvesting statistics. Finally, although POWER9 provides field mechanisms
+that could alter the active set after manufacture---predictive deallocation and persistent GARD
+records---we find \textbf{no evidence that any of them fired}: 94.4\% of sockets never change
+configuration, every observed transition coincides with a reboot rather than occurring during
+operation, and apparent sub-16 configurations are collection dropout (99.6\% report a strict subset
+of the socket's modal set). Harvest maps behave as static, per-die manufacturing constants.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -190,7 +195,8 @@ Dynamic Processor Deallocation, persistent GARD records read by hostboot at IPL 
 Operating-system core offlining is invisible to the BMC and cannot affect sensor presence. Whether
 harvest maps are static in practice is therefore an empirical question, which we answer by
 aggregating every core sample to (node, socket, day) counts across the dataset.
-\todo{numbers below are over the first 6 months (2020-03..2020-08); refresh once the 31-month
+\todo{set-stability numbers are over 2020-03..2020-08 and dropout numbers over 2020-03..2020-09;
+this inconsistency and the partial coverage both disappear once the 31-month
 sweep completes.}
 
 \paragraph{The count is invariant} 88.8\% of socket-days report exactly 16 active cores. The
