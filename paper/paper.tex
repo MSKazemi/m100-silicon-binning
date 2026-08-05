@@ -180,10 +180,48 @@ Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation
 between-rack heterogeneity for slices 0, 1, 2, 5 ($p<0.01$), and same-rack sockets share more
 harvested slices than chance ($1.568$ vs $1.454\pm0.008$, $z=+14.1$).
 
-\subsection{Temporal stability}
-Between 2020-04 and 2021-03, 96.7\% of sockets have byte-identical active-core sets. All 65 changed
-sockets are consistent with hardware replacement: for node~115 socket~0, one set stops on
-2021-03-03 and a different set appears on 2021-03-30, each containing exactly 16 cores.
+\subsection{Configuration lifetime}
+\label{sec:lifecycle}
+POWER9 exposes mechanisms that \emph{could} alter the active set after manufacture: predictive
+Dynamic Processor Deallocation, persistent GARD records read by hostboot at IPL and clearable with
+\texttt{opal-gard}, and the field core override used for licensing~\cite{ibm_deconfig,skiboot_gard}.
+Operating-system core offlining is invisible to the BMC and cannot affect sensor presence. Whether
+harvest maps are static in practice is therefore an empirical question, which we answer by
+aggregating every core sample to (node, socket, day) counts across the dataset.
+\todo{numbers below are over the first 6 months (2020-03..2020-08); refresh once the 31-month
+sweep completes.}
+
+\paragraph{The count is invariant} 88.8\% of socket-days report exactly 16 active cores. The
+remainder is dominated by \emph{incomplete collection}, not by configuration change, on three
+independent grounds. (i)~Reduced counts are overwhelmingly 2--10, whereas core guard removes one
+slice at a time and would make 14 the most common reduced value; 14 is instead among the rarest
+(6 socket-days). (ii)~Odd counts occur (15 and 17 cores, 11 socket-days) and \emph{cannot} arise
+from slice-granular fusing. (iii)~Of 11{,}459 fully-sampled socket-days reporting fewer than 16
+cores, \textbf{99.58\% report a strict subset of that socket's modal 16}---the missing cores were
+simply not collected. \textbf{We find no evidence of any core-guard event in the fleet.}
+
+\paragraph{Configurations are static} Restricting to \emph{clean} socket-days (16 cores, each at
+$>$90\% of the 4{,}320 samples expected at 20\,s cadence) leaves 199{,}135 socket-days.
+\textbf{94.4\% of sockets never change configuration}; 106 have two distinct sets and 4 have three.
+
+\paragraph{Changes never occur during operation} Of 114 transitions, \textbf{zero} occur between
+consecutive reporting days: every one coincides with a gap in reporting (median 2\,d), against a
+background in which 93.4\% of consecutive reporting days are one day apart. Configuration changes
+are boot-time events, exactly as the guard/deconfiguration mechanism predicts.
+
+\paragraph{Changes concentrate at commissioning} 75\% of all transitions fall in
+2020-03-19--21, during machine installation. In steady state ($\ge$2020-04-01) only 23 transitions
+occur across 16 of 981 nodes.
+
+\paragraph{Some apparent changes are socket relabelling} When node~$n$'s socket p0 loses exactly
+the slices p1 gains and vice versa, the dies are unchanged and only the p0/p1 labels have swapped.
+This accounts for 35\% of steady-state transitions but only 4\% of commissioning ones, where
+processors were plausibly re-seated.
+
+\paragraph{Caveat} An apparent change can arise from (a)~genuine hardware reconfiguration,
+(b)~socket relabelling, or (c)~a change in the BMC sensor-ID mapping, e.g.\ after a firmware
+update. The tight clustering of 86 transitions into three days is consistent with (c) and we
+cannot separate these from telemetry alone. \todo{seek CINECA maintenance logs for March 2020.}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f2_marginals.pdf}
 \caption{Per-slice harvest probability by procurement lot.}\label{fig:marg}\end{figure}

@@ -111,3 +111,24 @@
   year    = {2022},
   note    = {UNVERIFIED --- confirm author list}
 }
+
+% ---------------------------------------------------------------- RAS / deconfiguration
+@misc{ibm_deconfig,
+  author       = {{IBM}},
+  title        = {{POWER9}: Deconfiguring hardware, examples of the reason processor cores
+                  were unconfigured, and field core override function overview},
+  howpublished = {IBM Documentation},
+  year         = {2021},
+  note         = {\url{https://www.ibm.com/docs/en/power9?topic=configuration-deconfiguring-hardware};
+                  covers predictive/functional deconfiguration, Dynamic Processor Deallocation,
+                  and field core override (feature code 2319)}
+}
+
+@misc{skiboot_gard,
+  author       = {{OpenPOWER}},
+  title        = {\texttt{opal-gard}: manipulate the {GUARD} partition on {OpenPower} hardware},
+  howpublished = {skiboot, \texttt{external/gard/opal-gard.1}},
+  year         = {2023},
+  note         = {\url{https://github.com/open-power/skiboot}; GARD records live in a PNOR flash
+                  partition and support \texttt{list}, \texttt{show} and \texttt{clear}}
+}

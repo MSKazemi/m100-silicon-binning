@@ -14,3 +14,7 @@ ipmi2103/
 *.out
 *.bbl
 *.blg
+
+# in-flight sweep extraction
+.sweep_tmp/
+sweep.log
