@@ -98,8 +98,9 @@ ax.axvspan(null.mean() - 2*null.std(), null.mean() + 2*null.std(), color='k', al
 ax.axvline(null.mean(), color='k', lw=.8)
 ax.set_yticks(y); ax.set_yticklabels(labs, fontsize=7)
 ax.set_xlabel('corr(physical distance, thermal coupling)   — more negative = better fit')
-ax.legend(fontsize=6.5, frameon=False, loc='lower left')
 ax.invert_yaxis()
+ax.set_xlim(min(vals) * 1.18, max(max(vals), null.mean() + 2 * null.std()) * 1.6 + .05)
+ax.legend(fontsize=6.5, frameon=False, loc='lower right')
 fig.savefig(FIG / 'f5_layout_hypotheses.pdf'); plt.close(fig)
 old = FIG / 'f5_mds_layout.pdf'
 if old.exists(): old.unlink()

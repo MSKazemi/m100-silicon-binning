@@ -21,32 +21,23 @@ Supercomputer Out-of-Band Telemetry}
 \maketitle
 
 \begin{abstract}
-Processor vendors sell partially defective dies by permanently disabling faulty units, a practice
-known as core harvesting. The resulting per-die disable maps are proprietary and are conventionally
-invisible to system owners. We show that the out-of-band (BMC/IPMI) sensor telemetry routinely
-collected by production supercomputers exposes these maps directly, and we recover them for all
-1{,}960 processor sockets of CINECA's Marconi100 from the public M100 ExaData
-release~\cite{borghesi2023m100}. Every socket exposes exactly 16 of 24 possible per-core thermal
-sensors, and the eight absent sensors always form four complete \emph{slice} pairs
-$(2k,2k{+}1)$---the POWER9 unit that shares an L2/L3 block~\cite{thompto2016power9,wikichip_power9}---with
-zero exceptions. We observe 442 of the 495 combinatorially possible patterns, establishing that the
-map is per-die rather than a fixed SKU. Using a curveball null that preserves both per-socket and
-per-slice marginals, we show harvested slices cluster ($z=-20.2$), and a fitted pairwise-interaction
-model separates that clustering from per-slice propensity, showing both are present and that the two
-procurement lots differ in each. Thermal analysis over 240 sockets independently recovers the
-sensor-index ordering as the physical arrangement of slices on the die (linear fit $z=-6.13$; an
-unconstrained search returns the same ordering reversed, $|\rho|=0.993$), so the clustering is
-spatial rather than merely index-space, and confirms that the two cores of a slice are physically
-abutted ($r=+0.41$ within-slice versus $+0.32$ across a slice boundary at identical index distance).
-We detect a sharp procurement-lot boundary at rack~22 (Welch $t=27.3$) separating two populations
-with markedly different harvesting statistics. Finally, tracking every socket across the full
-2.5-year, 1.67-million-socket-day record, we find harvest maps behave as near-static manufacturing
-constants: 89.5\% of sockets never change configuration, and \textbf{none of the 235 observed
-transitions occurs during operation}---every one coincides with a reboot. Against that backdrop we
-isolate \textbf{three episodes, on three of 1{,}968 sockets, in which a socket ran on 14 cores for
-2--4 days}, each losing exactly one slice and at least one subsequently restored: to our knowledge
-the first direct observation of POWER9 field core-guarding in a production system, at a measured
-rate of 0.15\% of sockets over 2.5 years.
+Processor vendors sell partially defective dies by permanently fusing off the faulty units. The
+resulting per-die maps of \emph{which} units were disabled are proprietary and conventionally
+invisible to the buyer. We show that the out-of-band sensor telemetry supercomputers already
+collect discloses them: a baseboard management controller exposes one thermal sensor per physical
+core position and does not renumber survivors, so the set of reporting sensors \emph{is} the
+harvest map. We recover maps for all 1{,}962 POWER9 sockets of CINECA's Marconi100 from a public
+dataset~\cite{borghesi2023m100} and track them across 1.67 million socket-days.
+
+Harvesting operates exactly at the POWER9 \emph{slice}---the pair of cores sharing an L2/L3
+block---with zero exceptions, and is per-die rather than per-SKU: 443 of the 495 possible patterns
+occur. A thermal probe over 240 sockets independently recovers the sensor index as the physical
+ordering of slices on the die ($z=-6.13$; an unconstrained search returns the same ordering
+reversed, $|\rho|=0.993$), which establishes that harvested slices cluster \emph{spatially}. A
+fitted pairwise-interaction model separates that clustering from per-slice propensity and shows a
+sharp procurement boundary at node~440: the two lots differ in both. Maps are static---changing
+only across reboots---and we isolate three field core-guard episodes. Finally, the harvest map has
+no measurable effect on socket power, so schedulers need not model it.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -253,6 +244,13 @@ Lot B (racks 22--48) & 1{,}082 & 39.3\% & 416\\
 Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation tests confirm
 between-rack heterogeneity for slices 0, 1, 2, 5 ($p<0.01$), and same-rack sockets share more
 harvested slices than chance ($1.568$ vs $1.454\pm0.008$, $z=+14.1$).
+
+\paragraph*{The boundary is not an artefact of the coverage filter} Because every structural
+result is computed on \emph{clean} socket-days, a lot-correlated dropout could in principle
+manufacture this contrast. It does not. Clean-day rates are near-identical between lots (0.909 vs
+0.902), coverage is uncorrelated with the harvest pattern (corr with slice-0 status $=+0.004$,
+$p=0.88$), and restricting to the 1{,}847 sockets with $\ge$90\,\% clean-day coverage leaves the
+contrast unchanged at $+49.0$ percentage points versus $+48.9$ over all sockets.
 
 \subsection{Configuration lifetime}
 \label{sec:lifecycle}

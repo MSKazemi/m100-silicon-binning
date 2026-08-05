@@ -121,8 +121,15 @@ fig.savefig(FIG / 'f1_slice_schematic.pdf'); plt.close(fig)
 # F2 -- marginals, lot A vs lot B
 fig, ax = plt.subplots(figsize=(5.0, 2.4))
 x = np.arange(NP)
-ax.bar(x - .21, 100 * M[lotA].mean(0), .42, label=f'Lot A, racks 0–21 (n={lotA.sum()})', color=RED)
-ax.bar(x + .21, 100 * M[~lotA].mean(0), .42, label=f'Lot B, racks 22–48 (n={(~lotA).sum()})', color=BLUE)
+def binci(v):
+    n = len(v); pm = v.mean()
+    return 100 * pm, 196 * np.sqrt(pm * (1 - pm) / n)     # 1.96*100*SE
+mA = np.array([binci(M[lotA][:, k]) for k in range(NP)])
+mB = np.array([binci(M[~lotA][:, k]) for k in range(NP)])
+ax.bar(x - .21, mA[:, 0], .42, yerr=mA[:, 1], capsize=1.6, error_kw=dict(lw=.7),
+       label=f'Lot A, racks 0–21 (n={lotA.sum()})', color=RED)
+ax.bar(x + .21, mB[:, 0], .42, yerr=mB[:, 1], capsize=1.6, error_kw=dict(lw=.7),
+       label=f'Lot B, racks 22–48 (n={(~lotA).sum()})', color=BLUE)
 ax.axhline(100 / 3, ls='--', lw=.9, color='k', label='uniform (4/12)')
 ax.set_xticks(x); ax.set_xlabel('slice index $k$'); ax.set_ylabel('P(slice harvested) [%]')
 ax.legend(fontsize=6.5, frameon=False); fig.savefig(FIG / 'f2_marginals.pdf'); plt.close(fig)
@@ -135,20 +142,9 @@ ax.set_xticks(range(NP)); ax.set_yticks(range(NP)); ax.grid(False)
 fig.colorbar(im, ax=ax, label='co-harvest $z$ vs curveball null', shrink=.85)
 fig.savefig(FIG / 'f3_cooccurrence.pdf'); plt.close(fig)
 
-# F4 -- correlation vs index distance
-gap_r = {}
-for a, b in combinations(range(NC), 2):
-    gap_r.setdefault(abs(a - b), []).append(CORR[a, b])
-g = sorted(gap_r); mu = [np.mean(gap_r[k]) for k in g]
-fig, ax = plt.subplots(figsize=(5.0, 2.4))
-ax.plot(g, mu, 'o-', color=BLUE, ms=3.5, lw=1.2)
-ax.axhline(0, color='k', lw=.6)
-wi = np.mean([CORR[2*k, 2*k+1] for k in range(NP)])
-cr = np.mean([CORR[2*k+1, 2*k+2] for k in range(NP-1)])
-ax.plot([1], [wi], 'v', color=RED, ms=7, label=f'within-slice sibling ($r$={wi:+.2f})')
-ax.plot([1], [cr], '^', color='#dd6b20', ms=7, label=f'cross-slice neighbour ($r$={cr:+.2f})')
-ax.set_xlabel('core index distance $|i-j|$'); ax.set_ylabel('residual correlation $r$')
-ax.legend(fontsize=6.5, frameon=False); fig.savefig(FIG / 'f4_thermal_decay.pdf'); plt.close(fig)
+# F4 is produced by make_fig_thermal_v2.py from the full-month, both-socket matrix.
+# It was previously generated here from the three-day 2020-04 sample, which overstated the
+# within/cross-slice contrast threefold -- do not regenerate it from `CORR` above.
 
 # F5 -- MDS recovered layout
 fig, ax = plt.subplots(figsize=(5.0, 2.6))
@@ -166,8 +162,10 @@ fig.savefig(FIG / 'f5_mds_layout.pdf'); plt.close(fig)
 tab = np.array([[M[(rack == r), k].mean() for k in range(NP)] for r in sorted(set(rack))])
 fig, ax = plt.subplots(figsize=(5.2, 3.2))
 im = ax.imshow(100 * tab, aspect='auto', cmap='magma_r', vmin=0, vmax=100)
-ax.axhline(21.5, color='#38b2ac', lw=2.0)
-ax.text(11.6, 20.4, 'lot boundary (node 440)', color='#38b2ac', fontsize=6.5, ha='right', va='bottom')
+ax.axhline(21.5, color='#38b2ac', lw=2.2)
+ax.text(6.0, 19.6, 'lot boundary (node 440)', color='#0d7377', fontsize=6.8,
+        ha='center', va='center', fontweight='bold',
+        bbox=dict(fc='white', ec='#38b2ac', lw=.6, pad=1.6, alpha=.92))
 ax.set_xlabel('slice index $k$'); ax.set_ylabel('rack'); ax.grid(False)
 ax.set_xticks(range(NP))
 fig.colorbar(im, ax=ax, label='P(slice harvested) [%]', shrink=.9)
