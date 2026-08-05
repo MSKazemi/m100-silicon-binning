@@ -7,8 +7,9 @@
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
 \newcommand{\unver}[1]{\textcolor{orange}{#1}}
 
-\title{Silicon Core Harvesting is Visible in Supercomputer Telemetry:\\
-A Fleet-Scale Study of 1{,}960 POWER9 Sockets}
+\title{Reading the Fab from the Machine Room:\\
+Recovering Per-Die Silicon Harvest Maps from\\
+Supercomputer Out-of-Band Telemetry}
 
 \author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili}
 \IEEEauthorblockA{\textit{Affiliation} \\ \texttt{mohsen.seyedkazemi@gmail.com}}
@@ -52,7 +53,10 @@ core harvesting, silicon binning, HPC telemetry, POWER9, yield, hardware provena
 
 \section{Introduction}
 Every large processor die ships with defects. Rather than discard them, vendors permanently fuse
-off the faulty units and sell the remainder as a lower-core-count part---\emph{core harvesting}.
+off the faulty units and sell the remainder as a lower-core-count part. We call this \emph{silicon
+harvesting}, or \emph{die harvesting}, to distinguish it from the now more common architectural
+sense of ``core harvesting'' as the reclamation of idle CPU \emph{cycles} for co-located
+work~\cite{hardharvest2025}; the two are unrelated.
 The practice is universal and openly acknowledged, but the resulting \emph{per-die} maps of which
 units were disabled are proprietary: a buyer is told the part has 16 cores, never \emph{which} 16.
 Those maps encode information about a fab's defect process, a vendor's binning policy and a
@@ -197,13 +201,13 @@ a physical unit.
 
 \subsection{The slice index is \emph{not} established as the physical ordering}
 \label{sec:layout}
-Free classical MDS on the pooled $24\times24$ matrix is dominated by noise (leading axis 20.5\% of
-variance, correlation with core index only $+0.34$), so we instead score explicit candidate
+Free classical MDS on the pooled $24\times24$ matrix is dominated by noise (leading axis 21.3\% of
+variance, correlation with core index only $+0.28$), so we instead score explicit candidate
 floorplans by correlating predicted physical distance against measured thermal coupling
-(Fig.~\ref{fig:layout}). The identity $1\times12$ linear arrangement scores $-0.271$, better than a
-random ordering ($z=-2.22$, $p=0.025$) but \emph{worse} than a $3\times4$ grid ($-0.565$); a
-hill-climbing search finds an ordering scoring $-0.715$ whose rank correlation with the identity
-ordering is only $+0.34$.
+(Fig.~\ref{fig:layout}). The identity $1\times12$ linear arrangement scores $-0.283$, better than a
+random ordering ($z=-2.34$, $p=0.023$) but \emph{worse} than a $3\times4$ grid ($-0.585$); a
+hill-climbing search finds an ordering scoring $-0.760$ whose rank correlation with the identity
+ordering is $-0.36$.
 
 \textbf{We therefore do not claim the sensor index is monotonic in physical die position.} The
 index-space clustering of Fig.~\ref{fig:cooc} is a robust empirical fact, but its interpretation as
@@ -333,6 +337,40 @@ visible as an abrupt change.}\label{fig:rack}\end{figure}
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f7_pattern_rank.pdf}
 \caption{Rank--frequency of disable patterns. Lot B is markedly more diverse.}\label{fig:rank}\end{figure}
 
+\subsection{A clustering parameter, fitted per lot}
+\label{sec:yield}
+Section~\ref{sec:cluster} establishes clustering against a null; it does not \emph{quantify} it,
+and the yield models we invoke~\cite{koren1993negbinom,bae2007waferyield} are parameterised by a
+clustering strength. Those models describe defect \emph{counts} per die, which we cannot observe:
+the SKU fixes the count at exactly four harvested slices. What is observable is the conditional
+spatial arrangement given four, so we fit the natural conditional analogue---a pairwise-interaction
+model on the twelve slice positions,
+\[
+  P(S)\;\propto\;\exp\Big(\textstyle\sum_{k\in S}\beta_k \;+\; \gamma\,\mathrm{adj}(S)\Big),
+\]
+where $\mathrm{adj}(S)$ counts index-adjacent pairs in the harvested set $S$. The $\beta_k$ absorb
+per-slice propensity (the slice-0 asymmetry) and $\gamma$ measures clustering \emph{beyond} what
+those propensities explain. The normalising constant is an exact sum over all
+$\binom{12}{4}=495$ patterns, so likelihood and gradient are exact.
+
+\begin{table}[h]\centering\caption{Fitted clustering parameter by procurement lot.}
+\label{tab:yield}
+\begin{tabular}{lrrr}\toprule
+Population & $n$ & $\gamma$ & LR $\chi^2_1$ vs $\gamma{=}0$\\\midrule
+Lot A (racks 0--21)  & 880 & $+0.743\pm0.044$ & 174.2\\
+Lot B (racks 22--48) & 1{,}082 & $+0.434\pm0.040$ & 106.4\\
+Whole fleet          & 1{,}962 & $+0.647$ & 394.5\\
+\bottomrule\end{tabular}\end{table}
+
+Three things follow. First, \textbf{clustering is real in both lots} ($\chi^2_1$ of 174 and 106,
+$p\ll0.001$): mean adjacent-pair counts are 1.463 and 1.218 observed against 1.203 and 0.993 under
+the no-clustering model. Second, \textbf{the lots differ significantly in clustering strength}
+($z=+5.22$), not only in their marginals. Third, and most usefully, the two effects
+\emph{separate}: Lot~A's $\beta_0=+2.51$ dwarfs every other propensity while Lot~B's $\beta$ vector
+is nearly flat (range $+0.34$ to $-0.13$), yet both carry a substantial positive $\gamma$. The
+slice-0 asymmetry and the spatial clustering are therefore distinct phenomena rather than two
+views of one.
+
 \subsection{The harvest map has no operational consequence}
 \label{sec:impact}
 Recovering a hidden hardware property is only useful if it changes something. We therefore ask
@@ -364,14 +402,20 @@ racks.
 \section{Discussion}
 \paragraph{Why is slice 0 special?} The single most striking number is that slice~0 is harvested on
 88.2\% of Lot~A sockets but only 39.3\% of Lot~B. Two explanations are live. Under
-\emph{defect-driven} harvesting, fusing follows wherever killer defects land; this is supported by
-the index-adjacency clustering of Sec.~\ref{sec:cluster} and by Lot~B's nearly flat marginals,
-which are close to what a spatially random defect process would give. Under \emph{policy-driven}
-harvesting, slice~0 abuts a shared structure and is preferentially fused for reasons of yield
-policy, binning recipe, or physical design; an 88\% rate on one specific slice is very hard to
-obtain from random defects. The data are consistent with Lot~A being policy- or
-recipe-dominated and Lot~B defect-dominated, i.e.\ with a change of binning recipe or die source
-between the two procurements. We cannot settle this from one machine and report both.
+\emph{defect-driven} harvesting, fusing follows wherever killer defects land. Under
+\emph{policy-driven} harvesting, slice~0 abuts a shared structure and is preferentially fused for
+reasons of yield policy, binning recipe or physical design; an 88\% rate on one specific slice is
+very hard to obtain from random defects.
+
+The fit of Sec.~\ref{sec:yield} shows the answer is \emph{both}, and separates them. The
+propensity vector $\beta$ carries the slice-0 asymmetry and differs enormously between lots
+($\beta_0=+2.51$ versus a flat Lot~B); the interaction parameter $\gamma$ carries the spatial
+clustering and is significantly positive in \emph{both} lots. A defect process is operating
+throughout---consistent with the yield literature~\cite{koren1993negbinom,bae2007waferyield}---while
+a strong additional slice-0 preference operates in Lot~A only. The most economical reading is a
+change of binning recipe or die source between the two procurements, superimposed on a defect
+process present in both. We cannot settle the mechanism from one machine, but the decomposition is
+sharper than an either/or.
 
 \paragraph{The direction of causation is fixed.} A tempting objection to Sec.~\ref{sec:lot} is that
 rack position is confounded with cooling and workload. It cannot be: harvesting is performed by
@@ -394,8 +438,21 @@ systems~\cite{sinha2022gpuvariability}. That literature treats the die as a blac
 characterised by its behaviour. Yield modelling, conversely, treats defect statistics directly:
 the negative-binomial family~\cite{koren1993negbinom} and spatial wafer-map
 models~\cite{bae2007waferyield} describe clustered killer defects but are validated on
-fab data unavailable to system owners. To our knowledge no prior work recovers per-die harvesting
-maps from deployed-system telemetry, which is the gap this paper addresses.
+fab data unavailable to system owners.
+
+A third, closer body of work concerns hardware provenance. Physical unclonable functions and
+inherent hardware identifiers exploit analog manufacturing variation to answer \emph{which die is
+this}, for traceability and counterfeit detection~\cite{jetta2025provenance}. That is a different
+question: we do not identify a die, we recover \emph{what the vendor disabled on it}, without
+designed-in circuitry or physical access. Node-level anomaly and outlier detection in
+HPC~\cite{nodesentry2025,badnodes2020} likewise establishes \emph{that} nodes differ without
+recovering the hardware structure responsible. The M100 ExaData release itself has an active
+downstream literature spanning telemetry foundation models, energy analytics and operational-data
+ontologies~\cite{m100downstream}; none of it examines per-core sensor presence.
+
+\emph{We are not aware of prior work recovering per-die harvest maps from deployed-system
+telemetry}, and that is the gap this paper addresses. We state this as an awareness claim rather
+than a priority claim: it rests on a systematic but necessarily incomplete search.
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f8_month_stability.pdf}
 \caption{Per-slice harvest rate in each of the 31 months. The largest across-month standard

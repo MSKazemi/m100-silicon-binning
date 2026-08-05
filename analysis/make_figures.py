@@ -18,12 +18,12 @@ plt.rcParams.update({'font.size': 8, 'axes.grid': True, 'grid.alpha': .3,
 BLUE, RED, GREY = '#2b6cb0', '#c53030', '#4a5568'
 
 # ---------------------------------------------------------------- disable maps
+# full-record modal harvest maps (built by full_record_structure.py) so that every figure
+# uses the same population as the text; the single-month snapshot is no longer used here.
+M = np.load(root / 'harvest_maps_full.npy')
+K = np.load(root / 'harvest_keys_full.npy')
+nid = K[:, 0]; rack = nid // 20
 cnt = pd.read_parquet(root / 'counts_20-04.parquet'); cnt['pair'] = cnt['core'] // 2
-rows, ids = [], []
-for (n, s), g in cnt.groupby(['node', 'socket']):
-    v = np.ones(NP, dtype=np.int8); v[sorted(set(g['pair']))] = 0
-    if v.sum() == 4: rows.append(v); ids.append((int(n), s))
-M = np.array(rows); nid = np.array([i[0] for i in ids]); rack = nid // 20
 lotA = rack < 22
 print(f'sockets {len(M)}  lotA {lotA.sum()}  lotB {(~lotA).sum()}')
 
