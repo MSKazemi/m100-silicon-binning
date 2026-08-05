@@ -211,6 +211,16 @@ consecutive reporting days: every one coincides with a gap in reporting (median 
 background in which 93.4\% of consecutive reporting days are one day apart. Configuration changes
 are boot-time events, exactly as the guard/deconfiguration mechanism predicts.
 
+The only two apparent counterexamples confirm the rule once examined at full timestamp resolution.
+Nodes~315 (p1) and~342 (p0) appear to change within a single day, and produce the dataset's only
+20- and 22-core socket-days. In fact both cut over on 2021-03-02 across a \emph{sub-day reporting
+gap}: on node~315 the outgoing cores $\{4,5,20,21\}$ report until 08:42 and the incoming cores
+$\{8,9,10,11\}$ resume at 09:10, a 28-minute outage, with exactly 16 cores before and 16 after; the
+20/22-core counts are unions across the cutover. Node~342 cuts over in the same window, indicating
+a coordinated maintenance reboot. Day-granularity aggregation is therefore \emph{conservative}
+here: it cannot see sub-day downtime, so our transition-gap statistics understate how consistently
+changes coincide with reboots.
+
 \paragraph{Changes concentrate at commissioning} 75\% of all transitions fall in
 2020-03-19--21, during machine installation. In steady state ($\ge$2020-04-01) only 23 transitions
 occur across 16 of 981 nodes.
@@ -283,8 +293,9 @@ prior telemetry-based binning inference is outstanding.
 machine; both are reported.
 \item \textbf{[OI-5] Collection dropout may not be random.} Monthly coverage ranges from 18\% to
 99.4\%; if dropout correlates with lot, Sec.~\ref{sec:lot} needs a robustness pass.
-\item \textbf{[OI-6, OI-7] Two small anomalies remain unexplained}: 48 socket-days reporting a core
-outside the socket's modal set, and two nodes whose transitions span only a one-day gap.
+\item \textbf{[OI-6] One small anomaly remains unexplained}: 48 socket-days reporting a core
+outside the socket's modal set. (OI-7, two nodes appearing to change within a day, is resolved:
+both are same-day reboots, see Sec.~\ref{sec:lifecycle}.)
 \item \textbf{[OI-8] The mechanism behind p0/p1 relabelling is unknown}; any per-socket
 longitudinal study on this dataset risks silently mixing two dies.
 \item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts;
