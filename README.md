@@ -21,8 +21,8 @@ Across **1,960 sockets** (980 nodes, 2020-04 and 2021-03):
 | Disabling is always at slice `(2k, 2k+1)` granularity | 1,960 / 1,960, zero exceptions |
 | Map is per-die, not per-SKU | 442 of 495 possible patterns observed |
 | Disabled slices cluster spatially (defect signature) | mean index gap z = −20.8 vs curveball null |
-| Sensor index is monotonic in physical die position | thermal r: +0.43 adjacent → −0.61 distant, 40/40 nodes |
-| Slice siblings are physically abutted | within-slice r = +0.54 vs cross-slice r = +0.28 at equal index gap |
+| Slice sibling cores are physically abutted | within-slice r = +0.51 vs cross-slice r = +0.29 at equal index gap, 40/40 nodes |
+| Sensor index → physical die position **not established** | linear ordering only p = 0.025 vs random; a 3×4 grid fits better |
 | Two procurement lots, boundary at node 440 | Welch t = 27.3; P(slice 0 fused) 89.1% vs 39.4% |
 | Maps are stable over time | 96.7% identical after 11 months; changes are hardware swaps |
 

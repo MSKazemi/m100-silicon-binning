@@ -1,5 +1,14 @@
 # Fleet-Scale Inference of Silicon Core-Harvesting Patterns from Out-of-Band Telemetry
 
+> **SUPERSEDED — see `paper/paper.tex` (LaTeX, canonical).**
+>
+> **§4.5 of this file is WRONG.** It claimed the sensor index is monotonic in physical die
+> position. A later slice-level test of explicit floorplan hypotheses
+> (`analysis/layout_hypotheses.py`) shows the linear ordering beats a random ordering only
+> marginally (p = 0.025) and is outperformed by a 3×4 grid. What survives is the narrower claim
+> that the *two cores of one slice* are physically abutted. Consequently the *spatial* reading of
+> the clustering in §4.4 is a hypothesis, not a result — the index-space clustering itself stands.
+
 **Working draft — v0.1**
 Status: results verified on two months (2020-04, 2021-03) of M100 ExaData. Sections marked
 ⚠️ require additional work before submission.

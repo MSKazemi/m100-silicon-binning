@@ -7,3 +7,10 @@ venv/
 ipmi/
 ipmi2103/
 *.tar
+
+# LaTeX build artefacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg

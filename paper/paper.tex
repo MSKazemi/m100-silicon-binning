@@ -1,0 +1,241 @@
+\documentclass[10pt,conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx,booktabs,amsmath,amssymb,url,xcolor}
+\usepackage[hidelinks]{hyperref}
+\graphicspath{{figures/}}
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\unver}[1]{\textcolor{orange}{#1}}
+
+\title{Silicon Core Harvesting is Visible in Supercomputer Telemetry:\\
+A Fleet-Scale Study of 1{,}960 POWER9 Sockets}
+
+\author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili}
+\IEEEauthorblockA{\textit{Affiliation} \\ \texttt{mohsen.seyedkazemi@gmail.com}}
+\and
+\IEEEauthorblockN{\todo{co-authors}}
+\IEEEauthorblockA{}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Processor vendors sell partially defective dies by permanently disabling faulty units, a practice
+known as core harvesting. The resulting per-die disable maps are proprietary and are conventionally
+invisible to system owners. We show that the out-of-band (BMC/IPMI) sensor telemetry routinely
+collected by production supercomputers exposes these maps directly, and we recover them for all
+1{,}960 processor sockets of CINECA's Marconi100 from the public M100 ExaData
+release~\cite{borghesi2023m100}. Every socket exposes exactly 16 of 24 possible per-core thermal
+sensors, and the eight absent sensors always form four complete \emph{slice} pairs
+$(2k,2k{+}1)$---the POWER9 unit that shares an L2/L3 block~\cite{thompto2016power9,wikichip_power9}---with
+zero exceptions. We observe 442 of the 495 combinatorially possible patterns, establishing that the
+map is per-die rather than a fixed SKU. Using a curveball null that preserves both per-socket and
+per-slice marginals, we show harvested slices cluster in sensor-index space ($z=-20.8$). Thermal
+analysis confirms that the two cores of a slice are physically abutted (residual correlation
+$r=+0.51$ within-slice versus $+0.29$ for cross-slice neighbours at identical index distance), but
+we find only weak evidence that the slice index itself is monotonic in physical die position
+($p=0.025$; a $3\times4$ grid fits the thermal coupling better than a linear arrangement).
+Finally, we detect a sharp procurement-lot boundary at rack~22 (Welch $t=27.3$) separating two
+populations with markedly different harvesting statistics.
+\end{abstract}
+
+\begin{IEEEkeywords}
+core harvesting, silicon binning, HPC telemetry, POWER9, yield, hardware provenance
+\end{IEEEkeywords}
+
+\section{Introduction}
+\todo{write}. Framing: (i)~core harvesting is standard industry practice but per-die maps are
+undocumented; (ii)~HPC operators now collect holistic out-of-band
+telemetry~\cite{borghesi2023m100}, which we show carries an unintended side channel revealing
+manufacturing outcomes; (iii)~contributions are a recovery method, the first fleet-scale
+characterisation of harvesting in a deployed Top-10 system, evidence of index-space clustering and
+of procurement-lot structure, and a thermal method for testing die-topology hypotheses.
+
+\section{Background}
+\subsection{POWER9 slice organisation}
+The POWER9 die used in the IBM Power System AC922 contains 24 SMT4 cores (equivalently 12 SMT8
+cores) on a $695\,\mathrm{mm}^2$ die in 14\,nm FinFET with 17 metal layers~\cite{wikichip_power9}.
+Critically, \emph{each pair of SMT4 cores---or one singleton SMT8 core---comprises a}
+slice\emph{, and each slice owns 512\,kB of L2 and 10\,MB of
+L3}~\cite{wikichip_power9,thompto2016power9}. IBM's Hot Chips 28 presentation shows the 24 cores
+above 12 $\times$ 10\,MB L3 blocks, attached to a 7\,TB/s on-chip fabric at
+$256\,\mathrm{GB/s}\times12$~\cite{thompto2016power9}. The slice is therefore the natural fusing
+granularity: disabling one SMT4 core would strand its half of a shared L2/L3 block.
+
+Marconi100 nodes are AC922 model 8335-GTG with $2\times$ 16-core POWER9 at 2.6/3.1\,GHz and
+$4\times$ NVIDIA V100~\cite{ibm_ac922,cineca_m100}. \textbf{A 16-core part is a 24-core die with
+four slices fused off}; this is the object of our study. Fig.~\ref{fig:schematic} shows the
+organisation annotated with the harvest rates we measure.
+
+\subsection{The M100 ExaData dataset}
+M100 ExaData~\cite{borghesi2023m100} publishes 49.9\,TB of telemetry from Marconi100 covering
+2020-03 to 2022-09 across 980+ nodes. The IPMI plugin collects BMC sensor data at 20\,s cadence.
+The documentation describes the core-temperature family as \texttt{pX\_coreY\_temp}, ``Temperature
+of core n.\ Y in the CPU socket n.\ X. X=0..1, Y=0..23''~\cite{exadata_repo}. \emph{This specifies
+the BMC sensor-ID namespace, not the active core count}---the distinction is the entry point for
+this study.
+
+\section{Method}
+\subsection{Recovering the disable map}
+For each month we enumerate the \texttt{metric=pX\_coreY\_temp} partitions and count samples per
+(node, socket, core). A core index is \emph{present} for a socket if it emits any sample in the
+window. We define the disable map of socket $s$ as $M[s,k]\in\{0,1\}^{12}$ over slices
+$k=\lfloor \mathrm{core}/2 \rfloor$.
+
+The key validity argument is that \textbf{the BMC does not renumber active cores compactly}: were
+that so, every socket would report indices 0--15. Instead we observe arbitrary 16-element subsets
+of $\{0,\dots,23\}$, so the index is a fixed physical-position identifier.
+
+\subsection{Null model for clustering}
+Every socket has exactly four harvested slices, so the constraint induces negative dependence and a
+naive independence null is invalid. We use the curveball algorithm~\cite{strona2014curveball},
+which preserves \emph{both} row sums (4 per socket) and column sums (per-slice marginals) while
+randomising association structure. Row- and column-sum preservation is asserted on each of 200 draws.
+
+\subsection{Thermal probing of die topology}
+Cores on a socket share workload and inlet air, producing a dominant common mode. We remove it by
+subtracting the per-timestamp cross-core mean, double-centre, and compute residual correlations.
+Physically abutted cores should retain positive residual coupling.
+
+\paragraph*{Caveat} Common-mode removal forces each row of the residual matrix to sum to
+approximately zero, so negative values at large index gaps are partly mechanical. We therefore rely
+on contrasts \emph{at identical index distance}, which control for this exactly.
+
+\section{Results}
+
+\begin{figure*}[t]\centering
+\includegraphics[width=\textwidth]{f1_slice_schematic.pdf}
+\caption{POWER9 slice organisation (after~\cite{thompto2016power9}) annotated with the measured
+per-slice harvest rate across 1{,}960 Marconi100 sockets. Each slice holds two SMT4 cores sharing
+512\,kB L2 and 10\,MB L3 on a common fabric port. Harvesting always removes whole slices.
+\textbf{The horizontal ordering is the IPMI sensor index, which we show is \emph{not} established
+as the physical die ordering} (Sec.~\ref{sec:layout}).}
+\label{fig:schematic}
+\end{figure*}
+
+\subsection{Every socket is 16 cores; granularity is the slice}
+\begin{table}[h]\centering\caption{Disable-map structure, 2020-04.}
+\begin{tabular}{lr}\toprule
+Nodes analysed & 980\\
+Sockets & 1{,}960\\
+Sockets reporting exactly 16 cores & 1{,}960 (100\%)\\
+Sockets reporting 24 cores & 0\\
+Absent cores form complete $(2k,2k{+}1)$ pairs & \textbf{1{,}960 (100\%)}\\
+\bottomrule\end{tabular}\end{table}
+
+The perfect pair structure is the central mechanical finding: it matches the POWER9 slice
+definition exactly and rules out per-core fusing.
+
+\subsection{The map is per-die, not per-SKU}
+442 distinct patterns appear among the $\binom{12}{4}=495$ possible (Fig.~\ref{fig:rank}). The most
+common (slices 0--3) covers only 5.7\% of sockets. Within a node the two sockets match in just
+1.2\% of cases, with mean overlap 1.648 slices against a shuffled null of $1.474\pm0.026$
+($z=+6.6$)---nearly independent, with a small excess attributable to same-lot pairing.
+
+\subsection{Marginals are strongly non-uniform}
+Slice~0 is harvested on 61.7\% of sockets against a uniform expectation of 33.3\%
+($\chi^2=836.5$, $\mathrm{df}=11$, $p\ll0.001$); Fig.~\ref{fig:marg} splits this by lot.
+
+\subsection{Harvested slices cluster in index space}
+Under the curveball null the mean index gap between harvested slices is $4.243$ versus
+$4.585\pm0.016$ ($z=-20.8$), and every significant co-harvest excess has $|\Delta k|\le2$
+(Fig.~\ref{fig:cooc}): slices 0\&1 ($z=+19.5$), 6\&7 ($+9.5$), 8\&9 ($+8.7$), 2\&3 ($+8.4$),
+4\&5 ($+7.9$), 1\&2 ($+7.4$), 10\&11 ($+7.1$). All negative terms are distant pairs.
+
+\subsection{Slice siblings are physically abutted}
+Fig.~\ref{fig:thermal} shows residual correlation against core index distance. At \emph{identical}
+distance of~1, within-slice siblings reach $r=+0.51$ versus $+0.29$ for cross-slice neighbours;
+per-node the contrast between near ($\le2$) and far ($\ge12$) pairs is $+0.45\pm0.20$ with
+40/40 nodes positive (paired $t=+13.9$). The two cores of a slice are roughly twice as coupled as
+equally-numbered cores across a slice boundary, confirming both physical abutment and the slice as
+a physical unit.
+
+\subsection{The slice index is \emph{not} established as the physical ordering}
+\label{sec:layout}
+Free classical MDS on the pooled $24\times24$ matrix is dominated by noise (leading axis 20.5\% of
+variance, correlation with core index only $+0.34$), so we instead score explicit candidate
+floorplans by correlating predicted physical distance against measured thermal coupling
+(Fig.~\ref{fig:layout}). The identity $1\times12$ linear arrangement scores $-0.271$, better than a
+random ordering ($z=-2.22$, $p=0.025$) but \emph{worse} than a $3\times4$ grid ($-0.565$); a
+hill-climbing search finds an ordering scoring $-0.715$ whose rank correlation with the identity
+ordering is only $+0.34$.
+
+\textbf{We therefore do not claim the sensor index is monotonic in physical die position.} The
+index-space clustering of Fig.~\ref{fig:cooc} is a robust empirical fact, but its interpretation as
+\emph{spatial} defect clustering is not established by our data and must be stated as a hypothesis.
+\todo{obtain an annotated POWER9 die shot or OpenBMC sensor-ID mapping to settle this.}
+
+\subsection{A procurement-lot boundary at node 440}
+Node IDs map to position as $\mathrm{rack}=\lfloor \mathrm{id}/20\rfloor$~\cite{exadata_repo}. A
+changepoint scan maximises Welch $t$ at rack~22 (node~440), $t=27.3$ (Fig.~\ref{fig:rack}).
+
+\begin{table}[h]\centering\caption{Two populations either side of the lot boundary.}
+\begin{tabular}{lrrr}\toprule
+Population & Sockets & $P(\text{slice 0})$ & Distinct patterns\\\midrule
+Lot A (racks 0--21) & 880 & 89.1\% & 224\\
+Lot B (racks 22--48) & 1{,}080 & 39.4\% & 414\\
+\bottomrule\end{tabular}\end{table}
+
+Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation tests confirm
+between-rack heterogeneity for slices 0, 1, 2, 5 ($p<0.01$), and same-rack sockets share more
+harvested slices than chance ($1.568$ vs $1.454\pm0.008$, $z=+14.1$).
+
+\subsection{Temporal stability}
+Between 2020-04 and 2021-03, 96.7\% of sockets have byte-identical active-core sets. All 65 changed
+sockets are consistent with hardware replacement: for node~115 socket~0, one set stops on
+2021-03-03 and a different set appears on 2021-03-30, each containing exactly 16 cores.
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f2_marginals.pdf}
+\caption{Per-slice harvest probability by procurement lot.}\label{fig:marg}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=.85\columnwidth]{f3_cooccurrence.pdf}
+\caption{Co-harvest $z$ against the curveball null. Excess is confined to near-diagonal
+(index-adjacent) slice pairs.}\label{fig:cooc}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f4_thermal_decay.pdf}
+\caption{Residual thermal correlation versus core index distance. The within- versus cross-slice
+contrast at distance~1 controls exactly for index gap.}\label{fig:thermal}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f5_layout_hypotheses.pdf}
+\caption{Candidate floorplans scored against measured thermal coupling. The linear index ordering
+(red) beats a random ordering only marginally and is outperformed by a $3\times4$ grid.}
+\label{fig:layout}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f6_rack_heatmap.pdf}
+\caption{Harvest probability by rack and slice. The lot boundary at rack~22 is
+visible as an abrupt change.}\label{fig:rack}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f7_pattern_rank.pdf}
+\caption{Rank--frequency of disable patterns. Lot B is markedly more diverse.}\label{fig:rank}\end{figure}
+
+\section{Related work}
+\todo{expand; the citations below are located but \unver{unverified}.}
+Manufacturing variability in HPC has been studied mainly through its
+\emph{performance} consequences---frequency and power spread under a power
+cap~\unver{\cite{inadomi2015variation}}, turbo-boost variation across nominally identical
+processors~\unver{\cite{acun2016variation}}, and accelerator-level variability in GPU-rich
+systems~\unver{\cite{sinha2022gpuvariability}}. That literature treats the die as a black box
+characterised by its behaviour. Yield modelling, conversely, treats defect statistics directly:
+the negative-binomial family~\unver{\cite{stapper1993negbinom}} and spatial wafer-map
+models~\unver{\cite{friedman2007waferyield}} describe clustered killer defects but are validated on
+fab data unavailable to system owners. To our knowledge no prior work recovers per-die harvesting
+maps from deployed-system telemetry, which is the gap this paper addresses.
+
+\section{Threats to validity}
+\begin{enumerate}
+\item \textbf{Sensor presence $\ne$ core existence.} Mitigated by 100\% consistency across 1{,}960
+sockets and two months, agreement with the published 16-core SKU~\cite{ibm_ac922}, and the perfect
+slice-pair structure.
+\item \textbf{Two months only.} \todo{extend to all 31 months for the full swap timeline.}
+\item \textbf{Physical mapping unresolved} (Sec.~\ref{sec:layout}); the spatial interpretation of
+clustering is hypothesis, not result.
+\item \textbf{Common-mode artefact}, addressed by same-distance contrasts.
+\item \textbf{Single system}; findings may reflect CINECA procurement rather than POWER9 generally.
+\end{enumerate}
+
+\section{Conclusion}
+\todo{write.}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+\end{document}
