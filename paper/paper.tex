@@ -36,12 +36,14 @@ $r=+0.51$ within-slice versus $+0.29$ for cross-slice neighbours at identical in
 we find only weak evidence that the slice index itself is monotonic in physical die position
 ($p=0.025$; a $3\times4$ grid fits the thermal coupling better than a linear arrangement).
 We detect a sharp procurement-lot boundary at rack~22 (Welch $t=27.3$) separating two populations
-with markedly different harvesting statistics. Finally, although POWER9 provides field mechanisms
-that could alter the active set after manufacture---predictive deallocation and persistent GARD
-records---we find \textbf{no evidence that any of them fired}: 94.4\% of sockets never change
-configuration, every observed transition coincides with a reboot rather than occurring during
-operation, and apparent sub-16 configurations are collection dropout (99.6\% report a strict subset
-of the socket's modal set). Harvest maps behave as static, per-die manufacturing constants.
+with markedly different harvesting statistics. Finally, tracking every socket across the full
+2.5-year, 1.67-million-socket-day record, we find harvest maps behave as near-static manufacturing
+constants: 89.5\% of sockets never change configuration, and \textbf{none of the 235 observed
+transitions occurs during operation}---every one coincides with a reboot. Against that backdrop we
+isolate \textbf{three episodes, on three of 1{,}968 sockets, in which a socket ran on 14 cores for
+2--4 days}, each losing exactly one slice and at least one subsequently restored: to our knowledge
+the first direct observation of POWER9 field core-guarding in a production system, at a measured
+rate of 0.15\% of sockets over 2.5 years.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -195,26 +197,45 @@ Dynamic Processor Deallocation, persistent GARD records read by hostboot at IPL 
 Operating-system core offlining is invisible to the BMC and cannot affect sensor presence. Whether
 harvest maps are static in practice is therefore an empirical question, which we answer by
 aggregating every core sample to (node, socket, day) counts across the dataset.
-\todo{set-stability numbers are over 2020-03..2020-08 and dropout numbers over 2020-03..2020-09;
-this inconsistency and the partial coverage both disappear once the 31-month
-sweep completes.}
+All numbers in this section are over the complete 31-month record (2020-03 to 2022-09).
 
-\paragraph{The count is invariant} 88.8\% of socket-days report exactly 16 active cores. The
-remainder is dominated by \emph{incomplete collection}, not by configuration change, on three
-independent grounds. (i)~Reduced counts are overwhelmingly 2--10, whereas core guard removes one
-slice at a time and would make 14 the most common reduced value; 14 is instead among the rarest
-(6 socket-days). (ii)~Odd counts occur (15 and 17 cores, 11 socket-days) and \emph{cannot} arise
-from slice-granular fusing. (iii)~Of 11{,}459 fully-sampled socket-days reporting fewer than 16
-cores, \textbf{99.58\% report a strict subset of that socket's modal 16}---the missing cores were
-simply not collected. \textbf{We find no evidence of any core-guard event in the fleet.}
+\paragraph{The count is very nearly invariant} Across all 31 months---1{,}671{,}297 socket-days
+over 858 days and 984 nodes---\textbf{99.985\% report exactly 16 active cores}. Of the 256
+exceptions, 39 have an odd count, which \emph{cannot} arise from slice-granular fusing and
+therefore proves the collector can drop individual cores; the counts above 16 are unions spanning a
+same-day reconfiguration. Only \textbf{nine} socket-days are fully-sampled with an even count below
+16, and these are the subject of the guard analysis below.
 
-\paragraph{Configurations are static} Restricting to \emph{clean} socket-days (16 cores, each at
-$>$90\% of the 4{,}320 samples expected at 20\,s cadence) leaves 199{,}135 socket-days.
-\textbf{94.4\% of sockets never change configuration}; 106 have two distinct sets and 4 have three.
+\paragraph{Configurations are near-static} Restricting to \emph{clean} socket-days (16 cores, each
+at $>$90\% of the 4{,}320 samples expected at 20\,s cadence) leaves 1{,}517{,}473 socket-days, a
+median of 775 observed days per socket. \textbf{89.5\% of sockets never change configuration}
+(1{,}756 of 1{,}962); 183 have two distinct sets, 19 have three, three have four and one has five.
 
-\paragraph{Changes never occur during operation} Of 114 transitions, \textbf{zero} occur between
-consecutive reporting days: every one coincides with a gap in reporting (median 2\,d), against a
-background in which 93.4\% of consecutive reporting days are one day apart. Configuration changes
+\paragraph{Three core-guard episodes} The nine anomalous socket-days resolve into
+\textbf{three sustained episodes on three distinct sockets}, each with the exact signature of a
+field deconfiguration (Table~\ref{tab:guard}). In every case the socket loses \emph{exactly one
+slice}---a complete $(2k,2k{+}1)$ pair---runs on 14 cores for 2--4 consecutive fully-sampled days,
+and in at least one case the slice is subsequently restored, consistent with an operator clearing
+the GARD record~\cite{skiboot_gard}. This is, to our knowledge, the first direct observation of
+POWER9 core guarding in a deployed system. The measured rate is \textbf{3 episodes across 1{,}968
+sockets over 2.5 years}, i.e.\ 0.15\% of sockets.
+
+\begin{table}[h]\centering\caption{Core-guard episodes. Baselines are the adjacent observed day,
+not the socket's global modal set, since two of these sockets also change configuration elsewhere
+in their life.}\label{tab:guard}
+\begin{tabular}{llrlr}\toprule
+Socket & Dates & Days & Slice lost & Restored\\\midrule
+347\,p1 & 2020-03-13--16 & 4 & 4 (cores 8,9)   & yes\\
+411\,p1 & 2021-11-13--15 & 3 & 6 (cores 12,13) & yes$^\dagger$\\
+946\,p0 & 2020-08-31--09-01 & 2 & 8 (cores 16,17) & not observed\\
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize$^\dagger$restored via a day that also spans a reconfiguration.
+\end{table}
+
+\paragraph{Changes never occur during operation} Of \textbf{235} transitions across the full
+record, \textbf{zero} occur between consecutive reporting days: every one coincides with a gap in
+reporting (median 2\,d), against a background in which only 4.2\% of consecutive reporting days
+are more than one day apart. Configuration changes
 are boot-time events, exactly as the guard/deconfiguration mechanism predicts.
 
 The only two apparent counterexamples confirm the rule once examined at full timestamp resolution.
@@ -227,14 +248,14 @@ a coordinated maintenance reboot. Day-granularity aggregation is therefore \emph
 here: it cannot see sub-day downtime, so our transition-gap statistics understate how consistently
 changes coincide with reboots.
 
-\paragraph{Changes concentrate at commissioning} 75\% of all transitions fall in
-2020-03-19--21, during machine installation. In steady state ($\ge$2020-04-01) only 23 transitions
-occur across 16 of 981 nodes.
+\paragraph{Changes concentrate on a few dates} The 235 transitions involve 132 nodes on 81
+distinct dates, but are heavily clustered: 2020-03-20 alone accounts for 63 and the top three dates
+for 41\%. Such synchronised, fleet-wide changes are more consistent with an administrative or
+firmware event than with independent per-node hardware work (see OI-2).
 
 \paragraph{Some apparent changes are socket relabelling} When node~$n$'s socket p0 loses exactly
 the slices p1 gains and vice versa, the dies are unchanged and only the p0/p1 labels have swapped.
-This accounts for 35\% of steady-state transitions but only 4\% of commissioning ones, where
-processors were plausibly re-seated.
+This accounts for \textbf{20\%} of the 230 transitions where both sockets are observable.
 
 \paragraph{Caveat} An apparent change can arise from (a)~genuine hardware reconfiguration,
 (b)~socket relabelling, or (c)~a change in the BMC sensor-ID mapping, e.g.\ after a firmware

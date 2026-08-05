@@ -28,13 +28,24 @@ for ym in months:
     TMP.mkdir(parents=True)
     r = subprocess.run(
         ['tar', '-xf', str(RAW / f'{ym}.tar'), '-C', str(TMP), '--wildcards',
+         '--touch', '--warning=no-timestamp',
          f'year_month={ym}/plugin=ipmi_pub/metric=p0_core*_temp',
          f'year_month={ym}/plugin=ipmi_pub/metric=p1_core*_temp'],
         capture_output=True, text=True)
-    if r.returncode != 0:
-        print(f'[{ym}] TAR FAILED rc={r.returncode}: {r.stderr[:300]}', flush=True)
-        continue
     t_tar = time.time() - t0
+
+    # Completeness gate. A partial extraction looks exactly like cores being
+    # disabled, so never write an output file unless all 48 metrics are present.
+    base_chk = TMP / f'year_month={ym}' / 'plugin=ipmi_pub'
+    found = sorted(p.name for p in base_chk.glob('metric=p*_core*_temp')) if base_chk.exists() else []
+    if len(found) != 48:
+        print(f'[{ym}] INCOMPLETE EXTRACTION: {len(found)}/48 metrics '
+              f'(tar rc={r.returncode}) -- refusing to write. {r.stderr[:200]}', flush=True)
+        shutil.rmtree(TMP, ignore_errors=True)
+        continue
+    if r.returncode != 0:
+        print(f'[{ym}] tar rc={r.returncode} but all 48 metrics present, continuing: '
+              f'{r.stderr[:120]}', flush=True)
 
     parts = []
     base = TMP / f'year_month={ym}' / 'plugin=ipmi_pub'
