@@ -13,11 +13,11 @@ Supercomputer Out-of-Band Telemetry}
 
 \author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili}
 \IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering} \\
-\textit{University of Bologna}, Italy \\ \texttt{mohsen.seyedkazemi@gmail.com}}
+\textit{University of Bologna}, Italy \\ \texttt{mohsen.seyedkazemi@unibo.it}}
 \and
 \IEEEauthorblockN{Andrea Bartolini}
 \IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering} \\
-\textit{University of Bologna}, Italy}}
+\textit{University of Bologna}, Italy \\ \texttt{a.bartolini@unibo.it}}}
 
 \begin{document}
 \maketitle
@@ -354,10 +354,35 @@ a coordinated maintenance reboot. Day-granularity aggregation is therefore \emph
 here: it cannot see sub-day downtime, so our transition-gap statistics understate how consistently
 changes coincide with reboots.
 
-\paragraph{Changes concentrate on a few dates} The 235 transitions involve 132 nodes on 81
+\paragraph{Changes concentrate at commissioning} The 235 transitions involve 132 nodes on 81
 distinct dates, but are heavily clustered: 2020-03-20 alone accounts for 63 and the top three dates
-for 41\%. Such synchronised, fleet-wide changes are more consistent with an administrative or
-firmware event than with independent per-node hardware work (see OI-2).
+for 41\,\%. Such synchronised, fleet-wide changes are characteristic of a newly commissioned
+machine---hardware is still being reconfigured and the monitoring pipeline is not yet
+settled---rather than of steady-state operation. The next paragraph shows this directly and
+excludes the period.
+
+\paragraph{Commissioning period, identified and excluded}
+\label{par:commissioning}
+Two independent signals locate the end of commissioning without assuming a date. Telemetry
+coverage---the fraction of socket-days that are clean---is 0.82, 0.00 and 0.40 in 2020-03, -04 and
+-05, then rises to 0.72--1.00 for every one of the following 28 months. The transition rate falls
+from 91 in 2020-03 to a median of 4 per month thereafter. We therefore treat 2020-03 to 2020-05 as
+commissioning and re-run every result on 2020-06 onward:
+
+\begin{itemize}\itemsep1pt
+\item \textbf{The harvest maps are unchanged}: for all 1{,}960 sockets with a map in both windows,
+      the recovered map is \emph{byte-identical} (100.0\,\%). Marginals agree to 0.1 percentage
+      points and the pattern count is 443 either way.
+\item \textbf{The lot boundary is unchanged}: Lot A 88.2\,\%, Lot B 39.2\,\%, Welch $t=26.6$.
+\item \textbf{Zero transitions during operation still holds}: of the 136 steady-state transitions,
+      \emph{none} occurs between consecutive reporting days.
+\item \textbf{The fleet-wide clustering disappears with the commissioning window}: the largest
+      single-date cluster in steady state is 11 events (8\,\% of steady-state transitions), against
+      63 (27\,\%) on 2020-03-20.
+\end{itemize}
+
+Every structural and longitudinal claim in this paper therefore rests on the post-commissioning
+period, and none of them depends on the anomalous early months.
 
 \paragraph{Some apparent changes are socket relabelling} When node~$n$'s socket p0 loses exactly
 the slices p1 gains and vice versa, the dies are unchanged and only the p0/p1 labels have swapped.
@@ -365,8 +390,10 @@ This accounts for \textbf{20\%} of the 230 transitions where both sockets are ob
 
 \paragraph{Caveat} An apparent change can arise from (a)~genuine hardware reconfiguration,
 (b)~socket relabelling, or (c)~a change in the BMC sensor-ID mapping, e.g.\ after a firmware
-update. The tight clustering of 86 transitions into three days is consistent with (c) and we
-cannot separate these from telemetry alone. \todo{seek CINECA maintenance logs for March 2020.}
+update. Telemetry alone cannot separate these. The tight clustering of 86 transitions into three
+days of March 2020 is consistent with (c)---but that window is precisely the commissioning period
+excluded above, and every result is reported on the steady-state period where no such clustering
+exists. The ambiguity is therefore bounded rather than load-bearing.
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f2_marginals.pdf}
 \caption{Per-slice harvest probability by procurement lot.}\label{fig:marg}\end{figure}
@@ -521,7 +548,9 @@ reporting, red = configured but silent. In every case exactly one slice goes sil
 control sensors on the same node stay at full cadence.}\label{fig:guard}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f10_transition_dates.pdf}
-\caption{Configuration transitions over the full record. 2020-03-20 alone accounts for 63.}
+\caption{Configuration transitions over the full record. 2020-03-20 alone accounts for 63, all
+inside the commissioning window (shaded) that Sec.~\ref{par:commissioning} excludes; the
+steady-state period shows no comparable cluster.}
 \label{fig:trans}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f11_operational_impact.pdf}
@@ -544,9 +573,11 @@ vanish, every other sensor on the socket keeps reporting.
 thermal coupling (Sec.~\ref{sec:layout}), so the spatial reading of Sec.~\ref{sec:cluster} is
 supported. It remains an inference from thermal coupling rather than from a vendor floorplan; an
 annotated die shot would confirm it directly.
-\item \textbf{[OI-2, \emph{blocking}] A March 2020 BMC firmware update could have remapped sensor
-IDs}, mimicking reconfiguration; 86 of the 235 transitions fall in the three days 2020-03-19--21.
-Needs CINECA maintenance logs. Does not affect the boot-time-only conclusion.
+\item \textbf{[OI-2] Bounded.} A March 2020 BMC firmware update could have remapped sensor IDs,
+mimicking reconfiguration; 86 of the 235 transitions fall in the three days 2020-03-19--21. Those
+days lie inside the commissioning window excluded in Sec.~\ref{par:commissioning}, and every
+result is reported on the steady-state period, where the harvest maps are byte-identical and no
+comparable clustering occurs. Maintenance logs would still confirm the cause directly.
 \item \textbf{[OI-4, \emph{blocking}] Five references are unverified} and a novelty check against
 prior telemetry-based binning inference is outstanding.
 \item \textbf{[OI-3] Defect-driven versus policy-driven harvesting} cannot be separated from one

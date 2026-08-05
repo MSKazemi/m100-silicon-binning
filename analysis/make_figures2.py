@@ -103,6 +103,9 @@ top = vc.idxmax()
 ax.annotate(f'{vc.max()} transitions\non {top}', (pd.Timestamp(top), vc.max()),
             xytext=(28, -6), textcoords='offset points', fontsize=6.5, color=RED,
             arrowprops=dict(arrowstyle='->', color=RED, lw=.8))
+ax.axvspan(pd.Timestamp('2020-03-01'), pd.Timestamp('2020-06-01'), color='#a0aec0', alpha=.30,
+           lw=0, label='commissioning (excluded)')
+ax.legend(fontsize=6.5, frameon=False, loc='upper right')
 ax.set_ylabel('configuration transitions'); ax.set_xlabel('date')
 ax.set_title(f'{len(T)} transitions over 2.5 years, on {T.dt.date.nunique()} distinct dates',
              fontsize=8)
