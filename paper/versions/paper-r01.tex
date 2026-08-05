@@ -37,7 +37,7 @@ occur. A thermal probe over 240 sockets independently recovers the sensor index 
 ordering of slices on the die ($z=-6.13$; an unconstrained search returns the same ordering
 reversed, $|\rho|=0.993$), which establishes that harvested slices cluster \emph{spatially}. A
 fitted pairwise-interaction model separates that clustering from per-slice propensity and shows a
-sharp procurement boundary at node~439: the two lots differ in both. Maps are static---changing
+sharp procurement boundary at node~440: the two lots differ in both. Maps are static---changing
 only across reboots---and we isolate three field core-guard episodes. A taxonomy separates processor replacements from node
 replacements, socket relabelling and firmware deconfiguration, giving an annualised socket
 replacement rate of 1.96\,\% with no asset database. Finally, the harvest map has no measurable
@@ -103,8 +103,8 @@ floor position documented~\cite{exadata_repo}. Each node is an AC922 8335-GTG ch
 \emph{two} CPU sockets and four V100 GPUs. Each socket holds one POWER9 die; each die carries 24
 SMT4 core positions organised as 12 slices; each slice is two cores plus their shared L2 and L3.
 Fig.~\ref{fig:hier} shows the chain. Two consequences matter throughout: the unit we recover a map
-for is a \emph{socket}---two per node, not one---and the unit that gets fused is a \emph{slice},
-not a core. Sec.~\ref{sec:pops} fixes the exact socket populations.
+for is a \emph{socket} (1{,}960 of them, not 980), and the unit that gets fused is a \emph{slice},
+not a core.
 
 \subsection{POWER9 slice organisation}
 The POWER9 die used in the IBM Power System AC922 contains 24 SMT4 cores (equivalently 12 SMT8
@@ -141,60 +141,6 @@ The key validity argument is that \textbf{the BMC does not renumber active cores
 that so, every socket would report indices 0--15. Instead we observe arbitrary 16-element subsets
 of $\{0,\dots,23\}$, so the index is a fixed physical-position identifier.
 
-\subsection{Pipeline, filters, and what each filter protects against}
-\label{sec:pipeline}
-The recovery above is one line of logic; making it reliable at 1.67\,M socket-days is mostly a
-question of filters, and we state them here rather than introducing them where they are first used.
-
-\emph{Stage 1 --- extraction.} Each monthly archive is scanned once and only the 48
-\texttt{p\{0,1\}\_core\{0..23\}\_temp} partitions are extracted. A \textbf{completeness gate}
-refuses to emit a month unless all 48 are present. This is not defensive boilerplate: a partial
-extraction is indistinguishable, downstream, from a socket with disabled cores, and an early
-version of this pipeline produced exactly that artefact for three months (Sec.~\ref{sec:failure}).
-
-\emph{Stage 2 --- daily aggregation.} Samples are reduced to a count per (node, socket, core,
-day), giving a 15\,MB table from a 400\,GB scan. Every structural and longitudinal result in this
-paper is computed from that table; only the thermal analysis returns to the raw series.
-
-\emph{Stage 3 --- the clean-day filter.} A socket-day is \emph{clean} when exactly 16 cores report
-\emph{and} each reports more than 90\,\% of the 4{,}320 samples expected at 20\,s cadence. This
-is the load-bearing choice in the paper, so its effect is stated plainly: it retains
-1{,}517{,}473 of 1{,}671{,}297 socket-days (90.8\,\%), and Sec.~\ref{sec:lot} shows the lot
-result is unchanged when the threshold is tightened to sockets with $\ge$90\,\% clean-day
-coverage. The filter exists because a partially-collected day mimics a configuration change.
-
-\emph{Stage 4 --- per-socket map.} A socket is summarised by the modal harvest map over its clean
-days (median 775 days supporting each map). Sockets whose modal map does not have exactly four
-harvested slices are excluded; this removes 6 of 1{,}968.
-
-\emph{Cost.} One full pass is a 400\,GB sequential scan, roughly two hours on a single node,
-dominated by archive traversal rather than computation. Re-running every result from the derived
-table takes minutes. The asymmetry matters for reproducibility: we publish the derived table, so
-the expensive stage need not be repeated.
-
-\subsection{Failure modes of the method}
-\label{sec:failure}
-Four things could make this recovery wrong, and each has a detector.
-
-\textbf{Partial ingestion.} If archive extraction silently truncates, absent metrics look like
-harvested cores. \emph{Detector:} the 48-metric completeness gate. We found this the hard way ---
-three months were once written from incomplete extractions, one of them missing all 24 sensors of
-socket p1, which would have read as a socket with no active cores at all.
-
-\textbf{Compact renumbering.} If a BMC renumbered surviving cores $0..15$, the method would
-recover nothing but a constant. \emph{Detector:} we observe arbitrary 16-element subsets of
-$\{0,\dots,23\}$ and 443 distinct patterns; a renumbering BMC would produce exactly one.
-
-\textbf{Per-metric collector faults.} A collector that drops individual metric streams mimics
-deconfiguration. \emph{Detectors:} odd active-core counts, which slice-granular fusing cannot
-produce (39 socket-days); reduced counts that are strict subsets of the socket's modal map; and,
-for the guard episodes specifically, the control that every other sensor on the same socket kept
-full cadence (Sec.~\ref{sec:lifecycle}).
-
-\textbf{Socket-tag swaps.} If the collector exchanges the p0/p1 tags, a longitudinal study
-silently mixes two dies. \emph{Detector:} the mirror test of Sec.~\ref{sec:taxonomy}, which
-identifies 19\,\% of steady-state map changes as relabelling rather than replacement.
-
 \subsection{Null model for clustering}
 Every socket has exactly four harvested slices, so the constraint induces negative dependence and a
 naive independence null is invalid. We use the curveball algorithm~\cite{strona2014curveball},
@@ -215,7 +161,7 @@ on contrasts \emph{at identical index distance}, which control for this exactly.
 \begin{figure*}[t]\centering
 \includegraphics[width=\textwidth]{f1_slice_schematic.pdf}
 \caption{POWER9 slice organisation (after~\cite{thompto2016power9}) annotated with the measured
-per-slice harvest rate across the 1{,}962 Marconi100 sockets with a well-defined map. Each slice holds two SMT4 cores sharing
+per-slice harvest rate across 1{,}960 Marconi100 sockets. Each slice holds two SMT4 cores sharing
 512\,kB L2 and 10\,MB L3 on a common fabric port. Harvesting always removes whole slices.
 \textbf{The horizontal ordering is the IPMI sensor index, which Sec.~\ref{sec:layout} shows is the
 physical die ordering, recovered independently from thermal coupling.}}
@@ -223,7 +169,7 @@ physical die ordering, recovered independently from thermal coupling.}}
 \end{figure*}
 
 \subsection{Every socket is 16 cores; granularity is the slice}
-\paragraph*{Populations}\label{sec:pops} Three socket populations recur and are kept distinct throughout:
+\paragraph*{Populations} Three socket populations recur and are kept distinct throughout:
 $\mathcal{S}_{\text{all}}$, the 1{,}968 sockets appearing anywhere in the record (984 nodes);
 $\mathcal{S}_{\text{map}}$, the 1{,}962 with at least one clean day and hence a well-defined
 harvest map; and $\mathcal{S}_{2004}$, the 1{,}960 present in the single month 2020-04. All
@@ -244,9 +190,8 @@ definition exactly and rules out per-core fusing.
 \subsection{The map is per-die, not per-SKU}
 \textbf{443} distinct patterns appear among the $\binom{12}{4}=495$ possible
 (Fig.~\ref{fig:rank}). The most common (slices 0--3) covers only 5.5\% of sockets. Within a node the two sockets match in just
-1.2\,\% of cases (12 of 981 nodes), with mean overlap 1.641 slices against a shuffled null of
-$1.468\pm0.026$ ($z=+6.7$)---nearly independent, with a small excess attributable to same-lot
-pairing.
+1.2\% of cases, with mean overlap 1.648 slices against a shuffled null of $1.474\pm0.026$
+($z=+6.6$)---nearly independent, with a small excess attributable to same-lot pairing.
 
 \subsection{Marginals are strongly non-uniform}
 Slice~0 is harvested on 61.2\% of sockets against a uniform expectation of 33.3\%
@@ -337,7 +282,7 @@ Lot B (racks 22--48) & 1{,}082 & 39.3\% & 416\\
 
 Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation tests confirm
 between-rack heterogeneity for slices 0, 1, 2, 5 ($p<0.01$), and same-rack sockets share more
-harvested slices than chance ($1.565$ vs $1.452\pm0.008$, $z=+13.9$).
+harvested slices than chance ($1.568$ vs $1.454\pm0.008$, $z=+14.1$).
 
 \paragraph*{Two deliveries, not more} Recursive binary segmentation over the node-ordered
 sequence, splitting wherever $|t|>4$, finds \emph{no} changepoint beyond the primary one. The
@@ -649,7 +594,7 @@ designed-in circuitry or physical access. Node-level anomaly and outlier detecti
 HPC~\cite{nodesentry2025,badnodes2020} likewise establishes \emph{that} nodes differ without
 recovering the hardware structure responsible. The M100 ExaData release itself has an active
 downstream literature spanning telemetry foundation models, energy analytics and operational-data
-ontologies~\cite{m100_setdiff,m100_energy,m100_ontology}; none of it examines per-core sensor presence.
+ontologies~\cite{m100downstream}; none of it examines per-core sensor presence.
 
 \emph{We are not aware of prior work recovering per-die harvest maps from deployed-system
 telemetry}, and that is the gap this paper addresses. We state this as an awareness claim rather
@@ -695,17 +640,12 @@ mimicking reconfiguration; 86 of the 235 transitions fall in the three days 2020
 days lie inside the commissioning window excluded in Sec.~\ref{par:commissioning}, and every
 result is reported on the steady-state period, where the harvest maps are byte-identical and no
 comparable clustering occurs. Maintenance logs would still confirm the cause directly.
-\item \textbf{[OI-4] Partly resolved.} All references have been verified against their original
-sources; two were corrected in the process (the negative-binomial model is Koren, Koren and
-Stapper in \emph{IEEE T.\ Computers}, not Stapper alone in \emph{T.\ Semiconductor
-Manufacturing}). What remains outstanding is the \textbf{novelty check}: our claim is an
-awareness claim, resting on a systematic but necessarily incomplete search.
+\item \textbf{[OI-4, \emph{blocking}] Five references are unverified} and a novelty check against
+prior telemetry-based binning inference is outstanding.
 \item \textbf{[OI-3] Defect-driven versus policy-driven harvesting} cannot be separated from one
 machine; both are reported.
-\item \textbf{[OI-5] Resolved.} Monthly coverage ranges from 18\,\% to 99.4\,\%, but the
-coverage filter does not drive any result: clean-day rates are near-identical between lots,
-coverage is uncorrelated with the harvest pattern ($r=+0.004$, $p=0.88$), and restricting to
-$\ge$90\,\% coverage leaves the lot contrast unchanged (Sec.~\ref{sec:lot}).
+\item \textbf{[OI-5] Collection dropout may not be random.} Monthly coverage ranges from 18\% to
+99.4\%; if dropout correlates with lot, Sec.~\ref{sec:lot} needs a robustness pass.
 \item \textbf{[OI-6, OI-7] both resolved.} The sub-16 socket-days were dominated by an
 extraction defect on our side, now gated; the nine that survive are the guard episodes of
 Sec.~\ref{sec:lifecycle}. The two nodes appearing to change within a day are same-day reboots.
@@ -725,7 +665,7 @@ manufacturing secret: which units a vendor fused off each individual die. Recove
 1{,}962 POWER9 sockets shows harvesting operates exactly at the slice---the unit sharing an L2/L3
 block---with no exceptions in 1.67\,M socket-days; that the maps are per-die rather than per-SKU,
 with 443 of 495 possible patterns realised; that harvested slices cluster in sensor-index space;
-and that a sharp changepoint at node~439 separates two procurement populations with different
+and that a sharp changepoint at node~440 separates two procurement populations with different
 binning statistics. Over 2.5 years the maps are static to within 0.25 percentage points per month,
 change only across reboots, and exhibit three field core-guard episodes, each removing exactly one
 slice while every other sensor on the socket keeps reporting.

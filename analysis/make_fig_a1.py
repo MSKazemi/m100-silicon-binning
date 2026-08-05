@@ -49,9 +49,11 @@ vals = [abs(cf[0]) * (dx.max() - dx.min()), abs(dy.mean()), sd_socket]
 cols = [BLUE, '#dd6b20', GREY]
 ax2.barh(range(3), vals, color=cols)
 for i, v in enumerate(vals):
-    ax2.text(v + .4, i, f'{v:.1f} W', va='center', fontsize=7.5)
-ax2.set_yticks(range(3)); ax2.set_yticklabels(labels, fontsize=6.5)
-ax2.set_xlabel('effect on socket power [W]'); ax2.set_xlim(0, max(vals) * 1.25)
+    ax2.text(v + .5, i, f'{v:.1f} W', va='center', fontsize=7.5, fontweight='bold')
+    ax2.text(.5, i - .34, labels[i].replace('\n', ' '), va='center', ha='left',
+             fontsize=6.0, color='#1a202c')
+ax2.set_yticks([])
+ax2.set_xlabel('effect on socket power [W]'); ax2.set_xlim(0, max(vals) * 1.30)
 ax2.invert_yaxis()
 ax2.set_title('the harvest map is the smallest effect present', fontsize=7.5)
 fig.savefig(FIG / 'f11_operational_impact.pdf'); plt.close(fig)
