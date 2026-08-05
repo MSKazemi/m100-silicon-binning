@@ -51,12 +51,35 @@ core harvesting, silicon binning, HPC telemetry, POWER9, yield, hardware provena
 \end{IEEEkeywords}
 
 \section{Introduction}
-\todo{write}. Framing: (i)~core harvesting is standard industry practice but per-die maps are
-undocumented; (ii)~HPC operators now collect holistic out-of-band
-telemetry~\cite{borghesi2023m100}, which we show carries an unintended side channel revealing
-manufacturing outcomes; (iii)~contributions are a recovery method, the first fleet-scale
-characterisation of harvesting in a deployed Top-10 system, evidence of index-space clustering and
-of procurement-lot structure, and a thermal method for testing die-topology hypotheses.
+Every large processor die ships with defects. Rather than discard them, vendors permanently fuse
+off the faulty units and sell the remainder as a lower-core-count part---\emph{core harvesting}.
+The practice is universal and openly acknowledged, but the resulting \emph{per-die} maps of which
+units were disabled are proprietary: a buyer is told the part has 16 cores, never \emph{which} 16.
+Those maps encode information about a fab's defect process, a vendor's binning policy and a
+procurement's provenance that is otherwise unavailable outside the manufacturer.
+
+Independently, HPC operators have begun publishing holistic out-of-band monitoring at fleet
+scale~\cite{borghesi2023m100}. We observe that such telemetry carries an unintended side channel:
+a baseboard management controller exposes one thermal sensor per \emph{physical} core position and
+does not renumber the surviving cores compactly, so the set of sensors that report \emph{is} the
+die's harvest map, published inadvertently and at fleet scale.
+
+We exploit this to recover harvest maps for every processor socket of CINECA's Marconi100, a
+Top-10 system, from a public dataset, and to track them across 858 days. Our contributions are:
+
+\begin{itemize}
+\item A recovery method (Sec.~\ref{sec:method}) with an explicit validity argument, needing only
+      per-core sensor telemetry that operators already collect.
+\item The first fleet-scale characterisation of core harvesting in a deployed supercomputer: the
+      granularity is exactly the POWER9 slice, maps are per-die rather than per-SKU, and harvested
+      slices cluster in sensor-index space.
+\item Evidence of \emph{procurement-lot structure}---a sharp changepoint separating two
+      populations with markedly different binning statistics---from telemetry alone.
+\item A longitudinal result over 1.67\,M socket-days: maps are static, configuration changes occur
+      only at reboot, and three field core-guard episodes are isolated and corroborated.
+\item A negative result that matters operationally: the harvest map has no practical effect on
+      socket power (Sec.~\ref{sec:impact}), so schedulers need not model it.
+\end{itemize}
 
 \section{Background}
 \subsection{POWER9 slice organisation}
@@ -83,6 +106,7 @@ the BMC sensor-ID namespace, not the active core count}---the distinction is the
 this study.
 
 \section{Method}
+\label{sec:method}
 \subsection{Recovering the disable map}
 For each month we enumerate the \texttt{metric=pX\_coreY\_temp} partitions and count samples per
 (node, socket, core). A core index is \emph{present} for a socket if it emits any sample in the
@@ -121,34 +145,47 @@ as the physical die ordering} (Sec.~\ref{sec:layout}).}
 \end{figure*}
 
 \subsection{Every socket is 16 cores; granularity is the slice}
-\begin{table}[h]\centering\caption{Disable-map structure, 2020-04.}
+\paragraph*{Populations} Three socket populations recur and are kept distinct throughout:
+$\mathcal{S}_{\text{all}}$, the 1{,}968 sockets appearing anywhere in the record (984 nodes);
+$\mathcal{S}_{\text{map}}$, the 1{,}962 with at least one clean day and hence a well-defined
+harvest map; and $\mathcal{S}_{2004}$, the 1{,}960 present in the single month 2020-04. All
+structural results below are over $\mathcal{S}_{\text{map}}$ and the full 31-month record.
+
+\begin{table}[h]\centering\caption{Disable-map structure over the full 31-month record.}
 \begin{tabular}{lr}\toprule
-Nodes analysed & 980\\
-Sockets & 1{,}960\\
-Sockets reporting exactly 16 cores & 1{,}960 (100\%)\\
-Sockets reporting 24 cores & 0\\
-Absent cores form complete $(2k,2k{+}1)$ pairs & \textbf{1{,}960 (100\%)}\\
+Sockets with a well-defined harvest map & 1{,}962\\
+Median clean days supporting each map & 775\\
+Socket-days reporting exactly 16 cores & \textbf{99.985\%}\\
+Sockets ever reporting 24 cores & 0\\
+Harvested cores form complete $(2k,2k{+}1)$ pairs & \textbf{1{,}962 (100\%)}\\
 \bottomrule\end{tabular}\end{table}
 
 The perfect pair structure is the central mechanical finding: it matches the POWER9 slice
 definition exactly and rules out per-core fusing.
 
 \subsection{The map is per-die, not per-SKU}
-442 distinct patterns appear among the $\binom{12}{4}=495$ possible (Fig.~\ref{fig:rank}). The most
-common (slices 0--3) covers only 5.7\% of sockets. Within a node the two sockets match in just
+\textbf{443} distinct patterns appear among the $\binom{12}{4}=495$ possible
+(Fig.~\ref{fig:rank}). The most common (slices 0--3) covers only 5.5\% of sockets. Within a node the two sockets match in just
 1.2\% of cases, with mean overlap 1.648 slices against a shuffled null of $1.474\pm0.026$
 ($z=+6.6$)---nearly independent, with a small excess attributable to same-lot pairing.
 
 \subsection{Marginals are strongly non-uniform}
-Slice~0 is harvested on 61.7\% of sockets against a uniform expectation of 33.3\%
-($\chi^2=836.5$, $\mathrm{df}=11$, $p\ll0.001$); Fig.~\ref{fig:marg} splits this by lot.
+Slice~0 is harvested on 61.2\% of sockets against a uniform expectation of 33.3\%
+($\chi^2=807.2$, $\mathrm{df}=11$, $p\ll0.001$); Fig.~\ref{fig:marg} splits this by lot. These
+marginals are remarkably stable in time: across the 31 months the largest standard deviation of any
+slice's monthly rate is \textbf{0.25 percentage points}, and slice~0 ranges only 60.9--61.8\%
+(Fig.~\ref{fig:stab}). The single-month snapshot used in earlier drafts was therefore
+representative, and every estimate here is a 2.5-year-stable measurement.
 
 \subsection{Harvested slices cluster in index space}
 \label{sec:cluster}
-Under the curveball null the mean index gap between harvested slices is $4.243$ versus
-$4.585\pm0.016$ ($z=-20.8$), and every significant co-harvest excess has $|\Delta k|\le2$
-(Fig.~\ref{fig:cooc}): slices 0\&1 ($z=+19.5$), 6\&7 ($+9.5$), 8\&9 ($+8.7$), 2\&3 ($+8.4$),
-4\&5 ($+7.9$), 1\&2 ($+7.4$), 10\&11 ($+7.1$). All negative terms are distant pairs.
+Under the curveball null the mean index gap between harvested slices is $4.242$ versus
+$4.582\pm0.017$ ($z=-20.2$). Applying a Bonferroni correction across all $\binom{12}{2}=66$ pair
+tests ($|z|>3.83$), 17 pairs remain significant (Fig.~\ref{fig:cooc}). The positive excesses are
+0\&1 ($z=+16.7$), 6\&7 ($+9.2$), 2\&3 ($+8.0$), 8\&9 ($+7.7$), 10\&11 ($+7.5$), 4\&5 ($+7.1$),
+1\&2 ($+6.9$) and 0\&2 ($+6.3$): \textbf{eight of the nine positive-excess pairs have
+$|\Delta k|\le2$}, and every significant \emph{deficit} is a distant pair. We report the single
+exception rather than rounding it away.
 
 \subsection{Slice siblings are physically abutted}
 Fig.~\ref{fig:thermal} shows residual correlation against core index distance. At \emph{identical}
@@ -176,13 +213,13 @@ index-space clustering of Fig.~\ref{fig:cooc} is a robust empirical fact, but it
 \subsection{A procurement-lot boundary at node 440}
 \label{sec:lot}
 Node IDs map to position as $\mathrm{rack}=\lfloor \mathrm{id}/20\rfloor$~\cite{exadata_repo}. A
-changepoint scan maximises Welch $t$ at rack~22 (node~440), $t=27.3$ (Fig.~\ref{fig:rack}).
+changepoint scan maximises Welch $t$ at rack~22 (node~440), $t=26.6$ (Fig.~\ref{fig:rack}).
 
 \begin{table}[h]\centering\caption{Two populations either side of the lot boundary.}
 \begin{tabular}{lrrr}\toprule
 Population & Sockets & $P(\text{slice 0})$ & Distinct patterns\\\midrule
-Lot A (racks 0--21) & 880 & 89.1\% & 224\\
-Lot B (racks 22--48) & 1{,}080 & 39.4\% & 414\\
+Lot A (racks 0--21) & 880 & 88.2\% & 230\\
+Lot B (racks 22--48) & 1{,}082 & 39.3\% & 416\\
 \bottomrule\end{tabular}\end{table}
 
 Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation tests confirm
@@ -216,9 +253,20 @@ median of 775 observed days per socket. \textbf{89.5\% of sockets never change c
 field deconfiguration (Table~\ref{tab:guard}). In every case the socket loses \emph{exactly one
 slice}---a complete $(2k,2k{+}1)$ pair---runs on 14 cores for 2--4 consecutive fully-sampled days,
 and in at least one case the slice is subsequently restored, consistent with an operator clearing
-the GARD record~\cite{skiboot_gard}. This is, to our knowledge, the first direct observation of
-POWER9 core guarding in a deployed system. The measured rate is \textbf{3 episodes across 1{,}968
-sockets over 2.5 years}, i.e.\ 0.15\% of sockets.
+the GARD record~\cite{skiboot_gard}. The measured rate is \textbf{3 episodes across 1{,}968
+sockets over 2.5 years}, i.e.\ 0.15\% of sockets. Durations are lower bounds, since an episode is
+counted only on fully-sampled days.
+
+\emph{Ruling out a collector fault.} The competing explanation is that the collector dropped
+exactly those two metric streams. We test it directly: for each episode we ask whether the
+\emph{other} sensors on the same node---in particular on the same socket---kept reporting. They
+did. In all three episodes the two slice sensors read zero for the entire window while
+\textbf{all ten control metrics, including \texttt{pX\_power} and \texttt{pX\_vdd\_temp} on the
+same socket, sustained a full 4{,}320 samples per day} (Fig.~\ref{fig:guard}). A collection fault
+that silences precisely the two cores of one slice for several consecutive days, while leaving
+every other sensor on the same socket at full cadence, is not a plausible account. We therefore
+attribute these episodes to hardware deconfiguration; to our knowledge this is the first direct
+observation of POWER9 field core guarding in a deployed system.
 
 \begin{table}[h]\centering\caption{Core-guard episodes. Baselines are the adjacent observed day,
 not the socket's global modal set, since two of these sockets also change configuration elsewhere
@@ -285,6 +333,57 @@ visible as an abrupt change.}\label{fig:rack}\end{figure}
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f7_pattern_rank.pdf}
 \caption{Rank--frequency of disable patterns. Lot B is markedly more diverse.}\label{fig:rank}\end{figure}
 
+\subsection{The harvest map has no operational consequence}
+\label{sec:impact}
+Recovering a hidden hardware property is only useful if it changes something. We therefore ask
+whether the harvest map predicts socket behaviour, using a \textbf{within-node paired contrast}:
+the two sockets of a node share chassis, airflow, inlet air, power supply and---to first
+order---workload, so the difference $p_0-p_1$ removes the node-level confounds that make
+cross-node power comparisons unreliable. We summarise each socket's map by the mean index of its
+active slices, their dispersion, the number of adjacent active pairs, and the count of active
+slices in the low half, and correlate the socket-to-socket difference in each against the
+socket-to-socket difference in mean CPU power over six months (5{,}880 node-months,
+Fig.~\ref{fig:impact}).
+
+The associations are statistically detectable and practically negligible. The strongest is between
+the mean active-slice index and socket power: $r=+0.039$ (permutation $p=0.003$), explaining
+\textbf{0.16\% of variance}, with a slope of $+0.46$\,W per unit of slice index
+(95\% CI $[+0.16,+0.76]$). Across the full observed range of the predictor this is
+\textbf{3.1\,W}, against a socket-to-socket power spread of 17.8\,W. For calibration, the same
+paired design shows socket~p0 draws $7.7$\,W more than socket~p1 on average ($t=44.6$)---mere
+physical position in the chassis matters more than twice as much as the entire range of harvest-map
+variation.
+
+We therefore report a deliberate negative result: \textbf{harvest maps are operationally
+invisible}. Schedulers, power models and node-ranking heuristics need not represent them, and
+node-to-node performance variability in this system must be sought elsewhere. The result also
+strengthens the provenance interpretation of Sec.~\ref{sec:lot}: because the map has no
+behavioural footprint, the lot boundary cannot be an artefact of operational differences between
+racks.
+
+\section{Discussion}
+\paragraph{Why is slice 0 special?} The single most striking number is that slice~0 is harvested on
+88.2\% of Lot~A sockets but only 39.3\% of Lot~B. Two explanations are live. Under
+\emph{defect-driven} harvesting, fusing follows wherever killer defects land; this is supported by
+the index-adjacency clustering of Sec.~\ref{sec:cluster} and by Lot~B's nearly flat marginals,
+which are close to what a spatially random defect process would give. Under \emph{policy-driven}
+harvesting, slice~0 abuts a shared structure and is preferentially fused for reasons of yield
+policy, binning recipe, or physical design; an 88\% rate on one specific slice is very hard to
+obtain from random defects. The data are consistent with Lot~A being policy- or
+recipe-dominated and Lot~B defect-dominated, i.e.\ with a change of binning recipe or die source
+between the two procurements. We cannot settle this from one machine and report both.
+
+\paragraph{The direction of causation is fixed.} A tempting objection to Sec.~\ref{sec:lot} is that
+rack position is confounded with cooling and workload. It cannot be: harvesting is performed by
+fusing at manufacture, months before a part is installed, so nothing about a socket's position in
+the machine room can influence its harvest map. The only admissible causal direction runs from
+procurement batch to rack, which is precisely the provenance signal we claim.
+
+\paragraph{What this buys an operator.} Three things. Fleet telemetry can audit a procurement
+without vendor cooperation, detecting whether a delivery is homogeneous. It can detect field
+deconfiguration events that would otherwise be visible only in service logs. And, per
+Sec.~\ref{sec:impact}, it establishes when a hardware property can safely be \emph{ignored}.
+
 \section{Related work}
 \todo{expand; the citations below are located but \unver{unverified}.}
 Manufacturing variability in HPC has been studied mainly through its
@@ -298,6 +397,24 @@ models~\unver{\cite{friedman2007waferyield}} describe clustered killer defects b
 fab data unavailable to system owners. To our knowledge no prior work recovers per-die harvesting
 maps from deployed-system telemetry, which is the gap this paper addresses.
 
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f8_month_stability.pdf}
+\caption{Per-slice harvest rate in each of the 31 months. The largest across-month standard
+deviation of any slice is 0.25 percentage points.}\label{fig:stab}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f9_guard_episodes.pdf}
+\caption{The three core-guard episodes. Grey = harvested at manufacture, blue = configured and
+reporting, red = configured but silent. In every case exactly one slice goes silent while all ten
+control sensors on the same node stay at full cadence.}\label{fig:guard}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f10_transition_dates.pdf}
+\caption{Configuration transitions over the full record. 2020-03-20 alone accounts for 63.}
+\label{fig:trans}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f11_operational_impact.pdf}
+\caption{Operational impact of the harvest map. Left: within-node paired contrast. Right: the
+harvest map's full observed range moves socket power less than half as much as mere socket
+position, and a sixth as much as the socket-to-socket spread.}\label{fig:impact}\end{figure}
+
 \section{Threats to validity and open issues}
 \label{sec:threats}
 Every unresolved item is tracked with an identifier in \texttt{OPEN\_ISSUES.md} in the artefact
@@ -305,24 +422,25 @@ repository, which records what is known, what would settle it, and where to look
 marked \emph{blocking} below must be resolved before this paper is submitted.}
 
 \begin{enumerate}
-\item \textbf{Sensor presence $\ne$ core existence.} Mitigated by 100\% consistency across 1{,}960
-sockets, agreement with the published 16-core SKU~\cite{ibm_ac922}, and the perfect slice-pair
-structure. Further supported by Sec.~\ref{sec:lifecycle}: sub-16 counts are collection dropout.
+\item \textbf{Sensor presence $\ne$ core existence.} Mitigated by 99.985\% of 1.67\,M socket-days
+reporting exactly 16 cores, agreement with the published 16-core SKU~\cite{ibm_ac922}, the perfect
+slice-pair structure, and the control of Sec.~\ref{sec:lifecycle} showing that when core sensors do
+vanish, every other sensor on the socket keeps reporting.
 \item \textbf{[OI-1, \emph{blocking}] The sensor index may not be the physical die position}
 (Sec.~\ref{sec:layout}). The spatial reading of the clustering in Sec.~\ref{sec:cluster} is a
 hypothesis, not a result. Needs an annotated die shot or the hostboot sensor-ID mapping.
 \item \textbf{[OI-2, \emph{blocking}] A March 2020 BMC firmware update could have remapped sensor
-IDs}, mimicking reconfiguration; 86 of 114 transitions fall in a three-day window. Needs CINECA
-maintenance logs. Does not affect the steady-state or boot-time-only conclusions.
+IDs}, mimicking reconfiguration; 86 of the 235 transitions fall in the three days 2020-03-19--21.
+Needs CINECA maintenance logs. Does not affect the boot-time-only conclusion.
 \item \textbf{[OI-4, \emph{blocking}] Five references are unverified} and a novelty check against
 prior telemetry-based binning inference is outstanding.
 \item \textbf{[OI-3] Defect-driven versus policy-driven harvesting} cannot be separated from one
 machine; both are reported.
 \item \textbf{[OI-5] Collection dropout may not be random.} Monthly coverage ranges from 18\% to
 99.4\%; if dropout correlates with lot, Sec.~\ref{sec:lot} needs a robustness pass.
-\item \textbf{[OI-6] One small anomaly remains unexplained}: 48 socket-days reporting a core
-outside the socket's modal set. (OI-7, two nodes appearing to change within a day, is resolved:
-both are same-day reboots, see Sec.~\ref{sec:lifecycle}.)
+\item \textbf{[OI-6, OI-7] both resolved.} The sub-16 socket-days were dominated by an
+extraction defect on our side, now gated; the nine that survive are the guard episodes of
+Sec.~\ref{sec:lifecycle}. The two nodes appearing to change within a day are same-day reboots.
 \item \textbf{[OI-8] The mechanism behind p0/p1 relabelling is unknown}; any per-socket
 longitudinal study on this dataset risks silently mixing two dies.
 \item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts;
@@ -332,7 +450,28 @@ generally.
 \end{enumerate}
 
 \section{Conclusion}
-\todo{write.}
+Out-of-band telemetry that supercomputer operators already collect inadvertently publishes a
+manufacturing secret: which units a vendor fused off each individual die. Recovering these maps for
+1{,}962 POWER9 sockets shows harvesting operates exactly at the slice---the unit sharing an L2/L3
+block---with no exceptions in 1.67\,M socket-days; that the maps are per-die rather than per-SKU,
+with 443 of 495 possible patterns realised; that harvested slices cluster in sensor-index space;
+and that a sharp changepoint at node~440 separates two procurement populations with different
+binning statistics. Over 2.5 years the maps are static to within 0.25 percentage points per month,
+change only across reboots, and exhibit three field core-guard episodes, each removing exactly one
+slice while every other sensor on the socket keeps reporting.
+
+Two boundaries deserve emphasis. We do \emph{not} establish that the sensor index tracks physical
+die position, so the clustering result is stated in index space and its spatial reading remains a
+hypothesis. And the harvest map turns out to have no measurable operational effect---a negative
+result we consider as useful as the positive ones, since it tells operators what they can ignore.
+The broader point is that fleet telemetry is a viable instrument for hardware provenance, and that
+its unintended disclosures deserve attention from those who publish such datasets.
+
+\section*{Artefact availability}
+All analysis code, the derived per-(node, socket, core, day) tables, and the recovered harvest maps
+are available at the artefact repository accompanying this paper. Every result is reproducible from
+the public M100 ExaData Zenodo releases~\cite{borghesi2023m100}; the derived tables (15\,MB)
+suffice for all structural and longitudinal results without re-downloading the 49.9\,TB source.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
