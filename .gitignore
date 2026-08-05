@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# extracted dataset partitions — regenerate from the Zenodo archives
+ipmi/
+ipmi2103/
+*.tar
