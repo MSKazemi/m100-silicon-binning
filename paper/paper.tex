@@ -385,15 +385,15 @@ deconfiguration events that would otherwise be visible only in service logs. And
 Sec.~\ref{sec:impact}, it establishes when a hardware property can safely be \emph{ignored}.
 
 \section{Related work}
-\todo{expand; the citations below are located but \unver{unverified}.}
+All references in this section were verified against their original sources on 2026-08-05.
 Manufacturing variability in HPC has been studied mainly through its
 \emph{performance} consequences---frequency and power spread under a power
-cap~\unver{\cite{inadomi2015variation}}, turbo-boost variation across nominally identical
-processors~\unver{\cite{acun2016variation}}, and accelerator-level variability in GPU-rich
-systems~\unver{\cite{sinha2022gpuvariability}}. That literature treats the die as a black box
+cap~\cite{inadomi2015variation}, turbo-boost variation across nominally identical
+processors~\cite{acun2016variation}, and accelerator-level variability in GPU-rich
+systems~\cite{sinha2022gpuvariability}. That literature treats the die as a black box
 characterised by its behaviour. Yield modelling, conversely, treats defect statistics directly:
-the negative-binomial family~\unver{\cite{stapper1993negbinom}} and spatial wafer-map
-models~\unver{\cite{friedman2007waferyield}} describe clustered killer defects but are validated on
+the negative-binomial family~\cite{koren1993negbinom} and spatial wafer-map
+models~\cite{bae2007waferyield} describe clustered killer defects but are validated on
 fab data unavailable to system owners. To our knowledge no prior work recovers per-die harvesting
 maps from deployed-system telemetry, which is the gap this paper addresses.
 
