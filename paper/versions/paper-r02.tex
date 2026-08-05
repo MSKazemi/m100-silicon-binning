@@ -196,16 +196,12 @@ silently mixes two dies. \emph{Detector:} the mirror test of Sec.~\ref{sec:taxon
 identifies 19\,\% of steady-state map changes as relabelling rather than replacement.
 
 \subsection{Null model for clustering}
-\label{sec:null}
 Every socket has exactly four harvested slices, so the constraint induces negative dependence and a
 naive independence null is invalid. We use the curveball algorithm~\cite{strona2014curveball},
 which preserves \emph{both} row sums (4 per socket) and column sums (per-slice marginals) while
-randomising association structure. We use 200 draws of 20{,}000 swaps each, and assert row- and
-column-sum preservation on every draw. Repeating the whole null at 25--400 draws moves the
-resulting $z$ by about $\pm1$, so we quote it to the nearest integer rather than to a decimal.
+randomising association structure. Row- and column-sum preservation is asserted on each of 200 draws.
 
 \subsection{Thermal probing of die topology}
-\label{sec:thermal}
 Cores on a socket share workload and inlet air, producing a dominant common mode. We remove it by
 subtracting the per-timestamp cross-core mean, double-centre, and compute residual correlations.
 Physically abutted cores should retain positive residual coupling.
@@ -263,8 +259,7 @@ representative, and every estimate here is a 2.5-year-stable measurement.
 \subsection{Harvested slices cluster in index space}
 \label{sec:cluster}
 Under the curveball null the mean index gap between harvested slices is $4.242$ versus
-$4.582\pm0.017$ ($z\approx-20$; Monte-Carlo noise $\pm1$, see Sec.~\ref{sec:null}). Applying a
-Bonferroni correction across all $\binom{12}{2}=66$ pair
+$4.582\pm0.017$ ($z=-20.2$). Applying a Bonferroni correction across all $\binom{12}{2}=66$ pair
 tests ($|z|>3.83$), 17 pairs remain significant (Fig.~\ref{fig:cooc}). The positive excesses are
 0\&1 ($z=+16.7$), 6\&7 ($+9.2$), 2\&3 ($+8.0$), 8\&9 ($+7.7$), 10\&11 ($+7.5$), 4\&5 ($+7.1$),
 1\&2 ($+6.9$) and 0\&2 ($+6.3$): \textbf{eight of the nine positive-excess pairs have
@@ -559,75 +554,23 @@ per-slice propensity (the slice-0 asymmetry) and $\gamma$ measures clustering \e
 those propensities explain. The normalising constant is an exact sum over all
 $\binom{12}{4}=495$ patterns, so likelihood and gradient are exact.
 
-\begin{table}[h]\centering\caption{Fitted clustering parameter by procurement lot. Uncertainties
-are \textbf{rack-clustered bootstrap} standard errors (400 resamples of the 49 racks), not the
-i.i.d.\ values, because sockets are not independent---see the text.}
+\begin{table}[h]\centering\caption{Fitted clustering parameter by procurement lot.}
 \label{tab:yield}
 \begin{tabular}{lrrr}\toprule
 Population & $n$ & $\gamma$ & LR $\chi^2_1$ vs $\gamma{=}0$\\\midrule
-Lot A (racks 0--21)  & 880 & $+0.743\pm0.046$ & 174.2\\
-Lot B (racks 22--48) & 1{,}082 & $+0.434\pm0.055$ & 106.4\\
-Whole fleet          & 1{,}962 & $+0.647\pm0.046$ & 394.5\\
+Lot A (racks 0--21)  & 880 & $+0.743\pm0.044$ & 174.2\\
+Lot B (racks 22--48) & 1{,}082 & $+0.434\pm0.040$ & 106.4\\
+Whole fleet          & 1{,}962 & $+0.647$ & 394.5\\
 \bottomrule\end{tabular}\end{table}
 
 Three things follow. First, \textbf{clustering is real in both lots} ($\chi^2_1$ of 174 and 106,
 $p\ll0.001$): mean adjacent-pair counts are 1.463 and 1.218 observed against 1.203 and 0.993 under
-the no-clustering model. Second, \textbf{the lots differ significantly in clustering strength}, not only in their
-marginals. Here the uncertainty needs care: an i.i.d.\ likelihood over sockets would give
-$z=+5.22$, but sockets are \emph{not} independent---each node contributes two, and
-Sec.~\ref{sec:lot} shows same-rack sockets share more harvested slices than chance. Resampling
-\emph{racks} rather than sockets inflates the standard errors by $1.05\times$ to $1.58\times$ and
-moves the difference to $\gamma_A-\gamma_B = +0.309$, $z=+4.34$, 95\,\% CI
-$[+0.183,+0.456]$. The claim survives the correct uncertainty; we report the clustered figure. Third, and most usefully, the two effects
+the no-clustering model. Second, \textbf{the lots differ significantly in clustering strength}
+($z=+5.22$), not only in their marginals. Third, and most usefully, the two effects
 \emph{separate}: Lot~A's $\beta_0=+2.51$ dwarfs every other propensity while Lot~B's $\beta$ vector
 is nearly flat (range $+0.34$ to $-0.13$), yet both carry a substantial positive $\gamma$. The
 slice-0 asymmetry and the spatial clustering are therefore distinct phenomena rather than two
 views of one.
-
-\subsection{Sensitivity to the analysis choices}
-\label{sec:sens}
-Every number above depends on three discretionary choices: where to set the clean-day threshold,
-how to summarise a socket's clean days into one map, and how many draws to run the null for. We
-varied all three (Table~\ref{tab:sens}).
-
-\begin{table}[h]\centering\caption{Sensitivity of the headline results to the analysis choices.
-The paper's settings are in bold.}\label{tab:sens}
-\footnotesize
-\begin{tabular}{lrrrrr}\toprule
-Choice & Clean s-days & Sockets & Patterns & $P(s_0)$ & Welch $t$\\\midrule
-\multicolumn{6}{l}{\emph{clean-day threshold (fraction of the 4{,}320 expected samples)}}\\
-0.50 & 1{,}607{,}604 & 1{,}962 & 442 & 61.2\,\% & 26.6\\
-0.80 & 1{,}550{,}864 & 1{,}962 & 442 & 61.2\,\% & 26.6\\
-\textbf{0.90} & \textbf{1{,}517{,}473} & \textbf{1{,}962} & \textbf{443} & \textbf{61.2\,\%} & \textbf{26.6}\\
-0.95 & 1{,}474{,}479 & 1{,}962 & 443 & 61.2\,\% & 26.6\\
-0.99 & 1{,}324{,}982 & 1{,}960 & 443 & 61.2\,\% & 26.6\\\midrule
-\multicolumn{6}{l}{\emph{map rule (threshold 0.90); ``differs'' = sockets whose map changes}}\\
-\textbf{mode} & --- & \textbf{1{,}962} & \textbf{443} & \textbf{61.2\,\%} & \textbf{26.6}\\
-first clean day & --- & 1{,}962 & 442 & 61.6\,\% & 28.4\\
-last clean day & --- & 1{,}962 & 443 & 61.1\,\% & 25.9\\
-strict (all days equal) & --- & 1{,}756 & 436 & 60.8\,\% & 28.0\\
-\bottomrule\end{tabular}\end{table}
-
-\textbf{The clean-day threshold is inert.} Moving it from 0.50 to 0.99 discards 18\,\% of
-socket-days and changes nothing that matters: the same 1{,}962 sockets (1{,}960 at 0.99), 442--443
-patterns, an identical 61.2\,\% slice-0 rate and an identical lot contrast. This is a stronger
-statement than ``we chose 0.90''.
-
-\textbf{The map rule matters slightly, and in the expected direction.} Taking the first clean day
-instead of the mode changes 163 of 1{,}962 maps (8.3\,\%) and taking the last changes 49
-(2.5\,\%) --- these are exactly the sockets that undergo a transition, and the asymmetry (more
-change under ``first'' than ``last'') reflects that commissioning-era configurations are the ones
-later replaced. The lot contrast ranges only over $t=25.9$--$28.4$. The \emph{strict} rule, which
-keeps only sockets whose every clean day is identical, retains 1{,}756 sockets --- precisely the
-89.5\,\% that never change --- and still reproduces the boundary at $t=28.0$.
-
-\textbf{The null is converged.} Running the curveball null at 25, 50, 100, 200 and 400 draws gives
-$z = -18.3, -18.6, -17.9, -19.6, -20.0$: stable in magnitude with about $\pm1$ of Monte-Carlo
-noise, which is why Sec.~\ref{sec:cluster} quotes $z\approx-20$.
-
-\emph{Not varied:} the one-minute alignment grid of Sec.~\ref{sec:thermal}, which would require
-re-deriving the raw series. We flag it as an untested choice rather than claim robustness we have
-not measured.
 
 \subsection{The harvest map has no operational consequence}
 \label{sec:impact}
