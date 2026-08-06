@@ -69,10 +69,11 @@ box(axT, 66, 13.6, 22, 7.6, 'white', ec=BLUE, lw=1.0)
 box(axT, 67.4, 16.6, 8.8, 2.9, '#2c5282'); axT.text(71.8, 18.05, 'core $2k$', ha='center', color='w', fontsize=6.2)
 box(axT, 77.4, 16.6, 9.2, 2.9, '#2c5282'); axT.text(82.0, 18.05, 'core $2k{+}1$', ha='center', color='w', fontsize=6.2)
 box(axT, 67.4, 14.4, 19.2, 1.8, '#c6f6d5'); axT.text(77.0, 15.3, '512 kB L2 + 10 MB L3', ha='center', fontsize=5.9)
-axT.text(77, 22.2, 'one slice = the unit that is fused', ha='center', fontsize=6.6,
-         color=BLUE, fontweight='bold')
-axT.plot([62.9, 67.5], [25.2, 21.3], color=BLUE, lw=.6, ls='--')
-axT.plot([65.7, 87.5], [25.2, 21.3], color=BLUE, lw=.6, ls='--')
+axT.text(77, 22.4, 'one slice = the unit that is fused', ha='center', fontsize=6.6,
+         color=BLUE, fontweight='bold', zorder=6,
+         bbox=dict(fc='white', ec='none', pad=1.2, alpha=1.0))
+axT.plot([62.9, 67.5], [25.2, 21.3], color=BLUE, lw=.6, ls='--', zorder=1)
+axT.plot([65.7, 87.5], [25.2, 21.3], color=BLUE, lw=.6, ls='--', zorder=1)
 
 # ---------------- taxonomy strip ----------------
 axB.text(50, 10.6, 'what a change in the recovered map means, and how often (steady state)',
