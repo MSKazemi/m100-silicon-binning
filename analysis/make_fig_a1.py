@@ -50,8 +50,9 @@ cols = [BLUE, '#dd6b20', GREY]
 ax2.barh(range(3), vals, color=cols)
 for i, v in enumerate(vals):
     ax2.text(v + .5, i, f'{v:.1f} W', va='center', fontsize=7.5, fontweight='bold')
-    ax2.text(.5, i - .34, labels[i].replace('\n', ' '), va='center', ha='left',
-             fontsize=6.0, color='#1a202c')
+    ax2.text(.4, i - .40, labels[i].replace('\n', ' '), va='bottom', ha='left',
+             fontsize=6.0, color='#1a202c',
+             bbox=dict(fc='white', ec='none', alpha=.75, pad=.8))
 ax2.set_yticks([])
 ax2.set_xlabel('effect on socket power [W]'); ax2.set_xlim(0, max(vals) * 1.30)
 ax2.invert_yaxis()

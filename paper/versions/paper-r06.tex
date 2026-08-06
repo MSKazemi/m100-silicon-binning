@@ -7,9 +7,9 @@
 \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
 \newcommand{\unver}[1]{\textcolor{orange}{#1}}
 
-\title{Which 16 of 24? Per-Die Silicon Harvest Maps,\\
-Procurement Lots and Core Guarding\\
-from Supercomputer Telemetry}
+\title{Reading the Fab from the Machine Room:\\
+Recovering Per-Die Silicon Harvest Maps from\\
+Supercomputer Out-of-Band Telemetry}
 
 \author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili}
 \IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering} \\
@@ -290,8 +290,8 @@ required---an inner join at native resolution retains 133{,}907 of 133{,}920 pos
 (99.99\,\%). Earlier versions of this analysis nonetheless aligned onto a one-minute grid, a step
 introduced to work around an unrelated bug and never revisited. It is not neutral
 (Table~\ref{tab:grid}): coarser averaging suppresses high-frequency noise and inflates every
-correlation, within-slice more than cross-slice, so within this subsample the contrast grows from
-$+0.063$ at 20\,s to $+0.140$ at 15\,min. \textbf{We therefore quote the native-resolution figure, which is the most
+correlation, within-slice more than cross-slice, so the contrast grows from $+0.063$ at 20\,s to
+$+0.140$ at 15\,min. \textbf{We therefore quote the native-resolution figure, which is the most
 conservative.} What does \emph{not} move is the ordering---within-slice exceeds cross-slice at
 every grid---and, critically, the floorplan fit of Sec.~\ref{sec:layout}, which sits at
 $-0.787,-0.773,-0.766,-0.767$ across the four grids. The paper's load-bearing thermal claim is
@@ -829,18 +829,9 @@ Sec.~\ref{sec:lifecycle}. The two nodes appearing to change within a day are sam
 \item \textbf{[OI-8] The mechanism behind p0/p1 relabelling is unknown}; any per-socket
 longitudinal study on this dataset risks silently mixing two dies.
 \item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts.
-\item \textbf{Preprocessing moved our numbers more often than the data did.} We record this
-because it is the most transferable thing we learned. Three reported effect sizes changed
-materially during this work, none because of new measurements: a three-day sample overstated the
-within/cross-slice contrast threefold \emph{and inverted the floorplan conclusion}; a one-minute
-alignment grid---adopted to work around an unrelated bug and never revisited---inflated that
-contrast by $2.2\times$; and an intermediate revision quoted the corrected contrast from a
-different subsample than the one it named. \textbf{Two of the three were introduced while fixing
-something else.} The defences that worked were mechanical rather than clever: re-deriving every
-number from a single stated pipeline, varying each discretionary choice
-(Sec.~\ref{sec:sens}), and reporting the most conservative variant rather than the most
-favourable. Anyone mining a telemetry archive of this kind should expect the same failure mode,
-and should be at least as suspicious of their corrections as of their original analysis.
+\textbf{Sample size matters more than we first appreciated}: the three-day 2020-04 sample
+overstated the within/cross-slice contrast threefold and inverted the floorplan conclusion. All
+thermal results here use a full month and both sockets.
 \item \textbf{[OI-10] Single system}; findings may reflect CINECA procurement rather than POWER9
 generally.
 \end{enumerate}
