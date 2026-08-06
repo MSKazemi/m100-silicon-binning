@@ -148,8 +148,9 @@ that never touch the IPMI sensor family and that both know how many cores exist.
 
 \textbf{The operating system.} The ganglia plugin reports \texttt{cpu\_num}, the node's own
 logical-CPU count. POWER9 runs four SMT threads per core, so two sockets of 16 cores should present
-$2\times16\times4=128$ logical CPUs. Across 2022-08 the OS reports \textbf{exactly 128 on
-40{,}938{,}659 of 40{,}939{,}906 samples (99.997\,\%) over 988 nodes}.
+$2\times16\times4=128$ logical CPUs. Across the whole record---\textbf{847{,}297{,}478 samples,
+990 nodes, the 29 months in which ganglia collected this metric}---the OS reports exactly 128 on
+\textbf{99.985\,\%} of samples.
 
 \textbf{The scheduler.} SLURM's configured-CPU totals across the four partitions are
 $110{,}208+12{,}672+2{,}560+256=125{,}696$, which is $982\times128$. The scheduler agrees, from a
@@ -487,6 +488,30 @@ sockets over the 932-day record}, i.e.\ 0.15\,\% of sockets---but with three eve
 Poisson interval is $[0.03,0.45]\,\%$, a factor of fourteen wide. \textbf{This is an
 order-of-magnitude statement, not a precise rate}, and we state it as one. Durations are lower
 bounds, since an episode is counted only on fully-sampled days.
+
+\emph{Independently confirmed by the operating system.} The deviations in the OS core count are
+not noise, and they are not uniform. Of 990 nodes, exactly \textbf{three} ever report \textbf{120}
+logical CPUs---which is $128-8$, precisely one slice of two cores at four threads. Those three nodes
+are \textbf{347, 411 and 946}: the same three sockets, and only those, that the BMC analysis
+identifies as core-guard episodes. Under a null in which the OS flagged three arbitrary nodes, the
+chance of matching our three is $1/\binom{990}{3}=6.2\times10^{-9}$.
+
+The dates agree too, and agree in the direction the method predicts. For node~411 the OS window is
+2021-11-12--16 against a BMC episode of 11-13--15; for node~946, 2020-08-30--09-02 against
+08-31--09-01. In both cases the OS window \emph{brackets} the BMC one, exactly as it should, since
+a BMC episode is counted only on fully-sampled days and its duration is therefore a lower bound.
+Node~347 additionally shows an OS deviation in 2020-10 that our strict criterion did not flag,
+which if anything means we undercount.
+
+This is the strongest evidence in the paper. Three events recovered from thermal-sensor presence
+alone are confirmed, node-for-node, by the operating system's own CPU count---a quantity produced
+by a different collector, from a different layer of the stack, that never touches a BMC sensor.
+
+\emph{And the OS sees what the BMC cannot.} Six further nodes report \textbf{124} logical CPUs
+($128-4$, one SMT4 \emph{core}). That is not slice-granular and so cannot be a fusing event; on
+those same days the BMC still reports its usual 16 cores. This is operating-system core offlining,
+invisible to the BMC---precisely the layer separation asserted in Sec.~\ref{sec:lifecycle}, here
+observed rather than argued.
 
 \emph{Not an artefact of a tight filter.} The criterion above is strict, so we re-ran the search
 against the \emph{adjacent observed day} rather than the modal map, requiring only that surviving
@@ -890,8 +915,14 @@ $\ge$90\,\% coverage leaves the lot contrast unchanged (Sec.~\ref{sec:lot}).
 \item \textbf{[OI-6, OI-7] both resolved.} The sub-16 socket-days were dominated by an
 extraction defect on our side, now gated; the nine that survive are the guard episodes of
 Sec.~\ref{sec:lifecycle}. The two nodes appearing to change within a day are same-day reboots.
-\item \textbf{[OI-8] The mechanism behind p0/p1 relabelling is unknown}; any per-socket
-longitudinal study on this dataset risks silently mixing two dies.
+\item \textbf{[OI-8] Largely settled.} Extending per-socket power collection from six months to
+all 31 raises the usable relabelling events from 4 to \textbf{23}. Restricting to events where the
+socket power difference is large enough for its sign to be meaningful ($>2$\,W on both sides),
+\textbf{12 of 15 flip sign} at the relabelling instant (80\,\%, 95\,\% CI $[52,96]$). A
+collector-side tag swap carries every per-socket metric with it, and power overwhelmingly follows.
+The residual minority may be genuine die exchanges that happen to mirror, or power differences too
+small to resolve; any per-socket longitudinal study on this dataset should still treat relabelling
+as a hazard.
 \item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts.
 \item \textbf{Preprocessing moved our numbers more often than the data did.} We record this
 because it is the most transferable thing we learned. Three reported effect sizes changed
