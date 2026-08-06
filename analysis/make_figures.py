@@ -163,7 +163,7 @@ tab = np.array([[M[(rack == r), k].mean() for k in range(NP)] for r in sorted(se
 fig, ax = plt.subplots(figsize=(5.2, 3.2))
 im = ax.imshow(100 * tab, aspect='auto', cmap='magma_r', vmin=0, vmax=100)
 ax.axhline(21.5, color='#38b2ac', lw=2.2)
-ax.text(6.0, 19.6, 'lot boundary (node 440)', color='#0d7377', fontsize=6.8,
+ax.text(6.0, 19.6, 'lot boundary (node 439)', color='#0d7377', fontsize=6.8,
         ha='center', va='center', fontweight='bold',
         bbox=dict(fc='white', ec='#38b2ac', lw=.6, pad=1.6, alpha=.92))
 ax.set_xlabel('slice index $k$'); ax.set_ylabel('rack'); ax.grid(False)

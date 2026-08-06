@@ -11,13 +11,10 @@
 Procurement Lots and Core Guarding\\
 from Supercomputer Telemetry}
 
-\author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili}
-\IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering} \\
-\textit{University of Bologna}, Italy \\ \texttt{mohsen.seyedkazemi@unibo.it}}
-\and
-\IEEEauthorblockN{Andrea Bartolini}
-\IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering} \\
-\textit{University of Bologna}, Italy \\ \texttt{a.bartolini@unibo.it}}}
+\author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili\quad Andrea Bartolini}
+\IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering}\\
+\textit{University of Bologna}, Italy\\
+\texttt{\{mohsen.seyedkazemi,\,a.bartolini\}@unibo.it}}}
 
 \begin{document}
 \maketitle
@@ -310,9 +307,7 @@ physical environment. (Both curves spike at lag~0 relative to their neighbours, 
 shared same-sample measurement artefact---so the excess is least trustworthy at exactly the lag an
 activity explanation would need it to be largest.)
 
-\begin{table}[h]\centering\caption{Lagged cross-correlation, 60 nodes, common mode removed,
-native cadence. The within-slice excess grows with lag; instantaneous activity sharing predicts the
-opposite.}\label{tab:lag}\footnotesize
+\begin{table}[h]\centering\caption{Lagged cross-correlation.}\label{tab:lag}\footnotesize
 \begin{tabular}{rrrrr}\toprule
 lag (20\,s) & within & cross & excess & core autocorr.\\\midrule
 0 & 0.3522 & 0.3023 & 0.0499 & 1.000\\
@@ -320,11 +315,12 @@ $\pm1$ & 0.2759 & 0.2144 & 0.0615 & 0.680\\
 $\pm2$ & 0.2804 & 0.2141 & 0.0663 & 0.663\\
 $\pm5$ & 0.2858 & 0.2110 & 0.0748 & 0.630\\
 $\pm10$ & 0.2907 & 0.2077 & 0.0830 & 0.604\\
-\bottomrule\end{tabular}\end{table}
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize 60 nodes, common mode removed, native cadence. The within-slice excess
+\emph{grows} with lag; instantaneous activity sharing predicts the opposite.
+\end{table}
 
-\begin{table}[h]\centering\caption{Thermal results against alignment grid. This sweep uses a
-180-socket subsample, so its 20\,s row differs marginally from the 240-socket primary estimate
-above; the point is the trend across rows, not the absolute values.}
+\begin{table}[h]\centering\caption{Thermal results against alignment grid.}
 \label{tab:grid}\footnotesize
 \begin{tabular}{lrrrr}\toprule
 Grid & rows/socket & within & cross & $1\times12$ fit\\\midrule
@@ -332,7 +328,10 @@ Grid & rows/socket & within & cross & $1\times12$ fit\\\midrule
 1\,min & 44{,}640 & +0.411 & +0.329 & $-0.773$\\
 5\,min & 8{,}928 & +0.466 & +0.351 & $-0.766$\\
 15\,min & 2{,}976 & +0.508 & +0.368 & $-0.767$\\
-\bottomrule\end{tabular}\end{table}
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize A 180-socket subsample, so the 20\,s row differs marginally from the
+240-socket primary estimate; the point is the trend across rows, not the absolute values.
+\end{table}
 
 \paragraph*{A correction to an earlier estimate} An initial version of this analysis used 40
 sockets in 2020-04, a month with only three reporting days, and reported a contrast of
@@ -470,16 +469,16 @@ every other sensor on the same socket at full cadence, is not a plausible accoun
 attribute these episodes to hardware deconfiguration; to our knowledge this is the first direct
 observation of POWER9 field core guarding in a deployed system.
 
-\begin{table}[h]\centering\caption{Core-guard episodes. Baselines are the adjacent observed day,
-not the socket's global modal set, since two of these sockets also change configuration elsewhere
-in their life.}\label{tab:guard}
+\begin{table}[h]\centering\caption{Core-guard episodes.}\label{tab:guard}
 \begin{tabular}{llrlr}\toprule
 Socket & Dates & Days & Slice lost & Restored\\\midrule
 347\,p1 & 2020-03-13--16 & 4 & 4 (cores 8,9)   & yes\\
 411\,p1 & 2021-11-13--15 & 3 & 6 (cores 12,13) & yes$^\dagger$\\
 946\,p0 & 2020-08-31--09-01 & 2 & 8 (cores 16,17) & not observed\\
 \bottomrule\end{tabular}
-\\[2pt]\footnotesize$^\dagger$restored via a day that also spans a reconfiguration.
+\\[2pt]\footnotesize Baselines are the adjacent observed day, not the socket's global modal
+set, since two of these sockets also change configuration elsewhere in their life.
+$^\dagger$Restored via a day that also spans a reconfiguration.
 \end{table}
 
 \paragraph{Changes never occur during operation} Of \textbf{235} transitions across the full
@@ -618,16 +617,17 @@ per-slice propensity (the slice-0 asymmetry) and $\gamma$ measures clustering \e
 those propensities explain. The normalising constant is an exact sum over all
 $\binom{12}{4}=495$ patterns, so likelihood and gradient are exact.
 
-\begin{table}[h]\centering\caption{Fitted clustering parameter by procurement lot. Uncertainties
-are \textbf{rack-clustered bootstrap} standard errors (400 resamples of the 49 racks), not the
-i.i.d.\ values, because sockets are not independent---see the text.}
+\begin{table}[h]\centering\caption{Fitted clustering parameter by lot.}
 \label{tab:yield}
 \begin{tabular}{lrrr}\toprule
 Population & $n$ & $\gamma$ & LR $\chi^2_1$ vs $\gamma{=}0$\\\midrule
 Lot A (racks 0--21)  & 880 & $+0.743\pm0.046$ & 174.2\\
 Lot B (racks 22--48) & 1{,}082 & $+0.434\pm0.055$ & 106.4\\
 Whole fleet          & 1{,}962 & $+0.647\pm0.046$ & 394.5\\
-\bottomrule\end{tabular}\end{table}
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize Uncertainties are rack-clustered bootstrap standard errors (400 resamples
+of the 49 racks), not i.i.d.\ values, because sockets are not independent---see the text.
+\end{table}
 
 Three things follow. First, \textbf{clustering is real in both lots} ($\chi^2_1$ of 174 and 106,
 $p\ll0.001$): mean adjacent-pair counts are 1.463 and 1.218 observed against 1.203 and 0.993 under
@@ -649,8 +649,7 @@ Every number above depends on three discretionary choices: where to set the clea
 how to summarise a socket's clean days into one map, and how many draws to run the null for. We
 varied all three (Table~\ref{tab:sens}).
 
-\begin{table}[h]\centering\caption{Sensitivity of the headline results to the analysis choices.
-The paper's settings are in bold.}\label{tab:sens}
+\begin{table}[h]\centering\caption{Sensitivity to the analysis choices.}\label{tab:sens}
 \footnotesize
 \begin{tabular}{lrrrrr}\toprule
 Choice & Clean s-days & Sockets & Patterns & $P(s_0)$ & Welch $t$\\\midrule
@@ -665,7 +664,9 @@ Choice & Clean s-days & Sockets & Patterns & $P(s_0)$ & Welch $t$\\\midrule
 first clean day & --- & 1{,}962 & 442 & 61.6\,\% & 28.4\\
 last clean day & --- & 1{,}962 & 443 & 61.1\,\% & 25.9\\
 strict (all days equal) & --- & 1{,}756 & 436 & 60.8\,\% & 28.0\\
-\bottomrule\end{tabular}\end{table}
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize The paper's settings are in bold.
+\end{table}
 
 \textbf{The clean-day threshold is inert.} Moving it from 0.50 to 0.99 discards 18\,\% of
 socket-days and changes nothing that matters: the same 1{,}962 sockets (1{,}960 at 0.99), 442--443
