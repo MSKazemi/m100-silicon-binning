@@ -14,8 +14,8 @@ YM = os.environ.get('THERM_MONTH', '22-08')
 base = Path(os.environ.get('THERM_DIR', root.parent / '.therm')) / f'year_month={YM}' / 'plugin=ipmi_pub'
 rng = np.random.default_rng(31)
 NC, NP = 24, 12
-MINSAMP = 8000           # >= ~6 days on the 1-minute aligned grid
-NSEL = 120               # nodes sampled; bounded by RAM, stated rather than silent
+MINSAMP = 100000         # >= ~23 days at native 20 s cadence
+NSEL = 120               # nodes sampled -> 240 sockets, matching the figure stated in the paper
 
 # Memory-lean ingest: a full month of 48 core metrics does not fit in RAM at once, so read
 # each metric ONCE, immediately restrict to the sampled nodes, downsample 3x (correlation is
@@ -39,8 +39,9 @@ for s in (0, 1):
         d = d[d.node.isin(sel)]
         # Align by flooring to a 1-minute grid and averaging. A row-stride downsample would
         # pick different timestamps for different cores and destroy the cross-core join.
-        d['t'] = d['timestamp'].dt.floor('1min')
-        g = {n: v.groupby('t')['value'].mean().astype('float32')
+        # Native 20 s cadence: BMC timestamps already coincide across a socket's cores, so an
+        # inner join needs no resampling (see the grid sensitivity). Flooring only smooths.
+        g = {n: v.set_index('timestamp')['value'].astype('float32')
              for n, v in d.groupby('node', observed=True)}
         series[(s, c)] = g
         del d

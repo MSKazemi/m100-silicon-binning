@@ -277,9 +277,8 @@ exception rather than rounding it away. Because Sec.~\ref{sec:layout} shows inde
 We probe 240 sockets---120 nodes, \emph{both} p0 and p1---across the full 31-day month 2022-08
 (Fig.~\ref{fig:thermal}). At \emph{identical} index distance of~1, within-slice siblings are more
 strongly coupled than cross-slice neighbours, and the ordering is unambiguous: at native 20\,s
-resolution $r=+0.377$ (95\,\% CI $[0.366,0.387]$) against $+0.308$ ($[0.291,0.324]$), a
-\textbf{contrast of $+0.069$} with permutation $p<10^{-5}$ and non-overlapping intervals. The
-effect replicates independently on each socket. The two cores of a slice are measurably more coupled than
+resolution $r=+0.377$ against $+0.314$, a \textbf{contrast of $+0.063$}. The effect replicates
+independently on each socket. The two cores of a slice are measurably more coupled than
 equally-numbered cores across a slice boundary, confirming physical abutment and the slice as a
 physical unit.
 
@@ -322,9 +321,7 @@ $\pm5$ & 0.2858 & 0.2110 & 0.0748 & 0.630\\
 $\pm10$ & 0.2907 & 0.2077 & 0.0830 & 0.604\\
 \bottomrule\end{tabular}\end{table}
 
-\begin{table}[h]\centering\caption{Thermal results against alignment grid. This sweep uses a
-180-socket subsample, so its 20\,s row differs marginally from the 240-socket primary estimate
-above; the point is the trend across rows, not the absolute values.}
+\begin{table}[h]\centering\caption{Thermal results against alignment grid (180 sockets).}
 \label{tab:grid}\footnotesize
 \begin{tabular}{lrrrr}\toprule
 Grid & rows/socket & within & cross & $1\times12$ fit\\\midrule
