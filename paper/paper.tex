@@ -486,6 +486,16 @@ the GARD record~\cite{skiboot_gard}. The measured rate is \textbf{3 episodes acr
 sockets over 2.5 years}, i.e.\ 0.15\% of sockets. Durations are lower bounds, since an episode is
 counted only on fully-sampled days.
 
+\emph{Not an artefact of a tight filter.} The criterion above is strict, so we re-ran the search
+against the \emph{adjacent observed day} rather than the modal map, requiring only that surviving
+slices exceed 50\,\% sampling rather than 90\,\%. It returns \textbf{the same three episodes and
+no others}, two of which show the slice returning within 30 days. Relaxing the filter does not
+multiply the count, so three is a property of the fleet and not of the threshold. (A first attempt
+compared each day against the socket's \emph{global} modal map instead; that conflates guard events
+with permanent reconfigurations---a socket that changes configuration mismatches its modal map for
+hundreds of days---and inflated the count to 30. We report the failed variant because the same
+mistake would inflate anyone else's count the same way.)
+
 \emph{Ruling out a collector fault.} The competing explanation is that the collector dropped
 exactly those two metric streams. We test it directly: for each episode we ask whether the
 \emph{other} sensors on the same node---in particular on the same socket---kept reporting. They
@@ -524,6 +534,14 @@ $\{8,9,10,11\}$ resume at 09:10, a 28-minute outage, with exactly 16 cores befor
 a coordinated maintenance reboot. Day-granularity aggregation is therefore \emph{conservative}
 here: it cannot see sub-day downtime, so our transition-gap statistics understate how consistently
 changes coincide with reboots.
+
+\paragraph{Staticity as a prediction, not a description} The figures above describe the record
+in-sample. We also test them out-of-sample: derive each socket's map from the \emph{first} half of
+the record (2020-03 to 2021-06) and use it to predict every clean socket-day in the \emph{second}
+(2021-07 to 2022-09). Over \textbf{839{,}067 held-out socket-days the prediction is correct
+96.77\,\% of the time}, and the errors are not diffuse: they fall on \textbf{89 of 1{,}962
+sockets} (4.5\,\%), which are the sockets that genuinely reconfigure between the two halves. A map
+measured once therefore forecasts a socket more than a year later.
 
 \paragraph{Changes concentrate at commissioning} The 235 transitions involve 132 nodes on 81
 distinct dates, but are heavily clustered: 2020-03-20 alone accounts for 63 and the top three dates
@@ -769,6 +787,16 @@ rack position is confounded with cooling and workload. It cannot be: harvesting 
 fusing at manufacture, months before a part is installed, so nothing about a socket's position in
 the machine room can influence its harvest map. The only admissible causal direction runs from
 procurement batch to rack, which is precisely the provenance signal we claim.
+
+\paragraph{How identifying is a harvest map?} Since the map is a per-die property, it is fair to
+ask whether it identifies a socket---which would raise a different set of questions from the
+provenance ones we pursue. It does not. Over 1{,}962 sockets the pattern distribution carries
+$H=8.08$ bits, an effective $2^{H}=270$ distinct maps against 495 possible (90.2\,\% of uniform),
+and only \textbf{4.9\,\% of sockets have a map unique in the fleet}; a typical map is shared by
+4.4 sockets. Adding the lot raises this only to 12.1\,\%. The map is thus a \emph{partial}
+identifier---strong evidence about which population a part came from, weak evidence about which
+part it is. That is precisely the claim we make, and it is the quantitative reason this work sits
+apart from the fingerprinting literature~\cite{jetta2025provenance} rather than extending it.
 
 \paragraph{What this buys an operator.} Three things. Fleet telemetry can audit a procurement
 without vendor cooperation, detecting whether a delivery is homogeneous. It can detect field
