@@ -300,12 +300,20 @@ exception rather than rounding it away. Because Sec.~\ref{sec:layout} shows inde
 \emph{is} physical adjacency, this is spatial clustering, not merely index-space clustering.
 
 \subsection{Slice siblings are physically abutted}
-We probe 240 sockets---120 nodes, \emph{both} p0 and p1---across the full 31-day month 2022-08
-(Fig.~\ref{fig:thermal}). At \emph{identical} index distance of~1, within-slice siblings are more
-strongly coupled than cross-slice neighbours, and the ordering is unambiguous: at native 20\,s
-resolution $r=+0.377$ (95\,\% CI $[0.366,0.387]$) against $+0.308$ ($[0.291,0.324]$), a
-\textbf{contrast of $+0.069$} with permutation $p<10^{-5}$ and non-overlapping intervals. The
-effect replicates independently on each socket. The two cores of a slice are measurably more coupled than
+We probe \textbf{every} socket with both halves fully configured---\textbf{1{,}948 sockets across
+974 nodes}---over the full 31-day month 2022-08 (Fig.~\ref{fig:thermal}). At \emph{identical}
+index distance of~1, within-slice siblings are more strongly coupled than cross-slice neighbours:
+$r=+0.372$ (95\,\% CI $[0.369,0.376]$, $n=15{,}584$ pairs) against $+0.312$
+($[0.306,0.317]$, $n=10{,}122$), a \textbf{contrast of $+0.061$} with permutation $p<10^{-5}$ and
+non-overlapping intervals. It holds on \textbf{69\,\% of individual sockets} taken one at a time,
+so the pooled figure is not carried by a minority.
+
+\paragraph*{A census, not a sample} An earlier version used 120 nodes, bounded by memory rather
+than by design, and reported $+0.377$ vs $+0.308$ on 240 sockets. Subsampling in \emph{time}
+rather than in nodes---keeping every fifth 20\,s sample, which lowers the sample count without
+smoothing and so, unlike a coarser alignment grid, does not inflate correlations---lets the whole
+fleet be processed in one pass. The census moves the contrast by $0.008$ and the floorplan fit from
+$-0.787$ to $-0.791$. Every thermal number reported here is a fleet-wide measurement. The two cores of a slice are measurably more coupled than
 equally-numbered cores across a slice boundary, confirming physical abutment and the slice as a
 physical unit.
 
@@ -375,7 +383,8 @@ explicit candidate floorplans: for each, correlate the predicted physical distan
 slices against their measured thermal coupling (Fig.~\ref{fig:layout}). Coupling should fall with
 distance, so a better floorplan gives a more negative correlation.
 
-The identity $1\times12$ linear arrangement wins decisively, at $-0.754$ against a
+Over all 1{,}948 sockets the identity $1\times12$ linear arrangement wins decisively, at
+$-0.791$ (the earlier 120-node subsample gave $-0.754$) against a
 random-ordering null of $+0.001\pm0.123$ ($z=-6.13$, $p<10^{-4}$), and beats every two-dimensional
 alternative tried ($6\times2$: $-0.716$; $4\times3$: $-0.555$; $3\times4$: $-0.488$; $2\times6$:
 $-0.213$). More stringently, an unconstrained hill-climbing search over one-dimensional

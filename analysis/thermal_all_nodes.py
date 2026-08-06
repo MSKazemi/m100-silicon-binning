@@ -16,7 +16,12 @@ from pathlib import Path
 root = Path(__file__).resolve().parent.parent
 YM = os.environ.get('THERM_MONTH', '22-08')
 base = Path(os.environ.get('THERM_DIR', root / '.therm')) / f'year_month={YM}' / 'plugin=ipmi_pub'
-NC, NP, CHUNK, MINSAMP = 24, 12, 120, 100000
+NC, NP, MINSAMP, DECIM = 24, 12, 20000, 5
+# Chunking by node forced 48 file reads per chunk and still held ~40 GB. The fix is to subsample
+# in TIME: keep every DECIM-th 20 s sample. Subsampling is not averaging -- it lowers the sample
+# count without smoothing, so unlike a coarser alignment grid (Sec. IV-E) it does not inflate
+# correlations. ~26.8k samples per socket still pins a correlation tightly, and the whole fleet
+# then fits in a single pass.
 
 dd = pd.read_parquet(root / 'daily' / f'daily_{YM}.parquet')
 ok = dd.groupby(['node', 'socket'])['core'].nunique()
@@ -26,46 +31,48 @@ del dd, ok, full
 print(f'nodes with both sockets fully configured in {YM}: {len(allnodes)}  (processing ALL)')
 
 Csum = np.zeros((NC, NC)); Cn = np.zeros((NC, NC))
-WITHIN, CROSS1 = [], []
-per_socket = []
+WITHIN, CROSS1, per_socket = [], [], []
 nsock = 0
-for ci in range(0, len(allnodes), CHUNK):
-    chunk = set(str(x) for x in allnodes[ci:ci + CHUNK])
-    series = {}
-    for s in (0, 1):
-        for c in range(NC):
-            f = base / f'metric=p{s}_core{c}_temp' / 'a_0.parquet'
-            if not f.exists(): continue
-            d = pd.read_parquet(f, columns=['timestamp', 'value', 'node'])
-            d = d[d.node.isin(chunk)]
-            series[(s, c)] = {n: v.set_index('timestamp')['value'].astype('float32')
-                              for n, v in d.groupby('node', observed=True)}
-            del d
-    for node in sorted(chunk, key=int):
-        for s in (0, 1):
-            cols = {c: series.get((s, c), {}).get(node) for c in range(NC)}
-            cols = {c: v for c, v in cols.items() if v is not None and len(v) > MINSAMP}
-            if len(cols) != 16: continue
-            X = pd.DataFrame(cols).dropna()
-            if len(X) < MINSAMP: continue
-            idx = np.array(sorted(cols)); R = X.values.astype('float64')
-            R = R - R.mean(1, keepdims=True); R = R - R.mean(0, keepdims=True)
-            sd = R.std(0)
-            if (sd == 0).any(): continue
-            C = (R.T @ R) / len(R) / np.outer(sd, sd)
-            nsock += 1
-            w = [C[a, b] for a in range(16) for b in range(a+1, 16)
-                 if abs(idx[a]-idx[b]) == 1 and idx[a]//2 == idx[b]//2]
-            x = [C[a, b] for a in range(16) for b in range(a+1, 16)
-                 if abs(idx[a]-idx[b]) == 1 and idx[a]//2 != idx[b]//2]
-            WITHIN += w; CROSS1 += x
-            if w and x: per_socket.append(np.mean(w) - np.mean(x))
-            for a in range(16):
-                for b in range(16):
-                    Csum[idx[a], idx[b]] += C[a, b]; Cn[idx[a], idx[b]] += 1
-            del X, R, C
-    del series; gc.collect()
-    print(f'  ...{min(ci+CHUNK, len(allnodes))}/{len(allnodes)} nodes, {nsock} sockets', flush=True)
+keep = set(str(x) for x in allnodes)
+series = {}
+for sk in (0, 1):
+    for c in range(NC):
+        f = base / f'metric=p{sk}_core{c}_temp' / 'a_0.parquet'
+        if not f.exists(): continue
+        d = pd.read_parquet(f, columns=['timestamp', 'value', 'node'])
+        d = d[d.node.isin(keep)]
+        # NB: this dataset stores datetime64[ms], so a 20 s bucket is 20_000 units, not 20e9.
+        d = d[(d.timestamp.astype('int64') // 20_000) % DECIM == 0]
+        series[(sk, c)] = {n: v.set_index('timestamp')['value'].astype('float32')
+                           for n, v in d.groupby('node', observed=True)}
+        del d
+    print(f'  loaded socket p{sk} metrics', flush=True)
+gc.collect()
+
+for node in sorted(keep, key=int):
+    for sk in (0, 1):
+        cols = {c: series.get((sk, c), {}).get(node) for c in range(NC)}
+        cols = {c: v for c, v in cols.items() if v is not None and len(v) > MINSAMP}
+        if len(cols) != 16: continue
+        X = pd.DataFrame(cols).dropna()
+        if len(X) < MINSAMP: continue
+        idx = np.array(sorted(cols)); R = X.values.astype('float64')
+        R = R - R.mean(1, keepdims=True); R = R - R.mean(0, keepdims=True)
+        sd = R.std(0)
+        if (sd == 0).any(): continue
+        C = (R.T @ R) / len(R) / np.outer(sd, sd)
+        nsock += 1
+        w = [C[a, b] for a in range(16) for b in range(a+1, 16)
+             if abs(idx[a]-idx[b]) == 1 and idx[a]//2 == idx[b]//2]
+        x = [C[a, b] for a in range(16) for b in range(a+1, 16)
+             if abs(idx[a]-idx[b]) == 1 and idx[a]//2 != idx[b]//2]
+        WITHIN += w; CROSS1 += x
+        if w and x: per_socket.append(np.mean(w) - np.mean(x))
+        for a in range(16):
+            for b in range(16):
+                Csum[idx[a], idx[b]] += C[a, b]; Cn[idx[a], idx[b]] += 1
+        del X, R, C
+print(f'  sockets processed: {nsock}', flush=True)
 
 CORR = Csum / np.maximum(Cn, 1); np.fill_diagonal(CORR, 1.0)
 np.save(root / 'analysis' / 'thermal_corr_allnodes.npy', CORR)
