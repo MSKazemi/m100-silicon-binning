@@ -652,14 +652,18 @@ Sec.~\ref{sec:lifecycle}).
 
 \begin{table}[h]\centering\caption{Hardware-change events, classified at node level.}
 \label{tab:taxonomy}
-\begin{tabular}{lrrl}\toprule
-Kind & Commissioning & Steady state & Interpretation\\\midrule
-\textsc{relabel}   &  3 &  20 & no silicon moved\\
-\textsc{cpu-swap}  & 11 &  68 & one processor replaced\\
-\textsc{cpu-swap?} &  2 &   6 & as above, partner unobserved\\
-\textsc{node-swap} & 40 &  11 & node or both processors replaced\\\midrule
-Total              & 56 & 105 & \\
-\bottomrule\end{tabular}\end{table}
+\begin{tabular}{lrr}\toprule
+Kind & Commiss. & Steady\\\midrule
+\textsc{relabel}   &  3 &  20\\
+\textsc{cpu-swap}  & 11 &  68\\
+\textsc{cpu-swap?} &  2 &   6\\
+\textsc{node-swap} & 40 &  11\\\midrule
+Total              & 56 & 105\\
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize \textsc{relabel}: no silicon moved. \textsc{cpu-swap}: one processor
+replaced. \textsc{cpu-swap?}: as above, partner socket unobserved across the interval.
+\textsc{node-swap}: node or both processors replaced.
+\end{table}
 
 The split validates the taxonomy on its own terms. During commissioning \textsc{node-swap}
 dominates (40 of 56, 71\,\%)---whole machines are being installed and reconfigured. In steady state
@@ -726,21 +730,23 @@ varied all three (Table~\ref{tab:sens}).
 
 \begin{table}[h]\centering\caption{Sensitivity to the analysis choices.}\label{tab:sens}
 \footnotesize
-\begin{tabular}{lrrrrr}\toprule
-Choice & Clean s-days & Sockets & Patterns & $P(s_0)$ & Welch $t$\\\midrule
-\multicolumn{6}{l}{\emph{clean-day threshold (fraction of the 4{,}320 expected samples)}}\\
-0.50 & 1{,}607{,}604 & 1{,}962 & 442 & 61.2\,\% & 26.6\\
-0.80 & 1{,}550{,}864 & 1{,}962 & 442 & 61.2\,\% & 26.6\\
-\textbf{0.90} & \textbf{1{,}517{,}473} & \textbf{1{,}962} & \textbf{443} & \textbf{61.2\,\%} & \textbf{26.6}\\
-0.95 & 1{,}474{,}479 & 1{,}962 & 443 & 61.2\,\% & 26.6\\
-0.99 & 1{,}324{,}982 & 1{,}960 & 443 & 61.2\,\% & 26.6\\\midrule
-\multicolumn{6}{l}{\emph{map rule (threshold 0.90); ``differs'' = sockets whose map changes}}\\
-\textbf{mode} & --- & \textbf{1{,}962} & \textbf{443} & \textbf{61.2\,\%} & \textbf{26.6}\\
-first clean day & --- & 1{,}962 & 442 & 61.6\,\% & 28.4\\
-last clean day & --- & 1{,}962 & 443 & 61.1\,\% & 25.9\\
-strict (all days equal) & --- & 1{,}756 & 436 & 60.8\,\% & 28.0\\
+\begin{tabular}{lrrrr}\toprule
+Choice & Sockets & Patt. & $P(s_0)$ & $t$\\\midrule
+\multicolumn{5}{l}{\emph{clean-day threshold}}\\
+0.50 & 1{,}962 & 442 & 61.2\,\% & 26.6\\
+0.80 & 1{,}962 & 442 & 61.2\,\% & 26.6\\
+\textbf{0.90} & \textbf{1{,}962} & \textbf{443} & \textbf{61.2\,\%} & \textbf{26.6}\\
+0.95 & 1{,}962 & 443 & 61.2\,\% & 26.6\\
+0.99 & 1{,}960 & 443 & 61.2\,\% & 26.6\\\midrule
+\multicolumn{5}{l}{\emph{map rule, threshold fixed at 0.90}}\\
+\textbf{mode} & \textbf{1{,}962} & \textbf{443} & \textbf{61.2\,\%} & \textbf{26.6}\\
+first clean day & 1{,}962 & 442 & 61.6\,\% & 28.4\\
+last clean day & 1{,}962 & 443 & 61.1\,\% & 25.9\\
+strict & 1{,}756 & 436 & 60.8\,\% & 28.0\\
 \bottomrule\end{tabular}
-\\[2pt]\footnotesize The paper's settings are in bold.
+\\[2pt]\footnotesize Settings used in the paper are in bold. $t$ is the Welch statistic for the
+lot contrast. Retained clean socket-days fall from 1{,}607{,}604 at threshold 0.50 to 1{,}324{,}982
+at 0.99; \emph{strict} keeps only sockets whose every clean day is identical.
 \end{table}
 
 \textbf{The clean-day threshold is inert.} Moving it from 0.50 to 0.99 discards 18\,\% of
