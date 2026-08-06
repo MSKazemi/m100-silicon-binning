@@ -23,3 +23,6 @@ sweep.log
 .therm/
 .a2/
 .a1_tmp/
+
+# power/OS sweep scratch and derived tables
+.pw_tmp/

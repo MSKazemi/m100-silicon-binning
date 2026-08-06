@@ -37,7 +37,7 @@ fitted pairwise-interaction model separates that clustering from per-slice prope
 sharp procurement boundary at node~439: the two lots differ in both. Maps are static---changing
 only across reboots---and we isolate three field core-guard episodes. A taxonomy separates processor replacements from node
 replacements, socket relabelling and firmware deconfiguration, giving an annualised socket
-replacement rate of 1.96\,\% with no asset database. Finally, the harvest map has no measurable
+replacement rate of 1.9\,\% with no asset database. Finally, the harvest map has no measurable
 effect on socket power, so schedulers need not model it.
 \end{abstract}
 
@@ -78,7 +78,7 @@ Top-10 system, from a public dataset, and to track them across 858 days. Our con
       only at reboot, and three field core-guard episodes are isolated and corroborated.
 \item A taxonomy that separates processor replacements, node replacements, socket relabelling and
       firmware deconfiguration from one another (Sec.~\ref{sec:taxonomy}), yielding an annualised
-      socket replacement rate of 1.96\,\% with no asset database.
+      socket replacement rate of 1.9\,\% with no asset database.
 \item A negative result that matters operationally: the harvest map has no practical effect on
       socket power (Sec.~\ref{sec:impact}), so schedulers need not model it.
 \end{itemize}
@@ -474,7 +474,7 @@ same-day reconfiguration. Only \textbf{nine} socket-days are fully-sampled with 
 
 \paragraph{Configurations are near-static} Restricting to \emph{clean} socket-days (16 cores, each
 at $>$90\% of the 4{,}320 samples expected at 20\,s cadence) leaves 1{,}517{,}473 socket-days, a
-median of 775 observed days per socket. \textbf{89.5\% of sockets never change configuration}
+median of 775 observed days per socket. \textbf{89.5\% of sockets never change configuration} (95\,\% CI $[88.1,90.8]$)
 (1{,}756 of 1{,}962); 183 have two distinct sets, 19 have three, three have four and one has five.
 
 \paragraph{Three core-guard episodes} The nine anomalous socket-days resolve into
@@ -483,8 +483,10 @@ field deconfiguration (Table~\ref{tab:guard}). In every case the socket loses \e
 slice}---a complete $(2k,2k{+}1)$ pair---runs on 14 cores for 2--4 consecutive fully-sampled days,
 and in at least one case the slice is subsequently restored, consistent with an operator clearing
 the GARD record~\cite{skiboot_gard}. The measured rate is \textbf{3 episodes across 1{,}968
-sockets over 2.5 years}, i.e.\ 0.15\% of sockets. Durations are lower bounds, since an episode is
-counted only on fully-sampled days.
+sockets over the 932-day record}, i.e.\ 0.15\,\% of sockets---but with three events the exact
+Poisson interval is $[0.03,0.45]\,\%$, a factor of fourteen wide. \textbf{This is an
+order-of-magnitude statement, not a precise rate}, and we state it as one. Durations are lower
+bounds, since an episode is counted only on fully-sampled days.
 
 \emph{Not an artefact of a tight filter.} The criterion above is strict, so we re-ran the search
 against the \emph{adjacent observed day} rather than the modal map, requiring only that surviving
@@ -539,7 +541,7 @@ changes coincide with reboots.
 in-sample. We also test them out-of-sample: derive each socket's map from the \emph{first} half of
 the record (2020-03 to 2021-06) and use it to predict every clean socket-day in the \emph{second}
 (2021-07 to 2022-09). Over \textbf{839{,}067 held-out socket-days the prediction is correct
-96.77\,\% of the time}, and the errors are not diffuse: they fall on \textbf{89 of 1{,}962
+96.77\,\% of the time} (95\,\% CI $[96.73,96.81]$), and the errors are not diffuse: they fall on \textbf{89 of 1{,}962
 sockets} (4.5\,\%), which are the sockets that genuinely reconfigure between the two halves. A map
 measured once therefore forecasts a socket more than a year later.
 
@@ -575,7 +577,8 @@ period, and none of them depends on the anomalous early months.
 
 \paragraph{Some apparent changes are socket relabelling} When node~$n$'s socket p0 loses exactly
 the slices p1 gains and vice versa, the dies are unchanged and only the p0/p1 labels have swapped.
-This accounts for \textbf{20\%} of the 230 transitions where both sockets are observable.
+This accounts for \textbf{19\%} of steady-state changes (20 of 105; 95\,\% CI $[12,28]$) and
+20\% of the 230 transitions across the whole record where both sockets are observable.
 
 \paragraph{Caveat} An apparent change can arise from (a)~genuine hardware reconfiguration,
 (b)~socket relabelling, or (c)~a change in the BMC sensor-ID mapping, e.g.\ after a firmware
@@ -642,8 +645,9 @@ state contains 105 events on 87 distinct nodes over 28 months, about 3.8 per mon
 Two consequences are worth stating. First, \textbf{19\,\% of steady-state map changes move no
 silicon}; a study that read every change as a replacement would overcount by that much. Second,
 counting one die per \textsc{cpu-swap} and two per \textsc{node-swap} gives \textbf{96 processor
-replacements among 1{,}960 sockets over 2.5 years---an annualised socket replacement rate of
-1.96\,\%}, recovered without any asset database or maintenance log. Replacements are mildly
+replacements among 1{,}960 sockets over the 932-day record---an annualised socket replacement rate
+of 1.9\,\%} (exact Poisson 95\,\% CI $[1.6,2.4]$), recovered without any asset database or
+maintenance log. Replacements are mildly
 clustered by rack (37 of 49 racks touched; concentration $z=+2.55$), consistent with correlated
 failures or with servicing being batched by cabinet.
 
@@ -792,7 +796,7 @@ procurement batch to rack, which is precisely the provenance signal we claim.
 ask whether it identifies a socket---which would raise a different set of questions from the
 provenance ones we pursue. It does not. Over 1{,}962 sockets the pattern distribution carries
 $H=8.08$ bits, an effective $2^{H}=270$ distinct maps against 495 possible (90.2\,\% of uniform),
-and only \textbf{4.9\,\% of sockets have a map unique in the fleet}; a typical map is shared by
+and only \textbf{4.9\,\% of sockets have a map unique in the fleet} (95\,\% CI $[4.0,6.0]$); a typical map is shared by
 4.4 sockets. Adding the lot raises this only to 12.1\,\%. The map is thus a \emph{partial}
 identifier---strong evidence about which population a part came from, weak evidence about which
 part it is. That is precisely the claim we make, and it is the quantitative reason this work sits
