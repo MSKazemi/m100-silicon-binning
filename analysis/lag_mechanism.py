@@ -23,26 +23,27 @@ root = Path(__file__).resolve().parent.parent
 YM = os.environ.get('THERM_MONTH', '22-08')
 base = Path(os.environ.get('THERM_DIR', root / '.therm')) / f'year_month={YM}' / 'plugin=ipmi_pub'
 rng = np.random.default_rng(41)
-NC, NP, NSEL = 24, 12, 60
+NC, NP, DECIM = 24, 12, 5   # census: all nodes, time-decimated (see thermal_all_nodes.py)
 LAGS = [0, 1, 2, 5, 10]
 
 dd = pd.read_parquet(root / 'daily' / f'daily_{YM}.parquet')
 ok = dd.groupby(['node', 'socket'])['core'].nunique()
 full = ok[ok == 16].reset_index().groupby('node').size()
-cand = sorted(full[full == 2].index)
-sel = set(str(cand[i]) for i in rng.choice(len(cand), NSEL, replace=False))
+sel = set(str(x) for x in sorted(full[full == 2].index))
 del dd, ok, full
 RAW = {}
-for s in (0, 1):
+for sk in (0, 1):
     for c in range(NC):
-        f = base / f'metric=p{s}_core{c}_temp' / 'a_0.parquet'
+        f = base / f'metric=p{sk}_core{c}_temp' / 'a_0.parquet'
         if not f.exists(): continue
         d = pd.read_parquet(f, columns=['timestamp', 'value', 'node'])
         d = d[d.node.isin(sel)]
-        RAW[(s, c)] = {n: v.set_index('timestamp')['value'].astype('float32')
-                       for n, v in d.groupby('node', observed=True)}
+        # datetime64[ms]: a 20 s bucket is 20_000 units. Subsample, do not average.
+        d = d[(d.timestamp.astype('int64') // 20_000) % DECIM == 0]
+        RAW[(sk, c)] = {n: v.set_index('timestamp')['value'].astype('float32')
+                        for n, v in d.groupby('node', observed=True)}
         del d
-print(f'{len(sel)} nodes, {len(RAW)} metrics loaded')
+print(f'{len(sel)} nodes (ALL), {len(RAW)} metrics loaded')
 
 def lagcorr(x, y, L):
     """corr(x_t, y_{t+L}) on already-standardised columns."""
@@ -56,12 +57,12 @@ auto = {l: [] for l in W}                 # per-core autocorrelation, the refere
 crossdist = {}                            # slice-distance -> lag-0 corr, cross-slice pairs only
 nsock = 0
 for node in sorted(sel, key=int):
-    for s in (0, 1):
-        cols = {c: RAW.get((s, c), {}).get(node) for c in range(NC)}
-        cols = {c: v for c, v in cols.items() if v is not None and len(v) > 100000}
+    for sk in (0, 1):
+        cols = {c: RAW.get((sk, c), {}).get(node) for c in range(NC)}
+        cols = {c: v for c, v in cols.items() if v is not None and len(v) > 20000}
         if len(cols) != 16: continue
         D = pd.DataFrame(cols).dropna()
-        if len(D) < 100000: continue
+        if len(D) < 20000: continue
         idx = np.array(sorted(cols)); R = D.values.astype('float64')
         R = R - R.mean(1, keepdims=True)          # strip socket-wide common mode
         R = R - R.mean(0, keepdims=True)

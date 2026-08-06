@@ -30,7 +30,7 @@ dataset~\cite{borghesi2023m100} and track them across 1.67 million socket-days.
 
 Harvesting operates exactly at the POWER9 \emph{slice}---the pair of cores sharing an L2/L3
 block---with zero exceptions, and is per-die rather than per-SKU: 443 of the 495 possible patterns
-occur. A thermal probe over all 1{,}948 sockets independently recovers the sensor index as the physical
+occur. A thermal probe over 240 sockets independently recovers the sensor index as the physical
 ordering of slices on the die ($z=-6.13$; an unconstrained search returns the same ordering
 reversed, $|\rho|=0.993$), which establishes that harvested slices cluster \emph{spatially}. A
 fitted pairwise-interaction model separates that clustering from per-slice propensity and shows a
@@ -337,9 +337,9 @@ excess that would need no thermal path. Core-to-core thermal time constants on a
 shorter than a 20\,s sample, so both mechanisms peak at lag zero; what distinguishes them is the
 \emph{shape} of the lagged profile. Instantaneous activity sharing predicts a sharp lag-0 peak
 decaying with the workload's own autocorrelation. We measure the opposite
-(Table~\ref{tab:lag}): over all 1{,}948 sockets the excess is \emph{smallest} at lag~0 and grows
-monotonically to $1.60\times$ that value at $\pm10$ samples (200\,s), while the cores' own
-autocorrelation falls to 0.51 over the same span. A broad, lag-persistent excess is the signature of a slowly varying shared
+(Table~\ref{tab:lag}): the excess is \emph{smallest} at lag~0 and grows monotonically to
+$1.66\times$ that value at $\pm10$ samples (200\,s), while the cores' own autocorrelation falls to
+0.60 over the same span. A broad, lag-persistent excess is the signature of a slowly varying shared
 physical environment. (Both curves spike at lag~0 relative to their neighbours, consistent with a
 shared same-sample measurement artefact---so the excess is least trustworthy at exactly the lag an
 activity explanation would need it to be largest.)
@@ -347,13 +347,13 @@ activity explanation would need it to be largest.)
 \begin{table}[h]\centering\caption{Lagged cross-correlation.}\label{tab:lag}\footnotesize
 \begin{tabular}{rrrrr}\toprule
 lag (20\,s) & within & cross & excess & core autocorr.\\\midrule
-0 & 0.3723 & 0.3118 & 0.0606 & 1.000\\
-$\pm1$ & 0.2930 & 0.2102 & 0.0828 & 0.613\\
-$\pm2$ & 0.2960 & 0.2068 & 0.0892 & 0.587\\
-$\pm5$ & 0.2948 & 0.1995 & 0.0953 & 0.542\\
-$\pm10$ & 0.2902 & 0.1932 & 0.0970 & 0.505\\
+0 & 0.3522 & 0.3023 & 0.0499 & 1.000\\
+$\pm1$ & 0.2759 & 0.2144 & 0.0615 & 0.680\\
+$\pm2$ & 0.2804 & 0.2141 & 0.0663 & 0.663\\
+$\pm5$ & 0.2858 & 0.2110 & 0.0748 & 0.630\\
+$\pm10$ & 0.2907 & 0.2077 & 0.0830 & 0.604\\
 \bottomrule\end{tabular}
-\\[2pt]\footnotesize All 1{,}948 sockets, common mode removed. The within-slice excess
+\\[2pt]\footnotesize 60 nodes, common mode removed, native cadence. The within-slice excess
 \emph{grows} with lag; instantaneous activity sharing predicts the opposite.
 \end{table}
 
