@@ -1,0 +1,34 @@
+name: A number looks wrong
+description: You re-ran a script and got something different from the paper or README.
+title: "[number] "
+labels: ["correctness"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This project has corrected four of its own results this way. Please do not assume you
+        are mistaken — check the register in `LIMITATIONS.md` first, then open this.
+  - type: input
+    id: script
+    attributes:
+      label: Which script
+      placeholder: "analysis/changepoint.py"
+    validations: {required: true}
+  - type: input
+    id: command
+    attributes:
+      label: Exact command you ran
+      placeholder: ".venv/bin/python analysis/changepoint.py"
+    validations: {required: true}
+  - type: textarea
+    id: got
+    attributes:
+      label: What you got, and what you expected
+      description: Paste both. Say where the expected value is stated (README table, paper section).
+      render: text
+    validations: {required: true}
+  - type: input
+    id: versions
+    attributes:
+      label: Python, pandas, numpy versions
+      placeholder: "3.12.3 / 2.2.2 / 1.26.4"

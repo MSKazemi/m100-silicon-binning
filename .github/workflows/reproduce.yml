@@ -1,0 +1,82 @@
+name: reproduce
+
+# For a research artefact, CI is not "do the tests pass" — it is "do the numbers still come out
+# of the committed data". This re-derives the headline results on every push and asserts them, so
+# a claim in the README cannot silently drift from the code that produced it.
+#
+# Split into two jobs on purpose. The structural checks are seconds and megabytes, so they run on
+# every supported Python. The longitudinal ones load the full 31-month daily table and peak around
+# 4.4 GB (measured), so they run once rather than across the matrix.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Monthly, so dependency bit-rot surfaces before a reader hits it.
+    - cron: '0 6 1 * *'
+
+permissions:
+  contents: read
+
+jobs:
+  structural:
+    name: structural results (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - run: pip install pandas pyarrow numpy scipy matplotlib
+
+      - name: Fusing is slice-granular and marginals are non-uniform
+        run: |
+          python analysis/binning_stats.py | tee /tmp/binning.txt
+          grep -q "sockets with exactly 4 disabled pairs: 1960" /tmp/binning.txt
+          grep -q "observed distinct patterns: 442"            /tmp/binning.txt
+          grep -q "NON-uniform"                                /tmp/binning.txt
+
+      - name: Sensor index recovers the physical die ordering
+        run: |
+          THERM_MATRIX=thermal_corr_allnodes.npy python analysis/layout_hypotheses.py \
+            | tee /tmp/layout.txt
+          grep -q "best candidate: 1 x 12 linear" /tmp/layout.txt
+
+      - name: Figures build
+        run: python analysis/make_hero_image.py
+
+  longitudinal:
+    name: longitudinal results
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install pandas pyarrow numpy scipy matplotlib
+
+      - name: Procurement-lot boundary reproduces
+        run: |
+          python analysis/changepoint.py | tee /tmp/cp.txt
+          grep -q "observed argmax boundary : rack 22"          /tmp/cp.txt
+          grep -q "breakpoint rack = 22"                        /tmp/cp.txt
+          grep -qE "rack-level accuracy   : 9[0-9]\.[0-9]%"     /tmp/cp.txt
+
+      - name: Changes coincide with reboots
+        run: |
+          python analysis/reboot_evidence.py | tee /tmp/reboot.txt
+          grep -q "map transitions with boot coverage : 132" /tmp/reboot.txt
+          grep -q "of which a reboot is observed    : 126"   /tmp/reboot.txt
+
+      - name: The reliability null is still null
+        run: |
+          python analysis/survival.py | tee /tmp/surv.txt
+          grep -q "No held-out discrimination" /tmp/surv.txt

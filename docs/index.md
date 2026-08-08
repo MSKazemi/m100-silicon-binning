@@ -11,6 +11,8 @@ are told a part has 16 cores. You are never told *which* 16.** That per-die map 
 This project shows that out-of-band telemetry supercomputers already collect gives it away, and
 recovers the map for all **1,962 POWER9 sockets** of CINECA's Marconi100 from a public dataset.
 
+![Recovered harvest maps for every POWER9 die on Marconi100, showing the procurement-lot boundary at rack 22](assets/hero.png)
+
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",

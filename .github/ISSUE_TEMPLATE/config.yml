@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question about the method or the findings
+    url: https://github.com/MSKazemi/m100-silicon-binning/discussions
+    about: Questions and discussion go here rather than in Issues.
+  - name: Read the FAQ first
+    url: https://mskazemi.com/m100-silicon-binning/faq
+    about: "Does this apply to my fleet? Is it a security issue? What can it not do?"
+  - name: Security
+    url: https://github.com/MSKazemi/m100-silicon-binning/blob/main/SECURITY.md
+    about: How to report privately, and what is in scope.

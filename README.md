@@ -5,6 +5,8 @@
 [![Reproducible](https://img.shields.io/badge/results-reproducible%20from%20public%20data-brightgreen)](#reproducing)
 [![Docs](https://img.shields.io/badge/docs-mskazemi.com-informational)](https://mskazemi.com/m100-silicon-binning/)
 
+![Recovered harvest maps for every POWER9 die on Marconi100, showing the procurement-lot boundary at rack 22](docs/assets/hero.png)
+
 **Processor vendors sell partially defective dies by permanently fusing off the broken units. Which
 units they fused is proprietary — you are told the part has 16 cores, never *which* 16. This
 repository shows that the out-of-band telemetry supercomputers already collect gives it away, and
@@ -187,6 +189,19 @@ analysis/
   unavailable to system owners. This is the same statistics, measured from the field.
 - **Node-level anomaly detection** establishes *that* nodes differ without recovering the hardware
   structure responsible.
+
+## Contributing
+
+The most useful contribution is not a code change. It is **a replication on another machine** —
+the single largest open limitation is that every result comes from one system. Agreement or
+disagreement both help; disagreement would delimit exactly when the technique works.
+
+Also valuable: telling us a number is wrong (this project has corrected four of its own results
+that way), and pointing at prior work we missed.
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) and the
+[open issues](https://github.com/MSKazemi/m100-silicon-binning/issues) — several are labelled
+`good first issue`.
 
 ## Citing
 

@@ -1,0 +1,46 @@
+name: Replication report
+description: You ran this method on another machine or fleet. This is the most valuable issue you can open.
+title: "[replication] "
+labels: ["replication", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you — the single largest open limitation of this work is that every result comes
+        from one machine. **A disagreement is as useful as a confirmation**; it would delimit
+        exactly when the technique works.
+  - type: input
+    id: system
+    attributes:
+      label: System
+      description: Vendor, model, CPU, and roughly how many sockets.
+      placeholder: "IBM AC922 8335-GTG, 2x 22-core POWER9, ~9,000 sockets"
+    validations: {required: true}
+  - type: dropdown
+    id: renumbers
+    attributes:
+      label: Does the BMC renumber surviving cores?
+      description: If every socket reports a compact 0..n-1 set, the channel is closed.
+      options:
+        - "No — sockets report arbitrary subsets (channel open)"
+        - "Yes — every socket reports 0..n-1 (channel closed)"
+        - "Not sure"
+    validations: {required: true}
+  - type: textarea
+    id: findings
+    attributes:
+      label: What did you find?
+      description: |
+        Especially: is fusing slice-granular? How many distinct patterns? Any per-position
+        preference like our slice-0 asymmetry? Any lot structure?
+    validations: {required: true}
+  - type: textarea
+    id: disagreement
+    attributes:
+      label: Anything that disagrees with our results?
+      description: Please say so plainly. This is the part we most want to hear.
+  - type: input
+    id: data
+    attributes:
+      label: Is the telemetry public?
+      description: A DOI or URL, if we could look at it too.
