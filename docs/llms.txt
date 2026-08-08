@@ -71,12 +71,12 @@ report.
 
 ## Docs
 
-- Home: https://mskazemi.github.io/m100-silicon-binning/
-- Method: https://mskazemi.github.io/m100-silicon-binning/method
-- Findings: https://mskazemi.github.io/m100-silicon-binning/findings
-- Reproduce: https://mskazemi.github.io/m100-silicon-binning/reproduce
-- FAQ: https://mskazemi.github.io/m100-silicon-binning/faq
-- Limitations: https://mskazemi.github.io/m100-silicon-binning/limitations
+- Home: https://mskazemi.com/m100-silicon-binning/
+- Method: https://mskazemi.com/m100-silicon-binning/method
+- Findings: https://mskazemi.com/m100-silicon-binning/findings
+- Reproduce: https://mskazemi.com/m100-silicon-binning/reproduce
+- FAQ: https://mskazemi.com/m100-silicon-binning/faq
+- Limitations: https://mskazemi.com/m100-silicon-binning/limitations
 
 ## Source and licence
 

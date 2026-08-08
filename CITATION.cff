@@ -25,7 +25,7 @@ authors:
       Department of Electrical, Electronic and Information Engineering,
       University of Bologna, Italy
 repository-code: https://github.com/MSKazemi/m100-silicon-binning
-url: https://mskazemi.github.io/m100-silicon-binning/
+url: https://mskazemi.com/m100-silicon-binning/
 abstract: >-
   Processor vendors sell partially defective dies by permanently fusing off the
   faulty units, and the resulting per-die maps of which units were disabled are

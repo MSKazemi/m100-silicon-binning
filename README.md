@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Dataset: M100 ExaData](https://img.shields.io/badge/data-M100%20ExaData-blue)](https://doi.org/10.1038/s41597-023-02174-3)
 [![Reproducible](https://img.shields.io/badge/results-reproducible%20from%20public%20data-brightgreen)](#reproducing)
-[![Docs](https://img.shields.io/badge/docs-mskazemi.github.io-informational)](https://mskazemi.github.io/m100-silicon-binning/)
+[![Docs](https://img.shields.io/badge/docs-mskazemi.com-informational)](https://mskazemi.com/m100-silicon-binning/)
 
 **Processor vendors sell partially defective dies by permanently fusing off the broken units. Which
 units they fused is proprietary — you are told the part has 16 cores, never *which* 16. This

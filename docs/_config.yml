@@ -3,7 +3,7 @@ description: >-
   Recovering which physical CPU cores a vendor fused off each individual processor
   die, from the out-of-band sensor telemetry supercomputers already collect.
   Reproducible results for 1,962 POWER9 sockets of CINECA's Marconi100.
-url: https://mskazemi.github.io
+url: https://mskazemi.com
 baseurl: /m100-silicon-binning
 repository: MSKazemi/m100-silicon-binning
 

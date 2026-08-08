@@ -35,4 +35,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://mskazemi.github.io/m100-silicon-binning/sitemap.xml
+Sitemap: https://mskazemi.com/m100-silicon-binning/sitemap.xml

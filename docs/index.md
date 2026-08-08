@@ -20,7 +20,7 @@ recovers the map for all **1,962 POWER9 sockets** of CINECA's Marconi100 from a 
   "codeRepository": "https://github.com/MSKazemi/m100-silicon-binning",
   "programmingLanguage": "Python",
   "license": "https://opensource.org/licenses/MIT",
-  "url": "https://mskazemi.github.io/m100-silicon-binning/",
+  "url": "https://mskazemi.com/m100-silicon-binning/",
   "keywords": "silicon harvesting, silicon binning, core harvesting, hardware provenance, POWER9, HPC telemetry, semiconductor yield, side channel",
   "author": [
     {"@type": "Person", "name": "Mohsen Seyedkazemi Ardebili", "affiliation": {"@type": "Organization", "name": "University of Bologna"}},
