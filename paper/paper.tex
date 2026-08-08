@@ -37,8 +37,10 @@ occur. A thermal probe over all 1{,}948 sockets independently recovers the senso
 ordering of slices on the die ($z=-6.55$; an unconstrained search returns the same ordering
 reversed, $|\rho|=0.993$), which establishes that harvested slices cluster \emph{spatially}. A
 fitted pairwise-interaction model separates that clustering from per-slice propensity and shows a
-sharp procurement boundary at node~439: the two lots differ in both. Maps are static---changing
-only across reboots---and we isolate three field core-guard episodes. A taxonomy separates processor replacements from node
+sharp procurement boundary at rack~22, calibrated against a permutation null and sharp enough to
+assign an unseen rack to the right delivery 96\,\% of the time: the two lots differ in both. Maps are static---changing
+at reboot and essentially nowhere else, which we verify against an independent boot signal rather
+than infer from gaps---and we isolate three field core-guard episodes. A taxonomy separates processor replacements from node
 replacements, socket relabelling and firmware deconfiguration, giving an annualised socket
 replacement rate of 2.1\,\% with no asset database. An equivalence analysis bounds the map's
 operational footprint---it moves socket power about as much as which slot a processor occupies,
@@ -78,8 +80,10 @@ Top-10 system, from a public dataset, and to track them across 858 days. Our con
       slices cluster in sensor-index space.
 \item Evidence of \emph{procurement-lot structure}---a sharp changepoint separating two
       populations with markedly different binning statistics---from telemetry alone.
-\item A longitudinal result over 1.67\,M socket-days: maps are static, configuration changes occur
-      only at reboot, and three field core-guard episodes are isolated and corroborated.
+\item A longitudinal result over 1.67\,M socket-days: maps are static, configuration changes
+      coincide with reboots \textbf{measured against an independent boot signal} rather than
+      inferred from reporting gaps (Sec.~\ref{par:reboot}), and three field core-guard episodes
+      are isolated and corroborated by two further collectors.
 \item A taxonomy that separates processor replacements, node replacements, socket relabelling and
       firmware deconfiguration from one another (Sec.~\ref{sec:taxonomy}), yielding an annualised
       socket replacement rate of 2.1\,\% with no asset database.
@@ -307,13 +311,22 @@ representative, and every estimate here is a 2.5-year-stable measurement.
 \label{sec:cluster}
 Under the curveball null the mean index gap between harvested slices is $4.242$ versus
 $4.582\pm0.017$ ($z\approx-20$; Monte-Carlo noise $\pm1$, see Sec.~\ref{sec:null}). Applying a
-Bonferroni correction across all $\binom{12}{2}=66$ pair
-tests ($|z|>3.83$), 17 pairs remain significant (Fig.~\ref{fig:cooc}). The positive excesses are
-0\&1 ($z=+16.7$), 6\&7 ($+9.2$), 2\&3 ($+8.0$), 8\&9 ($+7.7$), 10\&11 ($+7.5$), 4\&5 ($+7.1$),
-1\&2 ($+6.9$) and 0\&2 ($+6.3$): \textbf{eight of the nine positive-excess pairs have
-$|\Delta k|\le2$}, and every significant \emph{deficit} is a distant pair. We report the single
-exception rather than rounding it away. Because Sec.~\ref{sec:layout} shows index adjacency
-\emph{is} physical adjacency, this is spatial clustering, not merely index-space clustering.
+Bonferroni correction across all $\binom{12}{2}=66$ pair tests ($|z|>3.83$) leaves 16--18 pairs
+significant (Fig.~\ref{fig:cooc}).
+
+That range is not vagueness but the honest precision of the statistic. The same Monte-Carlo noise
+that forces $z\approx-20$ above also moves individual pairs across the threshold: repeating the
+whole null under five seeds gives 16--18 significant pairs, of which 8--9 are positive excesses
+and 8--10 deficits. \textbf{What does not move is the structure.} In every run, \emph{exactly
+eight} positive-excess pairs have $|\Delta k|\le2$---the six adjacent pairs 0\&1, 2\&3, 4\&5,
+6\&7, 8\&9, 10\&11 plus 1\&2 and 0\&2, with 0\&1 always the strongest at $z\approx+15$ to $+17$.
+Whether a ninth, more distant pair also clears the threshold varies by seed. Deficits are
+overwhelmingly distant---$|\Delta k|\ge4$ in almost every case---though a single near pair (2\&4)
+crosses the threshold in some runs, and we report that rather than describing the deficits as
+uniformly distant.
+
+Because Sec.~\ref{sec:layout} shows index adjacency \emph{is} physical adjacency, this is spatial
+clustering, not merely index-space clustering.
 
 \paragraph*{How big, not just how significant} A $z$ is a signal-to-noise ratio and grows with
 $\sqrt{n}$, so the values above report sample size as much as effect. Fig.~\ref{fig:cooc}
@@ -336,10 +349,13 @@ so the pooled figure is not carried by a minority.
 than by design, and reported $+0.377$ vs $+0.308$ on 240 sockets. Subsampling in \emph{time}
 rather than in nodes---keeping every fifth 20\,s sample, which lowers the sample count without
 smoothing and so, unlike a coarser alignment grid, does not inflate correlations---lets the whole
-fleet be processed in one pass. The census moves the contrast by $0.008$ and the floorplan fit from
-$-0.787$ to $-0.791$. Every thermal number reported here is a fleet-wide measurement. The two cores of a slice are measurably more coupled than
-equally-numbered cores across a slice boundary, confirming physical abutment and the slice as a
-physical unit.
+fleet be processed in one pass. The census moves the contrast by $0.008$, and the floorplan fit
+from $-0.787$ on the 180-socket subsample of Table~\ref{tab:grid} to $-0.791$ fleet-wide. (A
+third value, $-0.754$, appears in Sec.~\ref{sec:layout}; it belongs to the separate 240-socket
+subsample used there. The three are different populations, not successive corrections of one.)
+Every thermal number reported here is a fleet-wide measurement. The two cores of a slice are
+measurably more coupled than equally-numbered cores across a slice boundary, confirming physical
+abutment and the slice as a physical unit.
 
 \paragraph*{The effect size depends on temporal resolution; the conclusion does not}
 \label{par:grid}
@@ -419,13 +435,11 @@ sensor ordering \emph{reversed}; since distance is invariant under reflection it
 physical arrangement, differing by one adjacent transposition. Rank correlation with the identity
 is $|\rho|=0.993$.
 
-Every number in this paragraph is the 1{,}948-socket census, scored on one matrix. We say so
-because an earlier revision quoted the identity at its census value while quoting the
-alternatives, the null and the hill-climb from a 120-node subsample, which made the decisive
-comparison---hill-climb against identity---a comparison between two different populations. On the
-subsample those two were $-0.759$ and $-0.754$; on the census they are $-0.793$ and $-0.791$. The
-margin is the same either way, which is why the conclusion did not move when the mixing was
-removed.
+Every number in this paragraph comes from the 1{,}948-socket census, scored on one matrix. We
+state that explicitly because the decisive comparison here is a \emph{margin}---hill-climb against
+identity---and a margin computed across two populations would mean nothing. On the 240-socket
+subsample the same two values are $-0.759$ and $-0.754$: a different population, the same
+negligible gap.
 
 \paragraph*{This result cannot be cache sharing} The slice-level coupling above is computed from
 \textbf{cross-slice pairs only}, and two cores in different slices share no L2 and no L3. Measured
@@ -445,7 +459,7 @@ grid---and we previously declined to claim a physical ordering. The full-month, 
 measurement reverses that conclusion. We report both so the reader can judge how much the earlier
 sample size mattered.
 
-\subsection{A procurement-lot boundary at node 439}
+\subsection{A procurement-lot boundary at rack 22}
 \label{sec:lot}
 \paragraph*{What a rack is here} Marconi100's nodes occupy 49 physical rack cabinets of 20 nodes
 each, with $\mathrm{id}=20\,\mathrm{rack}+\mathrm{slot}$, and the dataset documents every rack's
@@ -673,7 +687,7 @@ between consecutive reporting days''.
 \end{table}
 
 The claim is therefore no longer that changes coincide with missing data, but that they coincide
-with \emph{boots}, measured by a collector that never touches the IPMI sensor family. The
+with \emph{boots}~[OI-14], measured by a collector that never touches the IPMI sensor family. The
 remaining 4.5\,\% are cases where the node rebooted outside the window our daily granularity can
 resolve, not counterexamples we can attribute to in-operation change.
 
@@ -1017,9 +1031,9 @@ permutation null of $0.499\pm0.031$ ($p=0.95$; Fig.~\ref{fig:nulls}, left)---no 
 chance. Calibration is correspondingly flat: observed replacement rates across predicted-risk
 deciles range 0.08--0.26\,\% with no monotone trend.
 
-We report this as a bounded null rather than an absence of evidence. The intervals above exclude
-hazard ratios beyond roughly $\pm1.5$ per standard deviation, so a large effect is ruled out even
-though a small one is not. Two readings are consistent with it: the defects that drive fusing at
+We report this as a bounded null rather than an absence of evidence~[OI-16]. The intervals above
+exclude hazard ratios beyond roughly $\pm1.5$ per standard deviation, so a large effect is ruled
+out even though a small one is not. Two readings are consistent with it: the defects that drive fusing at
 manufacture are not the ones that kill a part in the field, or replacement is dominated by causes
 unrelated to the die at all. Either way, an operator should not use the harvest map as a
 reliability covariate---which, with Sec.~\ref{sec:impact}, completes a consistent picture of a
@@ -1158,9 +1172,14 @@ Reducing resolution is therefore not a mitigation.}\label{fig:nulls}\end{figure*
 deviation of any slice is 0.25 percentage points.}\label{fig:stab}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f9_guard_episodes.pdf}
-\caption{The three core-guard episodes. Grey = harvested at manufacture, blue = configured and
-reporting, red = configured but silent. In every case exactly one slice goes silent while all ten
-control sensors on the same node stay at full cadence.}\label{fig:guard}\end{figure}
+\caption{The three core-guard episodes, with all three collectors that corroborate them. The grid
+is BMC per-core presence (grey = harvested at manufacture, blue = configured and reporting, orange
+= configured but silent); the strips below are the operating system's own logical-CPU count and
+the independent boot signal. In every case exactly one slice goes silent while all ten control
+sensors on the same node stay at full cadence; where coverage exists, the OS drops to
+$128-8=120$ over a window that brackets the BMC one, and the episode sits across observed reboots
+--- what a GARD record applied by hostboot at IPL requires. Node~347 predates ganglia collection,
+so its strips are marked as absent coverage rather than left blank.}\label{fig:guard}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f10_transition_dates.pdf}
 \caption{Configuration transitions over the full record. 2020-03-20 alone accounts for 63, all
@@ -1177,9 +1196,9 @@ which is why the earlier ``operationally invisible'' claim is withdrawn.}\label{
 
 \section{Threats to validity and open issues}
 \label{sec:threats}
-Every unresolved item is tracked with an identifier in \texttt{OPEN\_ISSUES.md} in the artefact
-repository, which records what is known, what would settle it, and where to look. \textbf{The items
-marked \emph{blocking} below must be resolved before this paper is submitted.}
+Every item below carries the identifier it is tracked under in \texttt{LIMITATIONS.md} in the
+artefact repository, which records for each one what is known, what would settle it, and where to
+look. Nothing here is load-bearing for a headline result unless the entry says so.
 
 \begin{enumerate}
 \item \textbf{Sensor presence $\ne$ core existence.} \textbf{Resolved externally}
@@ -1204,8 +1223,14 @@ sources; two were corrected in the process (the negative-binomial model is Koren
 Stapper in \emph{IEEE T.\ Computers}, not Stapper alone in \emph{T.\ Semiconductor
 Manufacturing}). What remains outstanding is the \textbf{novelty check}: our claim is an
 awareness claim, resting on a systematic but necessarily incomplete search.
-\item \textbf{[OI-3] Defect-driven versus policy-driven harvesting} cannot be separated from one
-machine; both are reported.
+\item \textbf{[OI-3] Defect-driven versus policy-driven harvesting is not identified.} A
+correlated defect process and a binning policy that fuses contiguous blocks both predict
+$\gamma>0$, so the fit of Sec.~\ref{sec:yield} measures residual spatial association without
+attributing it. An earlier draft claimed the decomposition showed ``both''; that overstated what
+the model identifies and is withdrawn. The model is also demonstrably incomplete
+(Sec.~\ref{par:ppc}): a single position-independent adjacency term reproduces the total adjacency
+it is fitted to but misplaces it across the die. A second installation, or vendor disclosure,
+would be needed to separate the mechanisms.
 \item \textbf{[OI-5] Resolved.} Monthly coverage ranges from 18\,\% to 99.4\,\%, but the
 coverage filter does not drive any result: clean-day rates are near-identical between lots,
 coverage is uncorrelated with the harvest pattern ($r=+0.004$, $p=0.88$), and restricting to
@@ -1221,19 +1246,43 @@ collector-side tag swap carries every per-socket metric with it, and power overw
 The residual minority may be genuine die exchanges that happen to mirror, or power differences too
 small to resolve; any per-socket longitudinal study on this dataset should still treat relabelling
 as a hazard.
-\item \textbf{Common-mode artefact} in the thermal analysis, addressed by same-distance contrasts.
-\item \textbf{Preprocessing moved our numbers more often than the data did.} We record this
-because it is the most transferable thing we learned. Three reported effect sizes changed
-materially during this work, none because of new measurements: a three-day sample overstated the
-within/cross-slice contrast threefold \emph{and inverted the floorplan conclusion}; a one-minute
-alignment grid---adopted to work around an unrelated bug and never revisited---inflated that
-contrast by $2.2\times$; and an intermediate revision quoted the corrected contrast from a
-different subsample than the one it named. \textbf{Two of the three were introduced while fixing
-something else.} The defences that worked were mechanical rather than clever: re-deriving every
-number from a single stated pipeline, varying each discretionary choice
-(Sec.~\ref{sec:sens}), and reporting the most conservative variant rather than the most
-favourable. Anyone mining a telemetry archive of this kind should expect the same failure mode,
-and should be at least as suspicious of their corrections as of their original analysis.
+\item \textbf{[OI-12] The guard episodes rest on three events}, which is a strong claim from a
+small count. They are corroborated by three independent collectors---every other sensor on the
+socket kept full cadence, the OS flags the same three nodes and only those, and both steady-state
+episodes sit across observed reboots (Sec.~\ref{par:reboot}). The third falls in the excluded
+commissioning window and predates \texttt{boottime} collection, so it is reported separately.
+\item \textbf{[OI-15] Pair-level co-harvest counts are Monte-Carlo sensitive.} Under five seeds
+the Bonferroni-corrected test returns 16--18 significant pairs. The structure is invariant---
+exactly eight positive excesses at $|\Delta k|\le2$ every time---so we report the range and the
+invariant rather than one run's counts (Sec.~\ref{sec:cluster}).
+\item \textbf{[OI-11] Common-mode artefact} in the thermal analysis, addressed by same-distance
+contrasts. Where per-pair samples were not retained, reported bands are spreads across core pairs
+rather than bootstraps over sockets, and the figures say which.
+\item \textbf{Analysis choices moved our numbers more often than the data did.} We record this
+because it is the most transferable thing we learned. \emph{Four} reported results changed
+materially during this work, none because of a new measurement.
+
+\emph{Sample size.} A three-day sample overstated the within/cross-slice contrast threefold
+\emph{and inverted the floorplan conclusion} (Sec.~\ref{sec:layout}).
+
+\emph{Preprocessing.} A one-minute alignment grid---adopted to work around an unrelated bug and
+never revisited---inflated that contrast by $2.2\times$ (Sec.~\ref{par:grid}).
+
+\emph{Bookkeeping.} An intermediate revision quoted a corrected figure from a different subsample
+than the one it named, in two places.
+
+\emph{Uncertainty {\normalfont[OI-13]}.} Most consequentially, the claim that the map is operationally invisible rested
+on an interval that treated node-days within a rack as independent. Corrected, and extended from
+six months to all 31, the effect is neither zero nor bounded below the margin, and the claim was
+withdrawn (Sec.~\ref{sec:impact}).
+
+\textbf{Three of the four were introduced while fixing or extending something else, and every one
+of them ran in the direction we would have preferred.} The defences that worked were mechanical
+rather than clever: re-deriving every number from a single stated pipeline, varying each
+discretionary choice (Sec.~\ref{sec:sens}), clustering uncertainty at the level at which the data
+are actually dependent, and reporting the most conservative variant. Anyone mining a telemetry
+archive of this kind should expect the same failure mode, and should be at least as suspicious of
+their corrections as of their original analysis.
 \item \textbf{[OI-10] Single system}; findings may reflect CINECA procurement rather than POWER9
 generally.
 \end{enumerate}
@@ -1243,11 +1292,14 @@ Out-of-band telemetry that supercomputer operators already collect inadvertently
 manufacturing secret: which units a vendor fused off each individual die. Recovering these maps for
 1{,}962 POWER9 sockets shows harvesting operates exactly at the slice---the unit sharing an L2/L3
 block---with no exceptions in 1.67\,M socket-days; that the maps are per-die rather than per-SKU,
-with 443 of 495 possible patterns realised; that harvested slices cluster in sensor-index space;
-and that a sharp changepoint at node~439 separates two procurement populations with different
-binning statistics. Over 2.5 years the maps are static to within 0.25 percentage points per month,
-change only across reboots, and exhibit three field core-guard episodes, each removing exactly one
-slice while every other sensor on the socket keeps reporting.
+with 443 of 495 possible patterns realised; that harvested slices cluster \emph{spatially}, the
+sensor index having been independently recovered as the physical ordering; and that a sharp
+changepoint at rack~22 separates two procurement populations with different binning statistics---
+sharply enough to assign an unseen rack to the right delivery 96\,\% of the time. Over 2.5 years
+the maps are static to within 0.25 percentage points per month, change at reboot and essentially
+nowhere else---95.5\,\% of transitions coincide with a boot observed by an independent
+collector---and exhibit three field core-guard episodes, two of them in steady state, each
+removing exactly one slice while every other sensor on the socket keeps reporting.
 
 Two things deserve emphasis. The thermal probe recovers the physical slice ordering from telemetry
 alone, which is what licenses reading the clustering spatially and connects the measurement to the
@@ -1262,9 +1314,14 @@ its unintended disclosures deserve attention from those who publish such dataset
 
 \section*{Artefact availability}
 All analysis code, the derived per-(node, socket, core, day) tables, and the recovered harvest maps
-are available at the artefact repository accompanying this paper. Every result is reproducible from
-the public M100 ExaData Zenodo releases~\cite{borghesi2023m100}; the derived tables (15\,MB)
-suffice for all structural and longitudinal results without re-downloading the 49.9\,TB source.
+are available at the artefact repository accompanying this paper, together with
+\texttt{LIMITATIONS.md}, the register the identifiers in Sec.~\ref{sec:threats} refer to. Every
+result is reproducible from the public M100 ExaData Zenodo releases~\cite{borghesi2023m100}. The
+derived tables (15\,MB) suffice for all structural and longitudinal results without re-downloading
+the 49.9\,TB source. Two sections need one further pass over the archives, and the script that
+performs it is included: the thermal analysis reads the raw per-core series, and the reboot and
+power sections read a per-(node, day) summary of \texttt{boottime}, \texttt{cpu\_speed},
+\texttt{cpu\_user}, \texttt{load\_one} and \texttt{ambient}.
 
 \bibliographystyle{IEEEtran}
 \bibliography{refs}
