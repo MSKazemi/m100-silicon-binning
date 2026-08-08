@@ -1,6 +1,6 @@
 \documentclass[10pt,conference]{IEEEtran}
 \usepackage[utf8]{inputenc}
-\usepackage{graphicx,booktabs,amsmath,amssymb,url,xcolor}
+\usepackage{graphicx,booktabs,amsmath,amssymb,url,xcolor,multirow}
 \usepackage[hidelinks]{hyperref}
 \graphicspath{{figures/}}
 
@@ -11,10 +11,13 @@
 Procurement Lots and Core Guarding\\
 from Supercomputer Telemetry}
 
-\author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili\quad Andrea Bartolini}
-\IEEEauthorblockA{\textit{Department of Electrical, Electronic and Information Engineering}\\
-\textit{University of Bologna}, Italy\\
-\texttt{\{mohsen.seyedkazemi,\,a.bartolini\}@unibo.it}}}
+\author{\IEEEauthorblockN{Mohsen Seyedkazemi Ardebili\textsuperscript{1}\quad
+Michael Bidollahkhani\textsuperscript{2}\quad Andrea Bartolini\textsuperscript{1}}
+\IEEEauthorblockA{\textsuperscript{1}\textit{Department of Electrical, Electronic and Information
+Engineering}, \textit{University of Bologna}, Italy\\
+\textsuperscript{2}\textit{University of G\"{o}ttingen}, Germany\\
+\texttt{\{mohsen.seyedkazemi,\,a.bartolini\}@unibo.it}\quad
+\texttt{michael.bkhani@uni-goettingen.de}}}
 
 \begin{document}
 \maketitle
@@ -31,14 +34,15 @@ dataset~\cite{borghesi2023m100} and track them across 1.67 million socket-days.
 Harvesting operates exactly at the POWER9 \emph{slice}---the pair of cores sharing an L2/L3
 block---with zero exceptions, and is per-die rather than per-SKU: 443 of the 495 possible patterns
 occur. A thermal probe over all 1{,}948 sockets independently recovers the sensor index as the physical
-ordering of slices on the die ($z=-6.13$; an unconstrained search returns the same ordering
+ordering of slices on the die ($z=-6.55$; an unconstrained search returns the same ordering
 reversed, $|\rho|=0.993$), which establishes that harvested slices cluster \emph{spatially}. A
 fitted pairwise-interaction model separates that clustering from per-slice propensity and shows a
 sharp procurement boundary at node~439: the two lots differ in both. Maps are static---changing
 only across reboots---and we isolate three field core-guard episodes. A taxonomy separates processor replacements from node
 replacements, socket relabelling and firmware deconfiguration, giving an annualised socket
-replacement rate of 1.9\,\% with no asset database. Finally, the harvest map has no measurable
-effect on socket power, so schedulers need not model it.
+replacement rate of 2.1\,\% with no asset database. An equivalence analysis bounds the map's
+operational footprint---it moves socket power about as much as which slot a processor occupies,
+and predicts field replacement not at all.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -78,9 +82,13 @@ Top-10 system, from a public dataset, and to track them across 858 days. Our con
       only at reboot, and three field core-guard episodes are isolated and corroborated.
 \item A taxonomy that separates processor replacements, node replacements, socket relabelling and
       firmware deconfiguration from one another (Sec.~\ref{sec:taxonomy}), yielding an annualised
-      socket replacement rate of 1.9\,\% with no asset database.
-\item A negative result that matters operationally: the harvest map has no practical effect on
-      socket power (Sec.~\ref{sec:impact}), so schedulers need not model it.
+      socket replacement rate of 2.1\,\% with no asset database.
+\item Two bounded nulls that matter operationally: an equivalence analysis showing the map's
+      effect on socket power is comparable to socket position rather than negligible
+      (Sec.~\ref{sec:impact}), and a survival model showing it does not predict field
+      replacement at all (Sec.~\ref{sec:reliability}).
+\item A quantification of the disclosure itself (Sec.~\ref{sec:channel}): recovery costs about
+      two minutes of ordinary telemetry, and reducing resolution does not mitigate it.
 \end{itemize}
 
 \section{Background}
@@ -150,17 +158,19 @@ that never touch the IPMI sensor family and that both know how many cores exist.
 logical-CPU count. POWER9 runs four SMT threads per core, so two sockets of 16 cores should present
 $2\times16\times4=128$ logical CPUs. Across the whole record---\textbf{847{,}297{,}478 samples,
 990 nodes, the 29 months in which ganglia collected this metric}---the OS reports exactly 128 on
-\textbf{99.985\,\%} of samples.
+\textbf{99.9853\,\%} of samples. Restricted to the single month 2022-08 used for the thermal work
+(40.9\,M samples, 988 nodes) the figure is \textbf{99.997\,\%}. We give both because both appear
+below, and they are different windows rather than different measurements of the same one.
 
 \textbf{The scheduler.} SLURM's configured-CPU totals across the four partitions are
 $110{,}208+12{,}672+2{,}560+256=125{,}696$, which is $982\times128$. The scheduler agrees, from a
 third independent path.
 
-\textbf{The one exception is itself a confirmation.} Exactly one node in the month deviates: node
-145 reports 124 logical CPUs across 2022-08-11--12. That window contains the \emph{only} BMC-visible
-reconfiguration on that node---socket p1 exchanges the slice at cores $\{22,23\}$ for the one at
-$\{18,19\}$ on 2022-08-12, while socket p0 is unchanged all month. Two collectors with nothing in
-common flag the same node in the same 48 hours. That is the strongest single piece of evidence we
+\textbf{The one exception is itself a confirmation.} Exactly one node deviates \emph{in the month
+2022-08}: node 145 reports 124 logical CPUs across 2022-08-11--12. That window contains the
+\emph{only} BMC-visible reconfiguration on that node---socket p1 exchanges the slice at cores
+$\{22,23\}$ for the one at $\{18,19\}$ on 2022-08-12, while socket p0 is unchanged all month. Two
+collectors with nothing in common flag the same node in the same 48 hours. That is the strongest single piece of evidence we
 have that the sensor-presence signal tracks real hardware configuration rather than an artefact of
 the monitoring stack.
 
@@ -259,12 +269,18 @@ $\mathcal{S}_{\text{all}}$, the 1{,}968 sockets appearing anywhere in the record
 $\mathcal{S}_{\text{map}}$, the 1{,}962 with at least one clean day and hence a well-defined
 harvest map; and $\mathcal{S}_{2004}$, the 1{,}960 present in the single month 2020-04. All
 structural results below are over $\mathcal{S}_{\text{map}}$ and the full 31-month record.
+One further distinction matters only for the rack-level analyses: node identities run to 983,
+four beyond the 980 that fill the 49 documented cabinets, and those four have no documented
+$(X,Y)$ floor position. The 2 sockets of theirs that carry a map are excluded wherever a result
+is indexed by rack, leaving 1{,}960; being a four-node group at the end of the id range, they
+would otherwise form a degenerate segment that captures the argmax of any unguarded changepoint
+scan (Sec.~\ref{par:changepoint}).
 
 \begin{table}[h]\centering\caption{Disable-map structure over the full 31-month record.}
 \begin{tabular}{lr}\toprule
 Sockets with a well-defined harvest map & 1{,}962\\
 Median clean days supporting each map & 775\\
-Socket-days reporting exactly 16 cores & \textbf{99.985\%}\\
+Socket-days reporting exactly 16 cores & \textbf{99.9847\%}\\
 Sockets ever reporting 24 cores & 0\\
 Harvested cores form complete $(2k,2k{+}1)$ pairs & \textbf{1{,}962 (100\%)}\\
 \bottomrule\end{tabular}\end{table}
@@ -298,6 +314,14 @@ tests ($|z|>3.83$), 17 pairs remain significant (Fig.~\ref{fig:cooc}). The posit
 $|\Delta k|\le2$}, and every significant \emph{deficit} is a distant pair. We report the single
 exception rather than rounding it away. Because Sec.~\ref{sec:layout} shows index adjacency
 \emph{is} physical adjacency, this is spatial clustering, not merely index-space clustering.
+
+\paragraph*{How big, not just how significant} A $z$ is a signal-to-noise ratio and grows with
+$\sqrt{n}$, so the values above report sample size as much as effect. Fig.~\ref{fig:cooc}
+therefore plots the effect itself, $\log_2$ of observed over expected co-harvest, against slice
+distance. The excess is real but moderate: averaged over pairs at $|\Delta k|\le2$ it is
+$+0.165$ ($1.12\times$ the null), against $-0.089$ ($0.94\times$) for more distant pairs, with
+the strongest individual pairs reaching $1.7$--$1.8\times$. Clustering of this size is easy to
+detect across 1{,}962 sockets and easy to overstate from a $z$ alone, so both are given.
 
 \subsection{Slice siblings are physically abutted}
 We probe \textbf{every} socket with both halves fully configured---\textbf{1{,}948 sockets across
@@ -366,8 +390,10 @@ Grid & rows/socket & within & cross & $1\times12$ fit\\\midrule
 5\,min & 8{,}928 & +0.466 & +0.351 & $-0.766$\\
 15\,min & 2{,}976 & +0.508 & +0.368 & $-0.767$\\
 \bottomrule\end{tabular}
-\\[2pt]\footnotesize A 180-socket subsample, so the 20\,s row differs marginally from the
-240-socket primary estimate; the point is the trend across rows, not the absolute values.
+\\[2pt]\footnotesize This table is a 180-socket subsample, held fixed across the four rows so
+that only the grid varies. Its 20\,s row therefore differs slightly from the 1{,}948-socket
+census reported in the text ($+0.372$/$+0.312$, fit $-0.791$). The point of the table is the
+trend down the rows, not the absolute values.
 \end{table}
 
 \paragraph*{A correction to an earlier estimate} An initial version of this analysis used 40
@@ -384,15 +410,22 @@ slices against their measured thermal coupling (Fig.~\ref{fig:layout}). Coupling
 distance, so a better floorplan gives a more negative correlation.
 
 Over all 1{,}948 sockets the identity $1\times12$ linear arrangement wins decisively, at
-$-0.791$ (the earlier 120-node subsample gave $-0.754$) against a
-random-ordering null of $+0.001\pm0.123$ ($z=-6.13$, $p<10^{-4}$), and beats every two-dimensional
-alternative tried ($6\times2$: $-0.716$; $4\times3$: $-0.555$; $3\times4$: $-0.488$; $2\times6$:
-$-0.213$). More stringently, an unconstrained hill-climbing search over one-dimensional
-orderings---free to return any of the $12!/2$ arrangements---converges to
-$[10,11,9,8,7,6,5,4,3,2,1,0]$ at $-0.759$, barely better than the identity's $-0.754$. That is the
+$-0.791$ against a random-ordering null of $+0.001\pm0.121$ ($z=-6.55$, $p<10^{-4}$), and beats
+every two-dimensional alternative tried ($6\times2$: $-0.742$; $4\times3$: $-0.578$; $3\times4$:
+$-0.481$; $2\times6$: $-0.238$). More stringently, an unconstrained hill-climbing search over
+one-dimensional orderings---free to return any of the $12!/2$ arrangements---converges to
+$[10,11,9,8,7,6,5,4,3,2,1,0]$ at $-0.793$, barely better than the identity's $-0.791$. That is the
 sensor ordering \emph{reversed}; since distance is invariant under reflection it is the same
 physical arrangement, differing by one adjacent transposition. Rank correlation with the identity
 is $|\rho|=0.993$.
+
+Every number in this paragraph is the 1{,}948-socket census, scored on one matrix. We say so
+because an earlier revision quoted the identity at its census value while quoting the
+alternatives, the null and the hill-climb from a 120-node subsample, which made the decisive
+comparison---hill-climb against identity---a comparison between two different populations. On the
+subsample those two were $-0.759$ and $-0.754$; on the census they are $-0.793$ and $-0.791$. The
+margin is the same either way, which is why the conclusion did not move when the mixing was
+removed.
 
 \paragraph*{This result cannot be cache sharing} The slice-level coupling above is computed from
 \textbf{cross-slice pairs only}, and two cores in different slices share no L2 and no L3. Measured
@@ -429,21 +462,56 @@ Node~439 sits in the topmost slot of rack~21 yet behaves like the later populati
 sockets have slice~0 harvested, against 2 of 2 for each of nodes 430--438), so the delivery
 boundary is rack-aligned to within a single node.
 
-\begin{table}[h]\centering\caption{Two populations either side of the lot boundary.}
-\begin{tabular}{lrrr}\toprule
-Population & Sockets & $P(\text{slice 0})$ & Distinct patterns\\\midrule
-Lot A (racks 0--21) & 880 & 88.2\% & 230\\
-Lot B (racks 22--48) & 1{,}082 & 39.3\% & 416\\
-\bottomrule\end{tabular}\end{table}
+\begin{table}[h]\centering\caption{Two populations either side of the lot boundary, at the two
+granularities the boundary can be drawn at.}\label{tab:lots}
+\begin{tabular}{llrrr}\toprule
+Cut & Population & Sockets & $P(\text{slice 0})$ & Patterns\\\midrule
+\multirow{2}{*}{rack} & Lot A (racks 0--21)  &   880 & 88.2\% & 230\\
+                      & Lot B (racks 22--48) & 1{,}082 & 39.3\% & 416\\\midrule
+\multirow{2}{*}{node} & Lot A (nodes 0--438) &   878 & 88.4\% & 229\\
+                      & Lot B (nodes 439--979) & 1{,}084 & 39.2\% & 416\\
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize The two cuts differ by exactly one node. Racks are 20 nodes wide, so the
+rack cut places node~439---the topmost slot of rack~21---in Lot~A, whereas the node-level
+changepoint assigns it to Lot~B, which is where its harvest map says it belongs (0 of its 2
+sockets have slice~0 harvested, against 2 of 2 for each of nodes 430--438). Nothing downstream
+turns on the choice; we use the \emph{rack} cut throughout, because the lot-level model of
+Sec.~\ref{sec:yield} resamples racks, and we state it here so the two socket counts are not
+mistaken for a discrepancy.
+\end{table}
 
 Lot A marginals fall steeply with slice index; Lot B is nearly flat. Permutation tests confirm
 between-rack heterogeneity for slices 0, 1, 2, 5 ($p<0.01$), and same-rack sockets share more
 harvested slices than chance ($1.565$ vs $1.452\pm0.008$, $z=+13.9$).
 
-\paragraph*{Two deliveries, not more} Recursive binary segmentation over the node-ordered
-sequence, splitting wherever $|t|>4$, finds \emph{no} changepoint beyond the primary one. The
-fleet is two populations---nodes 0--438 at 88.4\,\% and 439--979 at 39.1\,\%---not a gradient and
-not a sequence of many small batches.
+\paragraph*{The boundary, tested rather than maximised}
+\label{par:changepoint}
+A $t$ of 26.6 obtained by scanning every split is a \emph{maximum} over dependent tests, and
+cannot be read as a significance level. We therefore calibrate it. Permuting whole racks---which
+preserves rack sizes and the within-rack dependence documented above---the null distribution of
+$\max|t|$ has mean $7.08\pm2.41$ and never exceeds $17.95$ in 4{,}000 draws, against the observed
+$26.6$ (Fig.~\ref{fig:cp}): calibrated $p<2.5\times10^{-4}$. Sockets resampled within rack (racks cannot be resampled
+with replacement, since a changepoint is defined on their order) put the breakpoint at rack~22 in
+\textbf{100\,\% of 2{,}000 resamples}, a 95\,\% CI of $[22,22]$. Leaving out each rack in turn
+recovers rack~22 in \textbf{48 of 49} fits. The scan is restricted to boundaries leaving at least
+100 sockets per side; without that guard the argmax is captured by a four-node partial rack at the
+end of the id range, which we exclude and report (Sec.~\ref{sec:pops}).
+
+\paragraph*{Two deliveries, not more---chosen out of sample} Rather than a stopping rule on $|t|$,
+we segment the rack-ordered fleet into $k$ populations by dynamic programming over a per-segment
+twelve-slice Bernoulli likelihood, and choose $k$ by \emph{rack-held-out} likelihood, since
+in-sample fit always rewards more segments. Held-out log-likelihood per socket is $-7.360$ at
+$k=1$, \textbf{$-7.133$ at $k=2$}, then $-7.139$, $-7.157$ and $-7.149$ at $k=3,4,5$. Two
+populations is the out-of-sample optimum, and the $k=2$ cut is rack~22. The fleet is two
+deliveries---not a gradient, and not a sequence of many small batches.
+
+\paragraph*{The lot is predictable, not merely detectable} The operationally meaningful question
+is whether a harvest map assigns a rack the model has never seen to the right delivery. Holding
+out each rack in turn and classifying its sockets by likelihood ratio against the two lot models
+fitted on the other 48, \textbf{72.9\,\% of individual sockets} are assigned correctly against a
+55.1\,\% majority-class baseline, and \textbf{47 of 49 held-out racks (95.9\,\%)} are assigned
+correctly by majority vote. Provenance is recoverable prospectively, which a large in-sample $t$
+alone would not establish.
 
 \paragraph*{Procurement, not room position} \label{par:geom} Because rack index conflates batch
 with geometry, we test the geometric alternative directly. Raw correlations with slice-0 status are
@@ -475,28 +543,35 @@ harvest maps are static in practice is therefore an empirical question, which we
 aggregating every core sample to (node, socket, day) counts across the dataset.
 All numbers in this section are over the complete 31-month record (2020-03 to 2022-09).
 
-\paragraph{The count is very nearly invariant} Across all 31 months---1{,}671{,}297 socket-days
-over 858 days and 984 nodes---\textbf{99.985\% report exactly 16 active cores}. Of the 256
+\paragraph*{The count is very nearly invariant} Across all 31 months---1{,}671{,}297 socket-days
+over 858 reporting days and 984 nodes---\textbf{99.9847\% report exactly 16 active cores}. Of the 256
 exceptions, 39 have an odd count, which \emph{cannot} arise from slice-granular fusing and
 therefore proves the collector can drop individual cores; the counts above 16 are unions spanning a
 same-day reconfiguration. Only \textbf{nine} socket-days are fully-sampled with an even count below
 16, and these are the subject of the guard analysis below.
 
-\paragraph{Configurations are near-static} Restricting to \emph{clean} socket-days (16 cores, each
+\paragraph*{Configurations are near-static} Restricting to \emph{clean} socket-days (16 cores, each
 at $>$90\% of the 4{,}320 samples expected at 20\,s cadence) leaves 1{,}517{,}473 socket-days, a
 median of 775 observed days per socket. \textbf{89.5\% of sockets never change configuration} (95\,\% CI $[88.1,90.8]$)
 (1{,}756 of 1{,}962); 183 have two distinct sets, 19 have three, three have four and one has five.
 
-\paragraph{Three core-guard episodes} The nine anomalous socket-days resolve into
+\paragraph*{Three core-guard episodes} The nine anomalous socket-days resolve into
 \textbf{three sustained episodes on three distinct sockets}, each with the exact signature of a
 field deconfiguration (Table~\ref{tab:guard}). In every case the socket loses \emph{exactly one
 slice}---a complete $(2k,2k{+}1)$ pair---runs on 14 cores for 2--4 consecutive fully-sampled days,
 and in at least one case the slice is subsequently restored, consistent with an operator clearing
-the GARD record~\cite{skiboot_gard}. The measured rate is \textbf{3 episodes across 1{,}968
-sockets over the 932-day record}, i.e.\ 0.15\,\% of sockets---but with three events the exact
-Poisson interval is $[0.03,0.45]\,\%$, a factor of fourteen wide. \textbf{This is an
-order-of-magnitude statement, not a precise rate}, and we state it as one. Durations are lower
-bounds, since an episode is counted only on fully-sampled days.
+the GARD record~\cite{skiboot_gard}.
+
+Rates need care here, in two respects. First, \textbf{one of the three episodes (347\,p1,
+2020-03-13--16) falls inside the commissioning window} that Sec.~\ref{par:commissioning} excludes;
+the other two are steady-state. We therefore quote \textbf{two steady-state episodes}, and report
+the third separately rather than folding an excluded-period event into a steady-state rate.
+Second, an episode is counted only on fully-sampled days, so one falling entirely inside a
+coverage gap would be missed; the appropriate denominator is \emph{observed} exposure, which over
+the steady-state window is 3{,}991 socket-years. That gives \textbf{5.0 episodes per 10{,}000
+socket-years}, exact Poisson 95\,\% CI $[0.6,18.1]$---an interval spanning a factor of thirty.
+\textbf{This is an order-of-magnitude statement, not a precise rate}, and we state it as one.
+Durations are likewise lower bounds.
 
 \emph{Independently confirmed by the operating system.} The deviations in the OS core count are
 not noise, and they are not uniform. Of 990 nodes, exactly \textbf{three} ever report \textbf{120}
@@ -539,9 +614,19 @@ did. In all three episodes the two slice sensors read zero for the entire window
 \textbf{all ten control metrics, including \texttt{pX\_power} and \texttt{pX\_vdd\_temp} on the
 same socket, sustained a full 4{,}320 samples per day} (Fig.~\ref{fig:guard}). A collection fault
 that silences precisely the two cores of one slice for several consecutive days, while leaving
-every other sensor on the same socket at full cadence, is not a plausible account. We therefore
-attribute these episodes to hardware deconfiguration; to our knowledge this is the first direct
-observation of POWER9 field core guarding in a deployed system.
+every other sensor on the same socket at full cadence, is not a plausible account.
+
+\emph{And they sit across reboots, as the mechanism requires.} A GARD record is applied by
+hostboot at IPL, so a deconfiguration---and its later clearing---should each land on a boot. Using
+the independent \texttt{boottime} signal of Sec.~\ref{par:reboot}, both steady-state episodes are
+bracketed by observed reboots: node~946's episode of 2020-08-31--09-01 falls between boots on
+08-30 and 09-03, and node~411's of 2021-11-13--15 between boots on 11-12 and 11-15/16. The third
+episode (node~347, 2020-03) cannot be checked at all, because ganglia \texttt{boottime} collection
+begins on 2020-05-05---an absence of coverage, not an absence of a reboot, and one more reason
+that episode is reported separately from the steady-state rate.
+
+We therefore attribute these episodes to hardware deconfiguration; to our knowledge this is the
+first direct observation of POWER9 field core guarding in a deployed system.
 
 \begin{table}[h]\centering\caption{Core-guard episodes.}\label{tab:guard}
 \begin{tabular}{llrlr}\toprule
@@ -555,11 +640,42 @@ set, since two of these sockets also change configuration elsewhere in their lif
 $^\dagger$Restored via a day that also spans a reconfiguration.
 \end{table}
 
-\paragraph{Changes never occur during operation} Of \textbf{235} transitions across the full
+\paragraph*{Changes never occur during operation} Of \textbf{235} transitions across the full
 record, \textbf{zero} occur between consecutive reporting days: every one coincides with a gap in
 reporting (median 2\,d), against a background in which only 4.2\% of consecutive reporting days
-are more than one day apart. Configuration changes
-are boot-time events, exactly as the guard/deconfiguration mechanism predicts.
+are more than one day apart.
+
+\paragraph*{A reporting gap is not a reboot, so we measure the reboot}
+\label{par:reboot}
+That argument infers a reboot from a \emph{gap}, and collectors stop for many reasons. The
+inference is unnecessary: the ganglia plugin publishes \texttt{boottime}, the epoch at which a
+node last booted, so a reboot is directly observable as a change in that value. Extracting it for
+all 31 months gives 668{,}524 node-days across 990 nodes, of which 1.74\,\% carry a reboot.
+
+Of the \textbf{132 steady-state transitions with boot coverage, 126 (95.5\,\%) coincide with an
+observed reboot}, against \textbf{1.74\,\%} of 1{,}194{,}581 non-transition intervals. The
+comparison must be matched on interval length, since a longer gap has more opportunity to contain
+a boot; it survives that (Table~\ref{tab:reboot}), and a permutation test that shuffles the reboot
+flag \emph{within} gap strata gives an observed difference of $+93.7$ percentage points against a
+null of $+41.3\pm3.5$ ($p<2.5\times10^{-4}$).
+
+\begin{table}[h]\centering\caption{Map transitions against an independent boot signal, matched on
+interval length.}\label{tab:reboot}\footnotesize
+\begin{tabular}{lrr}\toprule
+Interval & Transitions with reboot & Controls with reboot\\\midrule
+2\,d      & 93.0\,\% ($n=71$)   & 35.8\,\% ($n=16{,}055$)\\
+3--4\,d   & 100\,\% ($n=20$)    & 16.7\,\% ($n=21{,}953$)\\
+5--8\,d   & 100\,\% ($n=22$)    & 12.9\,\% ($n=1{,}864$)\\
+$\ge$9\,d & 94.7\,\% ($n=19$)   & 66.3\,\% ($n=5{,}912$)\\
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize No transition has a 1-day interval, which is the same fact as ``zero occur
+between consecutive reporting days''.
+\end{table}
+
+The claim is therefore no longer that changes coincide with missing data, but that they coincide
+with \emph{boots}, measured by a collector that never touches the IPMI sensor family. The
+remaining 4.5\,\% are cases where the node rebooted outside the window our daily granularity can
+resolve, not counterexamples we can attribute to in-operation change.
 
 The only two apparent counterexamples confirm the rule once examined at full timestamp resolution.
 Nodes~315 (p1) and~342 (p0) appear to change within a single day, and produce the dataset's only
@@ -571,7 +687,7 @@ a coordinated maintenance reboot. Day-granularity aggregation is therefore \emph
 here: it cannot see sub-day downtime, so our transition-gap statistics understate how consistently
 changes coincide with reboots.
 
-\paragraph{Staticity as a prediction, not a description} The figures above describe the record
+\paragraph*{Staticity as a prediction, not a description} The figures above describe the record
 in-sample. We also test them out-of-sample: derive each socket's map from the \emph{first} half of
 the record (2020-03 to 2021-06) and use it to predict every clean socket-day in the \emph{second}
 (2021-07 to 2022-09). Over \textbf{839{,}067 held-out socket-days the prediction is correct
@@ -579,14 +695,14 @@ the record (2020-03 to 2021-06) and use it to predict every clean socket-day in 
 sockets} (4.5\,\%), which are the sockets that genuinely reconfigure between the two halves. A map
 measured once therefore forecasts a socket more than a year later.
 
-\paragraph{Changes concentrate at commissioning} The 235 transitions involve 132 nodes on 81
+\paragraph*{Changes concentrate at commissioning} The 235 transitions involve 132 nodes on 81
 distinct dates, but are heavily clustered: 2020-03-20 alone accounts for 63 and the top three dates
 for 41\,\%. Such synchronised, fleet-wide changes are characteristic of a newly commissioned
 machine---hardware is still being reconfigured and the monitoring pipeline is not yet
 settled---rather than of steady-state operation. The next paragraph shows this directly and
 excludes the period.
 
-\paragraph{Commissioning period, identified and excluded}
+\paragraph*{Commissioning period, identified and excluded}
 \label{par:commissioning}
 Two independent signals locate the end of commissioning without assuming a date. Telemetry
 coverage---the fraction of socket-days that are clean---is 0.82, 0.00 and 0.40 in 2020-03, -04 and
@@ -609,12 +725,12 @@ commissioning and re-run every result on 2020-06 onward:
 Every structural and longitudinal claim in this paper therefore rests on the post-commissioning
 period, and none of them depends on the anomalous early months.
 
-\paragraph{Some apparent changes are socket relabelling} When node~$n$'s socket p0 loses exactly
+\paragraph*{Some apparent changes are socket relabelling} When node~$n$'s socket p0 loses exactly
 the slices p1 gains and vice versa, the dies are unchanged and only the p0/p1 labels have swapped.
 This accounts for \textbf{19\%} of steady-state changes (20 of 105; 95\,\% CI $[12,28]$) and
 20\% of the 230 transitions across the whole record where both sockets are observable.
 
-\paragraph{Caveat} An apparent change can arise from (a)~genuine hardware reconfiguration,
+\paragraph*{Caveat} An apparent change can arise from (a)~genuine hardware reconfiguration,
 (b)~socket relabelling, or (c)~a change in the BMC sensor-ID mapping, e.g.\ after a firmware
 update. Telemetry alone cannot separate these. The tight clustering of 86 transitions into three
 days of March 2020 is consistent with (c)---but that window is precisely the commissioning period
@@ -622,11 +738,15 @@ excluded above, and every result is reported on the steady-state period where no
 exists. The ambiguity is therefore bounded rather than load-bearing.
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f2_marginals.pdf}
-\caption{Per-slice harvest probability by procurement lot.}\label{fig:marg}\end{figure}
+\caption{Per-slice harvest probability by procurement lot, with rack-clustered bootstrap 95\,\%
+intervals (2{,}000 resamples of the 49 cabinets). Lot~A falls steeply with slice index; Lot~B is
+nearly flat.}\label{fig:marg}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=.85\columnwidth]{f3_cooccurrence.pdf}
-\caption{Co-harvest $z$ against the curveball null. Excess is confined to near-diagonal
-(index-adjacent) slice pairs.}\label{fig:cooc}\end{figure}
+\caption{Co-harvest effect size against the curveball null, as $\log_2$(observed/expected), for
+all 66 slice pairs against their distance on the die. The excess is confined to near-adjacent
+pairs and reverses at distance; error bars are $2\sigma$ of the null. Plotting the ratio rather
+than a $z$ keeps sample size out of the vertical axis.}\label{fig:cooc}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f4_thermal_decay.pdf}
 \caption{Residual thermal correlation versus core index distance. The within- versus cross-slice
@@ -683,9 +803,14 @@ state contains 105 events on 87 distinct nodes over 28 months, about 3.8 per mon
 Two consequences are worth stating. First, \textbf{19\,\% of steady-state map changes move no
 silicon}; a study that read every change as a replacement would overcount by that much. Second,
 counting one die per \textsc{cpu-swap} and two per \textsc{node-swap} gives \textbf{96 processor
-replacements among 1{,}960 sockets over the 932-day record---an annualised socket replacement rate
-of 1.9\,\%} (exact Poisson 95\,\% CI $[1.6,2.4]$), recovered without any asset database or
-maintenance log. Replacements are mildly
+replacements}, recovered without any asset database or maintenance log. These are steady-state
+events, so the denominator must be the steady-state exposure and not the whole record: 1{,}960
+sockets over the 850-day post-commissioning window, or 4{,}561 socket-years. The
+\textbf{annualised socket replacement rate is 2.1\,\%} (exact Poisson 95\,\% CI $[1.7,2.6]$).
+Calendar exposure is the right denominator for this event, because a replacement is recovered by
+comparing maps \emph{across} a reporting gap---an unobserved day is still a day at risk. Counting
+only observed clean socket-days instead would raise the estimate to 2.4\,\% $[2.0,2.9]$, so the
+figure we report is the conservative one. Replacements are mildly
 clustered by rack (37 of 49 racks touched; concentration $z=+2.55$), consistent with correlated
 failures or with servicing being batched by cabinet.
 
@@ -730,6 +855,29 @@ $[+0.183,+0.456]$. The claim survives the correct uncertainty; we report the clu
 is nearly flat (range $+0.34$ to $-0.13$), yet both carry a substantial positive $\gamma$. The
 slice-0 asymmetry and the spatial clustering are therefore distinct phenomena rather than two
 views of one.
+
+\paragraph*{The model is useful and incomplete, and we show both}
+\label{par:ppc}
+A likelihood-ratio test tells us $\gamma\ne0$; it does not tell us the model is adequate. We
+therefore simulate from the fitted model and compare it to the data on quantities it was
+\emph{not} fitted to---the model is fitted to the per-slice counts and the adjacency total, so
+the full pattern distribution, the number of distinct patterns, and the largest gap between
+harvested slices are all out-of-statistic checks.
+
+It passes some and fails others. The count of distinct patterns is reproduced (443 observed
+against $436.6\pm6.2$ replicated, $p_{\text{ppc}}=0.17$). But the pattern-frequency discrepancy
+is not: 955.6 observed against $494.8\pm32.9$ replicated ($p_{\text{ppc}}<0.002$), and the
+observed maps are systematically \emph{more compact} than the model predicts (mean maximum gap
+4.469 against $4.688\pm0.043$). The residual co-harvest matrix (Fig.~\ref{fig:ppc}) shows exactly
+where it fails, and the failure is structured: because $\gamma$ is fitted to the \emph{total}
+adjacency, the model reproduces that total by construction but distributes it wrongly across the
+die---strongly over-predicting co-harvest at slices $(7,8)$ and $(3,4)$ ($-4.8$ and $-3.7$
+standard deviations) while under-predicting it at $(7,10)$ and $(0,1)$ ($+4.0$, $+3.7$).
+\textbf{A single, position-independent adjacency term does not capture the spatial structure};
+whatever produces the clustering is not uniform across the die. The term still captures a large
+part of it---the same discrepancy against the no-clustering model is 1631.9---so $\gamma$
+summarises a real effect rather than an artefact. We report the misspecification because a reader
+otherwise has no way to tell a fitted parameter from an adequate model.
 
 \subsection{Sensitivity to the analysis choices}
 \label{sec:sens}
@@ -780,59 +928,165 @@ over 20\,s--15\,min and is reported in Sec.~\ref{par:grid}. It is the only choic
 materially moves an effect size, which is why the affected number is now quoted at native
 resolution.
 
-\subsection{The harvest map has no operational consequence}
+\subsection{The map's effect on power, bounded rather than dismissed}
 \label{sec:impact}
 Recovering a hidden hardware property is only useful if it changes something. We therefore ask
 whether the harvest map predicts socket behaviour, using a \textbf{within-node paired contrast}:
 the two sockets of a node share chassis, airflow, inlet air, power supply and---to first
 order---workload, so the difference $p_0-p_1$ removes the node-level confounds that make
 cross-node power comparisons unreliable. We summarise each socket's map by the mean index of its
-active slices, their dispersion, the number of adjacent active pairs, and the count of active
-slices in the low half, and correlate the socket-to-socket difference in each against the
-socket-to-socket difference in mean CPU power over six months (5{,}880 node-months,
-Fig.~\ref{fig:impact}).
+active slices, the number of adjacent active pairs, and the count of active slices in the low
+half, and regress the socket-to-socket difference in each against the socket-to-socket difference
+in mean CPU power (Fig.~\ref{fig:impact}).
 
-The associations are statistically detectable and practically negligible. The strongest is between
-the mean active-slice index and socket power: $r=+0.039$ (permutation $p=0.003$), explaining
-\textbf{0.16\% of variance}, with a slope of $+0.46$\,W per unit of slice index
-(95\% CI $[+0.16,+0.76]$). Across the full observed range of the predictor this is
-\textbf{3.1\,W}, against a socket-to-socket power spread of 17.8\,W. For calibration, the same
-paired design shows socket~p0 draws $7.7$\,W more than socket~p1 on average ($t=44.6$)---mere
-physical position in the chassis matters more than twice as much as the entire range of harvest-map
-variation.
+Pairing is not by itself sufficient, as it does not remove confounding if load is distributed
+asymmetrically between the two sockets. We therefore also adjust for node utilisation, core
+frequency, inlet air temperature and month.
 
-We therefore report a deliberate negative result: \textbf{harvest maps are operationally
-invisible}. Schedulers, power models and node-ranking heuristics need not represent them, and
-node-to-node performance variability in this system must be sought elsewhere. The result also
-strengthens the provenance interpretation of Sec.~\ref{sec:lot}: because the map has no
-behavioural footprint, the lot boundary cannot be an artefact of operational differences between
-racks.
+\paragraph*{Failing to reject is not the same as showing negligible} An earlier version of this
+analysis used six months of power data, reported $r=+0.039$ (permutation $p=0.003$) explaining
+0.16\,\% of variance, and concluded that harvest maps are ``operationally invisible''. That
+conclusion does not survive two corrections, and we state the revision plainly because it changes
+a headline claim.
+
+The first correction is the instrument. ``No measurable effect'' cannot be established by a small
+$r$; the question is whether the effect is small \emph{enough}, which requires an equivalence
+test against a margin fixed in advance. We adopt $\pm5$\,W per socket. Mean socket draw over this
+period is $69.0$\,W, so the margin is $7.2$\,\% of it---deliberately generous in absolute terms,
+but still \emph{tighter} than a difference operators demonstrably tolerate without modelling it:
+the p0--p1 positional asymmetry in the same data is $6.8$\,W. Anchoring the margin to revealed
+operator indifference is more defensible than picking a round number. The second correction is
+the uncertainty: node-days within a rack are not independent, and the previous interval treated
+them as if they were.
+
+Re-run over the \textbf{full 31-month record (636{,}223 paired node-days on 980 nodes)}, adjusting
+for node utilisation, core frequency, inlet air temperature and month, with rack-clustered
+bootstrap intervals, the result is (Table~\ref{tab:tost}):
+
+\begin{table}[h]\centering\caption{Equivalence tests against a $\pm5$\,W margin, covariate-adjusted,
+rack-clustered.}\label{tab:tost}\footnotesize
+\begin{tabular}{lrrl}\toprule
+Feature & Effect & 90\,\% CI & TOST\\\midrule
+mean slice index & $+7.9$ & $[+0.9,+16.6]$ & not equiv.\\
+low-half count   & $+5.8$ & $[-2.2,+14.5]$ & inconclusive\\
+adjacent pairs   & $-1.4$ & $[-4.5,+1.7]$ & \textbf{equivalent}\\
+\bottomrule\end{tabular}
+\\[2pt]\footnotesize A 90\,\% interval inside the margin is the two-one-sided-tests criterion at
+$\alpha=0.05$.
+\end{table}
+
+\textbf{Only one of the three features can be declared negligible.} For the mean active-slice
+index the interval excludes zero \emph{and} extends to $+16.6$\,W, so the data are consistent with
+an effect several times the margin. The point estimate is nonetheless modest in context, though
+not trivial: at $7.9$\,W it is $11$\,\% of the $69.0$\,W mean socket draw, against a p0--p1
+positional asymmetry of $6.8$\,W ($10$\,\%) and a socket-to-socket spread of $19.9$\,W
+($29$\,\%). Position in the chassis matters about as much, and ordinary variation nearly three
+times more.
+
+The honest summary is therefore \emph{bounded but not negligible}: harvest-map variation moves
+socket power by an amount comparable to which slot a processor occupies, and we cannot rule out
+more. Schedulers that already ignore socket position may reasonably ignore this too, but the
+claim that the map is operationally invisible is withdrawn. Note also that this does not weaken
+the provenance argument of Sec.~\ref{sec:lot}: causation still runs from manufacture to
+behaviour, never from rack position to a map fixed months before installation.
+
+\subsection{The map does not predict which dies get replaced}
+\label{sec:reliability}
+The map is a record of how a die came out of the fab; replacement is what the field eventually
+concluded about it. If dies whose harvested slices sit in a tight cluster were the ones that
+failed, that would tie manufacturing variability to operational reliability far more directly
+than any power correlation. We test it.
+
+The design is a discrete-time monthly survival model over the post-commissioning window. A socket
+is at risk from its first steady-state clean day and censored at its last; the event is a
+\textsc{cpu-swap} or \textsc{node-swap} affecting that socket, with \textsc{relabel} excluded
+because no silicon moves. Covariates are taken from the socket's \emph{first} steady-state map,
+never from one observed after the event, and comprise slice-0 status, the number of
+index-adjacent harvested pairs, the dispersion of the harvested indices, the rarity of the
+pattern ($-\log$ its fleet frequency) and the lot. This gives \textbf{92 sockets with at least
+one silicon-moving event over 53{,}597 socket-months at risk}, a monthly hazard of
+0.172\,\%. (The 92 here and the 96 of Sec.~\ref{sec:taxonomy} count different things: 96 is dies
+moved, counting two per \textsc{node-swap}; 92 is sockets experiencing a first event.)
+
+\textbf{Nothing predicts anything.} No coefficient's rack-clustered bootstrap interval excludes
+zero: per standard deviation the hazard ratios are 1.00 $[0.65,1.51]$ for slice-0 status,
+0.80 $[0.59,1.02]$ for adjacent harvested pairs, 0.96 $[0.76,1.23]$ for dispersion,
+0.78 $[0.55,1.06]$ for rarity and 0.84 $[0.61,1.19]$ for lot. Under grouped seven-fold
+cross-validation over racks the out-of-fold concordance index is \textbf{0.448}, against a
+permutation null of $0.499\pm0.031$ ($p=0.95$; Fig.~\ref{fig:nulls}, left)---no discrimination at all, and if anything below
+chance. Calibration is correspondingly flat: observed replacement rates across predicted-risk
+deciles range 0.08--0.26\,\% with no monotone trend.
+
+We report this as a bounded null rather than an absence of evidence. The intervals above exclude
+hazard ratios beyond roughly $\pm1.5$ per standard deviation, so a large effect is ruled out even
+though a small one is not. Two readings are consistent with it: the defects that drive fusing at
+manufacture are not the ones that kill a part in the field, or replacement is dominated by causes
+unrelated to the die at all. Either way, an operator should not use the harvest map as a
+reliability covariate---which, with Sec.~\ref{sec:impact}, completes a consistent picture of a
+property that is highly informative about \emph{provenance} and uninformative about
+\emph{behaviour}.
+
+\subsection{How much telemetry does the disclosure cost, and what closes it?}
+\label{sec:channel}
+We have shown the maps are recoverable; an operator publishing such a dataset needs to know how
+cheaply, and which mitigations would work. Both follow from one asymmetry: a harvested core can
+never emit a sample, so the channel has \emph{no false positives}. Recovery fails only if an
+active core stays silent for the whole window, so the question is not how long one must watch but
+how many samples per core survive collection.
+
+Under healthy collection that question is almost vacuous. The median core reports
+\textbf{4{,}320 of 4{,}320} expected samples per day, so it appears in essentially every 20\,s
+slot, and a \textbf{single sampling interval recovers the exact map for 99.70\,\% of sockets}.
+Measured directly and without any model, exact recovery holds for 99.9\,\% of sockets at
+\emph{every} window from one day to the full month. Modelling the degraded regime, where each
+core yields $\lambda$ samples in the window, exact recovery is $(1-e^{-\lambda})^{16}$: negligible
+at $\lambda\le1$, 0.44 at $\lambda=3$, 0.90 at $\lambda=5$ and 0.99 at $\lambda=7$. The knee is
+around five to seven samples per core---\textbf{roughly two minutes of telemetry}.
+
+That immediately rules out the obvious defences. Publishing at a coarser cadence does not work:
+recovery stays at 1.000 down to one sample per core per day, because a single sample names its
+core just as well as 4{,}320 do. Random dropout does not work either until it becomes
+destructive---recovery is still 1.000 after discarding 99.9\,\% of samples and only falls to 0.61
+at 99.99\,\% (Fig.~\ref{fig:nulls}, right). \textbf{Reducing resolution is not a mitigation, because the channel is carried by
+which sensors \emph{exist}, not by what they report.} Only defences that remove the per-core
+position work: publishing socket-level aggregates, or renumbering survivors compactly to
+$0\dots15$---which is precisely what this BMC does not do, and the whole reason the channel
+exists. Per-node random renumbering destroys the map while still leaking the count.
 
 \section{Discussion}
-\paragraph{Why is slice 0 special?} The single most striking number is that slice~0 is harvested on
+\paragraph*{Why is slice 0 special?} The single most striking number is that slice~0 is harvested on
 88.2\% of Lot~A sockets but only 39.3\% of Lot~B. Two explanations are live. Under
 \emph{defect-driven} harvesting, fusing follows wherever killer defects land. Under
 \emph{policy-driven} harvesting, slice~0 abuts a shared structure and is preferentially fused for
 reasons of yield policy, binning recipe or physical design; an 88\% rate on one specific slice is
 very hard to obtain from random defects.
 
-The fit of Sec.~\ref{sec:yield} shows the answer is \emph{both}, and separates them. The
-propensity vector $\beta$ carries the slice-0 asymmetry and differs enormously between lots
-($\beta_0=+2.51$ versus a flat Lot~B); the interaction parameter $\gamma$ carries the spatial
-clustering and is significantly positive in \emph{both} lots. A defect process is operating
-throughout---consistent with the yield literature~\cite{koren1993negbinom,bae2007waferyield}---while
-a strong additional slice-0 preference operates in Lot~A only. The most economical reading is a
-change of binning recipe or die source between the two procurements, superimposed on a defect
-process present in both. We cannot settle the mechanism from one machine, but the decomposition is
-sharper than an either/or.
+The fit of Sec.~\ref{sec:yield} shows that \emph{two statistically distinct effects are present},
+and estimates them separately. The propensity vector $\beta$ carries the slice-0 asymmetry and
+differs enormously between lots ($\beta_0=+2.51$ versus a flat Lot~B); the interaction parameter
+$\gamma$ carries residual spatial association and is significantly positive in \emph{both} lots.
+The most economical reading is a change of binning recipe or die source between the two
+procurements, superimposed on a spatial process present in both.
 
-\paragraph{The direction of causation is fixed.} A tempting objection to Sec.~\ref{sec:lot} is that
+We are careful about what this does \emph{not} establish. The decomposition is descriptive, not
+causal: a positive $\gamma$ says harvested slices are spatially associated beyond what the
+per-slice propensities explain, and a correlated \emph{defect} process and a binning \emph{policy}
+that fuses contiguous blocks both predict exactly that. The model cannot tell them apart, and
+neither can any amount of data from one machine. Nor is the model adequate on its own terms
+(Sec.~\ref{par:ppc}): it under-predicts how compact the observed maps are, so even the split
+between ``propensity'' and ``clustering'' is a summary of the structure rather than a complete
+account of it. Earlier drafts of this paper said the answer was ``both''; that claimed more
+identification than the fit supports, and we withdraw it. What survives is that the two lots
+differ in \emph{both} parameters, which is a statement about the populations, not about the
+mechanism.
+
+\paragraph*{The direction of causation is fixed.} A tempting objection to Sec.~\ref{sec:lot} is that
 rack position is confounded with cooling and workload. It cannot be: harvesting is performed by
 fusing at manufacture, months before a part is installed, so nothing about a socket's position in
 the machine room can influence its harvest map. The only admissible causal direction runs from
 procurement batch to rack, which is precisely the provenance signal we claim.
 
-\paragraph{How identifying is a harvest map?} Since the map is a per-die property, it is fair to
+\paragraph*{How identifying is a harvest map?} Since the map is a per-die property, it is fair to
 ask whether it identifies a socket---which would raise a different set of questions from the
 provenance ones we pursue. It does not. Over 1{,}962 sockets the pattern distribution carries
 $H=8.08$ bits, an effective $2^{H}=270$ distinct maps against 495 possible (90.2\,\% of uniform),
@@ -842,10 +1096,14 @@ identifier---strong evidence about which population a part came from, weak evide
 part it is. That is precisely the claim we make, and it is the quantitative reason this work sits
 apart from the fingerprinting literature~\cite{jetta2025provenance} rather than extending it.
 
-\paragraph{What this buys an operator.} Three things. Fleet telemetry can audit a procurement
-without vendor cooperation, detecting whether a delivery is homogeneous. It can detect field
-deconfiguration events that would otherwise be visible only in service logs. And, per
-Sec.~\ref{sec:impact}, it establishes when a hardware property can safely be \emph{ignored}.
+\paragraph*{What this buys an operator.} Three things. Fleet telemetry can audit a procurement
+without vendor cooperation, detecting whether a delivery is homogeneous---and, per
+Sec.~\ref{par:changepoint}, assigning an unseen rack to the right delivery 96\,\% of the time. It
+can detect field deconfiguration events that would otherwise be visible only in service logs. And
+it \emph{bounds} how much a hardware property matters: the map does not predict replacement at
+all (Sec.~\ref{sec:reliability}), and its effect on power is comparable to which slot a processor
+occupies (Sec.~\ref{sec:impact}). Bounding an effect is a weaker claim than dismissing one, and
+the right one to make here.
 
 \section{Related work}
 All references in this section were verified against their original sources on 2026-08-05.
@@ -873,6 +1131,28 @@ ontologies~\cite{m100_setdiff,m100_energy,m100_ontology}; none of it examines pe
 telemetry}, and that is the gap this paper addresses. We state this as an awareness claim rather
 than a priority claim: it rests on a systematic but necessarily incomplete search.
 
+\begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f12_changepoint.pdf}
+\caption{The lot boundary against a simultaneous null. Welch $t$ for $P(\text{slice 0})$ at every
+admissible boundary, with the envelope of $\max|t|$ under 4{,}000 rack permutations. The observed
+peak at rack~22 ($t=26.6$) lies far outside a null that never exceeds 17.95, so the boundary is
+not an artefact of scanning many splits.}\label{fig:cp}\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=.82\columnwidth]{f13_model_check.pdf}
+\caption{Posterior-predictive residuals of the pairwise-interaction model: observed minus
+model-expected co-harvest counts, in standard deviations. The model is fitted to the \emph{total}
+adjacency, so it matches that total but misplaces it---over-predicting at $(7,8)$ and $(3,4)$,
+under-predicting at $(7,10)$ and $(0,1)$. The clustering is real but not
+position-independent.}\label{fig:ppc}\end{figure}
+
+\begin{figure*}[t]\centering\includegraphics[width=.92\textwidth]{f14_null_results.pdf}
+\caption{Two bounded nulls. \textbf{Left:} no feature of the baseline harvest map predicts
+subsequent processor replacement; hazard ratios per standard deviation with rack-clustered
+bootstrap intervals, shading marking a $\pm15\,\%$ negligible-effect band. Out-of-fold
+concordance is 0.448 against a permutation null of $0.499\pm0.031$. \textbf{Right:} the cost of
+the disclosure. Exact recovery needs about seven samples per core---roughly 140\,s---while the
+published dataset ships 4{,}320 per core per day, three orders of magnitude beyond the knee.
+Reducing resolution is therefore not a mitigation.}\label{fig:nulls}\end{figure*}
+
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f8_month_stability.pdf}
 \caption{Per-slice harvest rate in each of the 31 months. The largest across-month standard
 deviation of any slice is 0.25 percentage points.}\label{fig:stab}\end{figure}
@@ -889,9 +1169,11 @@ steady-state period shows no comparable cluster.}
 \label{fig:trans}\end{figure}
 
 \begin{figure}[t]\centering\includegraphics[width=\columnwidth]{f11_operational_impact.pdf}
-\caption{Operational impact of the harvest map. Left: within-node paired contrast. Right: the
-harvest map's full observed range moves socket power less than half as much as mere socket
-position, and a sixth as much as the socket-to-socket spread.}\label{fig:impact}\end{figure}
+\caption{Equivalence tests for the harvest map's effect on socket power, over 636{,}223 paired
+node-days. Points are the effect across each feature's full observed range with rack-clustered
+90\,\% intervals; the band is the $\pm5$\,W indifference margin. Only \emph{adjacent active
+pairs} (green) is bounded inside it. The mean active-slice index is neither zero nor negligible,
+which is why the earlier ``operationally invisible'' claim is withdrawn.}\label{fig:impact}\end{figure}
 
 \section{Threats to validity and open issues}
 \label{sec:threats}
@@ -901,11 +1183,12 @@ marked \emph{blocking} below must be resolved before this paper is submitted.}
 
 \begin{enumerate}
 \item \textbf{Sensor presence $\ne$ core existence.} \textbf{Resolved externally}
-(Sec.~\ref{sec:groundtruth}): the operating system reports 128 logical CPUs on 99.997\,\% of 40.9\,M
-samples across 988 nodes and the scheduler's configured totals agree, both independently of the
-IPMI sensor family; the single OS-level anomaly in the month coincides with the only BMC-visible
-reconfiguration on that node. Supported internally by 99.985\,\% of 1.67\,M socket-days reporting
-exactly 16 cores, the perfect slice-pair structure, and the control of
+(Sec.~\ref{sec:groundtruth}): over the whole record the operating system reports 128 logical CPUs
+on 99.9853\,\% of 847\,M samples across 990 nodes (99.997\,\% of the 40.9\,M samples in the single
+month 2022-08, across 988 nodes), and the scheduler's configured totals agree---all independently
+of the IPMI sensor family. The single OS-level anomaly in 2022-08 coincides with the only
+BMC-visible reconfiguration on that node. Supported internally by 99.9847\,\% of 1.67\,M
+socket-days reporting exactly 16 cores, the perfect slice-pair structure, and the control of
 Sec.~\ref{sec:lifecycle}.
 \item \textbf{[OI-1] Resolved.} The sensor index is recovered as the physical slice ordering from
 thermal coupling (Sec.~\ref{sec:layout}), so the spatial reading of Sec.~\ref{sec:cluster} is
@@ -969,9 +1252,11 @@ slice while every other sensor on the socket keeps reporting.
 Two things deserve emphasis. The thermal probe recovers the physical slice ordering from telemetry
 alone, which is what licenses reading the clustering spatially and connects the measurement to the
 yield literature; it also shows how much this depends on sample size, since a three-day sample gave
-the opposite answer. And the harvest map turns out to have no measurable operational effect---a
-negative result we consider as useful as the positive ones, since it tells operators what they can
-safely ignore.
+the opposite answer. And the harvest map's operational footprint is now \emph{bounded} rather
+than dismissed: over 636{,}223 paired node-days it moves socket power about as much as which slot
+a processor occupies, and it does not predict replacement at all---bounded nulls we consider as
+useful as the positive ones, since they tell operators what they can safely ignore and what they
+cannot yet.
 The broader point is that fleet telemetry is a viable instrument for hardware provenance, and that
 its unintended disclosures deserve attention from those who publish such datasets.
 

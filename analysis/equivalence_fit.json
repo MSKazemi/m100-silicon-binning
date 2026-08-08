@@ -1,0 +1,59 @@
+{
+ "margin": 5.0,
+ "rows": [
+  {
+   "model": "unadjusted",
+   "feature": "meanidx",
+   "slope": 1.105474837340466,
+   "eff": 7.461955152048145,
+   "lo": -0.17150665428308426,
+   "hi": 14.963515388985833,
+   "equivalent": false
+  },
+  {
+   "model": "unadjusted",
+   "feature": "nadj",
+   "slope": -0.18958032193490015,
+   "eff": -1.327062253544301,
+   "lo": -3.8012263264862596,
+   "hi": 1.627571519763963,
+   "equivalent": true
+  },
+  {
+   "model": "unadjusted",
+   "feature": "lowhalf",
+   "slope": 0.6600953457739194,
+   "eff": 5.280762766191355,
+   "lo": -3.6434701009745223,
+   "hi": 13.426800724102785,
+   "equivalent": false
+  },
+  {
+   "model": "adjusted",
+   "feature": "meanidx",
+   "slope": 1.1647847658388777,
+   "eff": 7.862297169412424,
+   "lo": 0.9061602212560738,
+   "hi": 16.623328530188267,
+   "equivalent": false
+  },
+  {
+   "model": "adjusted",
+   "feature": "nadj",
+   "slope": -0.19357118134153395,
+   "eff": -1.3549982693907376,
+   "lo": -4.4604818709028935,
+   "hi": 1.7253756544413084,
+   "equivalent": true
+  },
+  {
+   "model": "adjusted",
+   "feature": "lowhalf",
+   "slope": 0.7203781364785958,
+   "eff": 5.763025091828767,
+   "lo": -2.239241637106512,
+   "hi": 14.505377364080644,
+   "equivalent": false
+  }
+ ]
+}

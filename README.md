@@ -7,11 +7,24 @@ release.
 > **Status: unpublished working draft.** The paper is [`paper/paper.tex`](paper/paper.tex)
 > (compiles to `paper/paper.pdf`). [`PAPER.md`](PAPER.md) is the earlier markdown draft, partly
 > superseded.
->
-> **Read [`OPEN_ISSUES.md`](OPEN_ISSUES.md) before relying on any result here.** Three issues are
-> marked BLOCKING for submission: the sensor-index→physical-die mapping is unresolved (OI-1), a
-> March 2020 BMC firmware update may have mimicked reconfiguration (OI-2), and five references are
-> unverified (OI-4).
+
+### Known limitations
+
+Read these before relying on any result here.
+
+- **Single system.** Every number comes from one machine, Marconi100. Whether the lot structure or
+  the clustering generalises to other POWER9 installations, or to other vendors, is untested.
+- **The lot boundary has no external confirmation.** The changepoint at node 439 is statistically
+  sharp (permutation-calibrated *p* < 2.5e-4, bootstrap CI [22,22] in rack terms), but no
+  procurement or delivery record was available to check it against. "Procurement lot" remains the
+  most parsimonious explanation, not a documented fact.
+- **Defect-driven vs policy-driven harvesting is bounded, not settled.** The observed clustering is
+  consistent with defect statistics, but a vendor binning *policy* that happens to disable adjacent
+  slices is not excluded.
+- **The p0/p1 socket labels occasionally swap** between collection periods. Handled by treating the
+  node as the unit where it matters, but the underlying cause in the collection stack is unknown.
+- **The pooled thermal estimator is noisy.** Reported bands are spreads across core pairs, not
+  bootstraps over sockets, wherever the per-pair samples were not retained; figures say which.
 
 ## Summary of findings
 
@@ -29,8 +42,12 @@ Across **1,960 sockets** (980 nodes, 2020-04 and 2021-03):
 | Disabled slices cluster spatially (defect signature) | mean index gap z = −20.8 vs curveball null |
 | Slice sibling cores are physically abutted | within-slice r = +0.51 vs cross-slice r = +0.29 at equal index gap, 40/40 nodes |
 | Sensor index → physical die position **not established** | linear ordering only p = 0.025 vs random; a 3×4 grid fits better |
-| Two procurement lots, boundary at node 440 | Welch t = 27.3; P(slice 0 fused) 89.1% vs 39.4% |
+| Two procurement lots, boundary at rack 22 | permutation-calibrated p < 2.5e-4; bootstrap CI [22,22]; unseen racks assigned to the right lot 95.9% of the time |
 | Maps are stable over time | 96.7% identical after 11 months; changes are hardware swaps |
+| Changes coincide with **reboots**, measured | 126/132 transitions carry a `boottime` change vs 1.74% of controls |
+| Map does **not** predict replacement | out-of-fold C-index 0.448 (null 0.499 ± 0.031) |
+| Map's power effect is bounded, not absent | +7.9 W over the feature range, 90% CI [+0.9, +16.6], vs a ±5 W margin |
+| The disclosure is nearly free | exact recovery from one 20 s interval; coarser cadence is not a mitigation |
 
 ## Layout
 
@@ -44,6 +61,16 @@ analysis/
   rack_lot.py                rack/row clustering, permutation tests, lot changepoint
   counts_20-04.parquet       derived count table (2020-04)
   counts_21-03.parquet       derived count table (2021-03)
+
+  # covariate sweep and the analyses that depend on it
+  sweep_covariates.py        one pass over the raw tars for boottime + workload covariates
+  reboot_evidence.py         transitions vs an independent boot signal
+  changepoint.py             permutation-calibrated max-t, bootstrap CI, k-selection, held-out lot
+  survival.py                harvest map -> field replacement (a null)
+  equivalence.py             TOST on socket power, covariate-adjusted, rack-clustered
+  side_channel.py            recovery cost and which mitigations work
+  ppc.py                     posterior-predictive checks of the pairwise-interaction model
+  exposure_rates.py          rates on matched exposure windows
 ```
 
 ## Reproducing
