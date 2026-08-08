@@ -1,0 +1,7 @@
+# Everything the analysis scripts need. Versions are floors, not pins: the results are not
+# sensitive to minor releases, and CI runs monthly to catch it if that ever stops being true.
+pandas>=2.0
+pyarrow>=12.0
+numpy>=1.24
+scipy>=1.10
+matplotlib>=3.7

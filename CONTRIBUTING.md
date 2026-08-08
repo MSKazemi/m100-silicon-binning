@@ -41,7 +41,7 @@ Two hard-won rules the code enforces, and any change should preserve:
 ## Running things
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install pandas pyarrow numpy scipy matplotlib
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python analysis/binning_stats.py
 ```
 

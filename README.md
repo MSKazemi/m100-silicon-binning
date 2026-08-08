@@ -102,7 +102,7 @@ required. Set up once:
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install pandas pyarrow numpy scipy matplotlib
+.venv/bin/pip install -r requirements.txt
 ```
 
 **Two derived populations, and it matters which you run.** `analysis/counts_*.parquet` (117 KB) is

@@ -14,7 +14,7 @@ download is required.**
 git clone https://github.com/MSKazemi/m100-silicon-binning
 cd m100-silicon-binning
 python3 -m venv .venv
-.venv/bin/pip install pandas pyarrow numpy scipy matplotlib
+.venv/bin/pip install -r requirements.txt
 ```
 
 ## Two derived populations — it matters which you run
