@@ -1,0 +1,92 @@
+cff-version: 1.2.0
+title: >-
+  Which 16 of 24? Per-Die Silicon Harvest Maps, Procurement Lots and Core
+  Guarding from Supercomputer Telemetry
+message: >-
+  If you use this software or its findings, please cite the accompanying
+  manuscript. The manuscript is an unpublished preprint; update this entry when
+  it is published.
+type: software
+authors:
+  - given-names: Mohsen
+    family-names: Seyedkazemi Ardebili
+    email: mohsen.seyedkazemi@unibo.it
+    affiliation: >-
+      Department of Electrical, Electronic and Information Engineering,
+      University of Bologna, Italy
+  - given-names: Michael
+    family-names: Bidollahkhani
+    email: michael.bkhani@uni-goettingen.de
+    affiliation: University of Göttingen, Germany
+  - given-names: Andrea
+    family-names: Bartolini
+    email: a.bartolini@unibo.it
+    affiliation: >-
+      Department of Electrical, Electronic and Information Engineering,
+      University of Bologna, Italy
+repository-code: https://github.com/MSKazemi/m100-silicon-binning
+url: https://mskazemi.github.io/m100-silicon-binning/
+abstract: >-
+  Processor vendors sell partially defective dies by permanently fusing off the
+  faulty units, and the resulting per-die maps of which units were disabled are
+  proprietary. This work shows that the out-of-band sensor telemetry
+  supercomputers already collect discloses them: a baseboard management
+  controller exposes one thermal sensor per physical core position and does not
+  renumber survivors, so the set of reporting sensors is the harvest map. Maps
+  are recovered for all 1,962 POWER9 sockets of CINECA's Marconi100 from a
+  public dataset and tracked across 1.67 million socket-days. Harvesting
+  operates exactly at the POWER9 slice with zero exceptions and is per-die
+  rather than per-SKU; a thermal probe independently recovers the sensor index
+  as the physical ordering of slices on the die; and a sharp procurement
+  boundary separates two lots with different binning statistics.
+keywords:
+  - silicon harvesting
+  - core harvesting
+  - silicon binning
+  - hardware provenance
+  - POWER9
+  - HPC telemetry
+  - out-of-band monitoring
+  - baseboard management controller
+  - semiconductor yield
+  - side channel
+  - Marconi100
+  - reproducible research
+license: MIT
+version: 1.0.0
+date-released: '2026-08-08'
+references:
+  - type: article
+    title: >-
+      M100 ExaData: a data collection campaign on the CINECA's Marconi100
+      Tier-0 supercomputer
+    authors:
+      - family-names: Borghesi
+        given-names: Andrea
+      - family-names: Di Santi
+        given-names: Carmine
+      - family-names: Molan
+        given-names: Martin
+      - family-names: Seyedkazemi Ardebili
+        given-names: Mohsen
+      - family-names: Mauri
+        given-names: Andrea
+      - family-names: Guarrasi
+        given-names: Massimiliano
+      - family-names: Galetti
+        given-names: Daniela
+      - family-names: Cestari
+        given-names: Mirko
+      - family-names: Barchi
+        given-names: Francesco
+      - family-names: Benini
+        given-names: Luca
+      - family-names: Beneventi
+        given-names: Francesco
+      - family-names: Bartolini
+        given-names: Andrea
+    journal: Scientific Data
+    volume: '10'
+    start: '288'
+    year: 2023
+    doi: 10.1038/s41597-023-02174-3

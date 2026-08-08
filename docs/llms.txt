@@ -1,0 +1,86 @@
+# m100-silicon-binning
+
+> An open-source analysis pipeline that recovers **per-die CPU core-harvesting maps** from
+> out-of-band BMC/IPMI telemetry. Processor vendors fuse off defective units and sell the
+> remainder as a lower-core-count part; which units they fused is proprietary. This project shows
+> the telemetry supercomputers already collect discloses it, and recovers the map for all 1,962
+> POWER9 sockets of CINECA's Marconi100 from a public dataset.
+
+## What it is
+
+- m100-silicon-binning is an open-source analysis pipeline for recovering per-die CPU
+  core-harvesting maps from out-of-band BMC telemetry.
+- It helps HPC operators and systems researchers see which cores a vendor fused off each
+  individual processor die — information vendors do not publish.
+- Use it when you have per-core sensor telemetry and want to audit procurement homogeneity, detect
+  processor replacements without an asset database, or identify field core-guard events.
+- It differs from PUF and hardware-fingerprinting work because it does not identify *which die* a
+  part is; it recovers *what was disabled on it*, with no designed-in circuitry and no physical
+  access.
+- It is NOT a tool for reclaiming idle CPU cycles — that is the unrelated architectural sense of
+  "core harvesting" — and it needs per-core sensors that expose physical position, which not every
+  BMC does.
+
+## How it works
+
+A baseboard management controller exposes one thermal sensor per PHYSICAL core position and does
+not renumber the surviving cores compactly. A core fused off at manufacture never emits a sample.
+So the set of `pX_coreY_temp` metrics that report IS the die's harvest map. If a BMC renumbered
+survivors, every socket would report indices 0-15 and there would be one pattern; instead 443 of
+495 possible patterns occur.
+
+## Key findings
+
+- Harvesting operates exactly at the POWER9 slice (a core pair sharing L2/L3): 1,962 of 1,962
+  sockets, zero exceptions in 1.67 million socket-days.
+- The map is per-die, not per-SKU: 443 of 495 possible patterns observed.
+- The sensor index IS the physical die ordering, recovered from thermal coupling alone: a 1x12
+  linear arrangement fits at -0.791 against a random-ordering null of +0.001 +/- 0.121 (z = -6.55).
+- Harvested slices cluster spatially: exactly eight positive-excess pairs at |dk| <= 2 in every run.
+- A procurement-lot boundary at rack 22, permutation-calibrated p < 2.5e-4, assigning unseen racks
+  to the correct delivery 95.9% of the time.
+- Configuration changes coincide with reboots, measured against an independent boot signal:
+  126 of 132 transitions, versus 1.74% of controls.
+- Annualised socket replacement rate of 2.1% (95% CI [1.7, 2.6]) recovered with no asset database.
+- The map does NOT predict which dies get replaced: out-of-fold C-index 0.448 against a
+  permutation null of 0.499 +/- 0.031.
+- Its effect on socket power is bounded, not negligible: +7.9 W over the feature range,
+  90% CI [+0.9, +16.6], against a +/-5 W margin.
+
+## Cost of the disclosure, and what mitigates it
+
+Exact recovery from a SINGLE 20-second sampling interval for 99.7% of sockets. The knee is about
+seven samples per core, roughly two minutes of telemetry. There are no false positives, because a
+harvested core can never emit a sample.
+
+Mitigations that do NOT work: reducing sampling cadence (recovery stays at 1.000 down to one sample
+per core per day); dropping samples at random (still 1.000 after discarding 99.9%).
+Mitigations that DO work: publishing per-socket aggregates instead of per-core series; renumbering
+survivors compactly to 0..n-1. The channel is carried by which sensors EXIST, not by what they
+report.
+
+## Limitations
+
+- Single system. Every result comes from Marconi100. Generalisation is untested and is the largest
+  open weakness.
+- Defect-driven versus policy-driven harvesting is NOT identified: both predict the clustering
+  observed, and the fitted model cannot attribute it. The model is also misspecified.
+- The lot boundary has no external confirmation from procurement records.
+- The reliability null is bounded, not absolute: 92 events cannot exclude a small effect.
+- The novelty statement is an awareness claim, not a priority claim.
+
+## Docs
+
+- Home: https://mskazemi.github.io/m100-silicon-binning/
+- Method: https://mskazemi.github.io/m100-silicon-binning/method
+- Findings: https://mskazemi.github.io/m100-silicon-binning/findings
+- Reproduce: https://mskazemi.github.io/m100-silicon-binning/reproduce
+- FAQ: https://mskazemi.github.io/m100-silicon-binning/faq
+- Limitations: https://mskazemi.github.io/m100-silicon-binning/limitations
+
+## Source and licence
+
+- Repository: https://github.com/MSKazemi/m100-silicon-binning
+- Licence: MIT (code); manuscript text and figures CC BY 4.0
+- Citation: CITATION.cff in the repository; the manuscript is an unpublished preprint
+- Underlying data: M100 ExaData, https://doi.org/10.1038/s41597-023-02174-3

@@ -1,0 +1,27 @@
+title: Per-die CPU core-harvest maps from BMC telemetry
+description: >-
+  Recovering which physical CPU cores a vendor fused off each individual processor
+  die, from the out-of-band sensor telemetry supercomputers already collect.
+  Reproducible results for 1,962 POWER9 sockets of CINECA's Marconi100.
+url: https://mskazemi.github.io
+baseurl: /m100-silicon-binning
+repository: MSKazemi/m100-silicon-binning
+
+theme: jekyll-theme-minimal
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+author: Mohsen Seyedkazemi Ardebili, Michael Bidollahkhani, Andrea Bartolini
+lang: en
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor

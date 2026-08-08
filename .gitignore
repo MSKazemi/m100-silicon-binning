@@ -26,7 +26,6 @@ sweep.log
 
 # power/OS sweep scratch and derived tables
 .pw_tmp/
-cov_all/
 .cov_tmp/
 
 # private working material — internal peer reviews, the issue register and the

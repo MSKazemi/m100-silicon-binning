@@ -1,0 +1,38 @@
+# robots.txt for a public docs site / project page.
+# Goal: let search AND AI answer-engine crawlers in. Never block CSS/JS or docs.
+# Verify exact, current user-agent tokens against each vendor's docs before relying on them.
+
+# --- Search engines ---
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# --- OpenAI / ChatGPT ---
+User-agent: OAI-SearchBot      # ChatGPT search results
+Allow: /
+User-agent: ChatGPT-User       # user-triggered fetches in ChatGPT
+Allow: /
+User-agent: GPTBot             # OpenAI model training — allow for training visibility
+Allow: /
+
+# --- Google Gemini / Vertex AI ---
+User-agent: Google-Extended    # Gemini / Vertex AI generative training
+Allow: /
+
+# --- Perplexity ---
+User-agent: PerplexityBot
+Allow: /
+
+# --- Anthropic / Claude ---
+User-agent: ClaudeBot
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+
+# --- Everyone else ---
+User-agent: *
+Allow: /
+
+Sitemap: https://mskazemi.github.io/m100-silicon-binning/sitemap.xml
