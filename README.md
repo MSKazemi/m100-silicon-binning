@@ -1,8 +1,8 @@
 # m100-silicon-binning — recovering per-die CPU core-harvest maps from BMC telemetry
 
+[![reproduce](https://github.com/MSKazemi/m100-silicon-binning/actions/workflows/reproduce.yml/badge.svg)](https://github.com/MSKazemi/m100-silicon-binning/actions/workflows/reproduce.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Dataset: M100 ExaData](https://img.shields.io/badge/data-M100%20ExaData-blue)](https://doi.org/10.1038/s41597-023-02174-3)
-[![Reproducible](https://img.shields.io/badge/results-reproducible%20from%20public%20data-brightgreen)](#reproducing)
 [![Docs](https://img.shields.io/badge/docs-mskazemi.com-informational)](https://mskazemi.com/m100-silicon-binning/)
 
 ![Recovered harvest maps for every POWER9 die on Marconi100, showing the procurement-lot boundary at rack 22](docs/assets/hero.png)
