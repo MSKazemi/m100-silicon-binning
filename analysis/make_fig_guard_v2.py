@@ -127,7 +127,7 @@ for ax, (n, s, d0, d1, lost) in zip(axes, EPISODES):
     ax.set_xticklabels([str(pd.Timestamp(d).date())[5:] for d in days],
                        fontsize=5.5, rotation=90)
     covered = any(o.get(pd.Timestamp(d)) is not None for d in days)
-    note = '' if covered else '   (ganglia collection had not yet begun — no OS or boot coverage)'
+    note = '' if covered else '   (Ganglia collection had not yet begun; no OS or boot coverage)'
     ax.set_title(f'node {n} p{s}: slice {lost[0] // 2} (cores {lost[0]},{lost[1]}) silent '
                  f'{d0[5:]}–{d1[5:]}{note}', fontsize=7)
     ax.grid(False)

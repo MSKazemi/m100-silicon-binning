@@ -12,7 +12,7 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
 
-author: Mohsen Seyedkazemi Ardebili, Michael Bidollahkhani, Andrea Bartolini
+author: Mohsen Seyedkazemi Ardebili, Michael Bidollahkhani, Julian Martin Kunkel, Andrea Bartolini
 lang: en
 
 defaults:

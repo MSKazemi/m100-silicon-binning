@@ -10,7 +10,8 @@ from itertools import combinations, permutations
 
 root = Path(__file__).resolve().parent
 import os
-CORR = np.load(root / os.environ.get('THERM_MATRIX', 'thermal_corr_24x24.npy'))
+# default is the fleet census the paper reports; thermal_corr_24x24.npy is the old 3-day sample
+CORR = np.load(root / os.environ.get('THERM_MATRIX', 'thermal_corr_allnodes.npy'))
 NC, NP = 24, 12
 rng = np.random.default_rng(5)
 
@@ -97,7 +98,7 @@ ax.axvspan(null.mean() - 2*null.std(), null.mean() + 2*null.std(), color='k', al
            label='random-ordering null ($\\pm2\\sigma$)')
 ax.axvline(null.mean(), color='k', lw=.8)
 ax.set_yticks(y); ax.set_yticklabels(labs, fontsize=7)
-ax.set_xlabel('corr(physical distance, thermal coupling)   — more negative = better fit')
+ax.set_xlabel('corr(physical distance, thermal coupling)   (more negative = better fit)')
 ax.invert_yaxis()
 ax.set_xlim(min(vals) * 1.18, max(max(vals), null.mean() + 2 * null.std()) * 1.6 + .05)
 ax.legend(fontsize=6.5, frameon=False, loc='lower right')

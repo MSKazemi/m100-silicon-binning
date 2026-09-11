@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- **Authors:** Julian Martin Kunkel (University of Göttingen and GWDG) joins the manuscript;
+  Andrea Bartolini moves to last author. `CITATION.cff` and the docs metadata follow.
+- **Fig. 5 fixed:** it was drawn from the old three-day thermal matrix and contradicted the text.
+  `layout_hypotheses.py` now defaults to the fleet census (`thermal_corr_allnodes.npy`), and the
+  figure matches the numbers quoted in the paper (linear −0.791, z = −6.55).
+- **Fig. 1** labels L2 and L3 as separate rows with units; **Fig. 13** is enlarged to full column
+  width with a single-line colour-bar label; "Ganglia" is capitalised throughout, including Fig. 9.
+- **Manuscript prose:** em-dash asides rewritten as commas, colons or parentheses; the abstract now
+  explains where the 495 possible patterns come from.
+
 ## v1.0.0 — 2026-08-08
 
 First public release, accompanying the preprint *"Which 16 of 24? Per-Die Silicon Harvest Maps,

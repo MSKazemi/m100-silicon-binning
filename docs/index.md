@@ -27,6 +27,7 @@ recovers the map for all **1,962 POWER9 sockets** of CINECA's Marconi100 from a 
   "author": [
     {"@type": "Person", "name": "Mohsen Seyedkazemi Ardebili", "affiliation": {"@type": "Organization", "name": "University of Bologna"}},
     {"@type": "Person", "name": "Michael Bidollahkhani", "affiliation": {"@type": "Organization", "name": "University of Göttingen"}},
+    {"@type": "Person", "name": "Julian Martin Kunkel", "affiliation": [{"@type": "Organization", "name": "University of Göttingen"}, {"@type": "Organization", "name": "GWDG"}]},
     {"@type": "Person", "name": "Andrea Bartolini", "affiliation": {"@type": "Organization", "name": "University of Bologna"}}
   ]
 }
