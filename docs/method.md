@@ -18,8 +18,9 @@ That is the whole method. Everything else is making it reliable.
 
 The key argument is that **the BMC does not renumber active cores compactly**. Were that so, every
 socket would report indices 0–15 and there would be exactly one observed pattern. Instead we
-observe arbitrary 16-element subsets of {0,…,23} and **443 distinct patterns**, so the index is a
-fixed physical-position identifier.
+observe arbitrary 16-element subsets of {0,…,23} and **443 distinct patterns**, so the index is
+fixed to the core rather than to its rank among the survivors; IBM's core numbering ties it to a
+position on the die (see [Findings](findings.md#the-sensor-index-is-ibms-core-numbering)).
 
 That argument is internal. It is also confirmed externally, by two collectors that never touch the
 IPMI sensor family:
@@ -30,8 +31,13 @@ IPMI sensor family:
 - **The scheduler.** SLURM's configured-CPU totals across four partitions sum to 125,696 = 982×128.
 
 The single OS-level anomaly in the month used for thermal work is itself a confirmation: exactly
-one node deviates, and that window contains the only BMC-visible reconfiguration on that node. Two
-collectors with nothing in common flag the same node in the same 48 hours.
+one node (145) reports one core short, and over the same two days the BMC loses exactly one core
+sensor on that node before the socket returns with a different map. Two collectors with nothing in
+common flag the same node, and the same number of cores, in the same 48 hours. Across the whole
+record, all nine departures of the OS count from 128 are matched by a BMC loss of that many cores.
+
+Both collectors confirm the *count*; *which* positions are disabled rests on the non-compact
+indexing above.
 
 ## Four things that could make this wrong
 
@@ -41,8 +47,8 @@ Each has a detector, and one of them caught a real defect in our own pipeline.
 |---|---|
 | **Partial ingestion** — extraction silently truncates, so absent metrics look like harvested cores | A completeness gate refusing to emit a month unless all 48 metrics are present |
 | **Compact renumbering** — a BMC that renumbers survivors would yield nothing but a constant | Arbitrary subsets and 443 patterns; a renumbering BMC produces exactly one |
-| **Per-metric collector faults** — a dropped stream mimics deconfiguration | Odd active-core counts, which slice-granular fusing cannot produce; and control sensors on the same socket keeping full cadence |
-| **Socket-tag swaps** — exchanged p0/p1 tags silently mix two dies in a longitudinal study | A mirror test, which identifies 19% of steady-state changes as relabelling rather than replacement |
+| **Per-metric collector faults** — a dropped stream mimics deconfiguration | Odd active-core counts, which no baseline map produces (a single-core field deconfiguration can; the OS CPU count tells them apart); and control sensors on the same socket keeping full cadence |
+| **Socket-tag swaps** — exchanged p0/p1 tags silently mix two dies in a longitudinal study | A mirror test, which identifies 19% of steady-state map changes as relabelling, which moves no die |
 
 The first of these was found the hard way: three months had been written from incomplete
 extractions, one missing all 24 sensors of socket p1, which would have read as a socket with no
@@ -60,6 +66,9 @@ extraction completeness**, or partial ingestion masquerades as hardware failure.
    1,671,297 socket-days (90.8%).
 4. **Per-socket map.** A socket is summarised by the modal harvest map over its clean days (median
    775 days supporting each map).
+
+Days are UTC calendar days throughout; [`DATA.md`](https://github.com/MSKazemi/m100-silicon-binning/blob/main/DATA.md)
+documents every derived table.
 
 The clean-day threshold is the load-bearing discretionary choice, so its effect is stated plainly:
 moving it from 0.50 to 0.99 discards 18% of socket-days and changes nothing that matters — the same
@@ -79,7 +88,14 @@ native-resolution figure, which is the most conservative.
 
 Because common-mode removal forces each row of the residual matrix to sum to approximately zero,
 negative values at large index gaps are partly mechanical. We therefore rely on contrasts **at
-identical index distance**, which control for this exactly.
+identical index distance** and on ordering tests, which the constraint cannot bias: it treats every
+core alike, so it can rescale an ordering but not create one. Every thermal interval resamples the
+49 racks, from per-socket matrices (`analysis/thermal_socket_build.py`). Equal index distance is not
+equal die distance: across a quad boundary, index neighbours sit in opposite bands of the die.
+
+For the fleet census the series is decimated in time rather than in nodes: 20 s slots are counted
+from 00:00 UTC on the month's first day and every fifth slot is kept, which lowers the sample count
+without smoothing and so, unlike a coarser alignment grid, does not inflate correlations.
 
 ## Null model
 
@@ -88,9 +104,12 @@ naive independence null is invalid. We use the **curveball algorithm**, which pr
 sums (4 per socket) and column sums (per-slice marginals) while randomising association structure,
 and assert both on every draw.
 
-Monte-Carlo noise is real and reported rather than hidden: repeating the whole null at 25–400 draws
-moves the resulting z by about ±1, which is why we quote it to the nearest integer (≈ −20) and give
-pair-level counts as a range.
+Null draws are made exchangeable with the observed matrix by Besag and Clifford's parallel method:
+40 global curveball trades lead from the observed matrix to a hidden one, and each of 100,000 draws is
+40 further trades from it. Every Monte-Carlo p-value, (b+1)/(B+1), is then valid however slowly the
+chain mixes; mixing diagnostics and a cross-check with the sequential sampler are in
+`analysis/curveball_null.py`. (An earlier implementation executed only trades between sockets that
+share no harvested slice; its null moments agree with the corrected sampler's.)
 
 ---
 

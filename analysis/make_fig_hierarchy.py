@@ -1,7 +1,11 @@
 """F0 -- the physical hierarchy, and what a "change" means at each level.
 
 room -> rack -> node -> socket -> die -> slice -> core, with the real counts, and the four
-kinds of change that telemetry can tell apart.
+classes of map change that telemetry can tell apart. Each class is labelled by the physical
+event it is CONSISTENT WITH: a map is a signature, not a serial number, and a CPU-SWAP or
+NODE-SWAP can be a die moved in from another socket rather than a new one
+(lifecycle_taxonomy_errors.py). Shares are of the 105 steady-state node-level events
+(change_taxonomy.py); GUARD episodes are counted separately (lifecycle_os_crosscheck.py).
 """
 import numpy as np
 import matplotlib; matplotlib.use('Agg')
@@ -41,11 +45,14 @@ axT.annotate('', (24.2, 26), (10.4, 24), arrowprops=dict(arrowstyle='->', color=
 # ---------------- 3. node ----------------
 axT.text(48, 37.5, 'node (AC922 8335-GTG)', ha='center', fontweight='bold', fontsize=8.2)
 box(axT, 38.5, 19.5, 19, 13.5, '#f7fafc')
-box(axT, 40, 27, 7.5, 4.6, '#2c5282'); axT.text(43.75, 29.3, 'socket p0', ha='center', color='w', fontsize=6.5)
-box(axT, 48.5, 27, 7.5, 4.6, '#2c5282'); axT.text(52.25, 29.3, 'socket p1', ha='center', color='w', fontsize=6.5)
+# socket labels on two lines and centred, so they stay inside their boxes
+box(axT, 40, 27, 7.5, 4.6, '#2c5282')
+axT.text(43.75, 29.3, 'socket\np0', ha='center', va='center', color='w', fontsize=6.3, linespacing=1.1)
+box(axT, 48.5, 27, 7.5, 4.6, '#2c5282')
+axT.text(52.25, 29.3, 'socket\np1', ha='center', va='center', color='w', fontsize=6.3, linespacing=1.1)
 for i in range(4):
-    box(axT, 40 + i * 4.1, 21.3, 3.4, 3.4, '#c6f6d5', lw=.4)
-    axT.text(41.7 + i * 4.1, 23, 'V100', ha='center', fontsize=5.3)
+    box(axT, 39.9 + i * 4.3, 21.3, 3.8, 3.4, '#c6f6d5', lw=.4)
+    axT.text(41.8 + i * 4.3, 23, 'V100', ha='center', va='center', fontsize=4.8)
 axT.text(48, 13.0, '2 sockets + 4 GPUs\n$\\mathrm{id}=20\\,\\mathrm{rack}+\\mathrm{slot}$',
          ha='center', va='top', fontsize=6.2, color=GREY)
 axT.annotate('', (38.2, 28), (31.8, 26), arrowprops=dict(arrowstyle='->', color=GREY, lw=.9))
@@ -65,28 +72,31 @@ axT.text(80, 33.4, '12 slices  ·  4 harvested ($\\times$)  ·  16 of 24 cores a
 axT.annotate('', (61.7, 29), (57.8, 29), arrowprops=dict(arrowstyle='->', color=GREY, lw=.9))
 
 # zoom on one slice
-box(axT, 66, 13.6, 22, 7.6, 'white', ec=BLUE, lw=1.0)
-box(axT, 67.4, 16.6, 8.8, 2.9, '#2c5282'); axT.text(71.8, 18.05, 'core $2k$', ha='center', color='w', fontsize=6.2)
-box(axT, 77.4, 16.6, 9.2, 2.9, '#2c5282'); axT.text(82.0, 18.05, 'core $2k{+}1$', ha='center', color='w', fontsize=6.2)
-box(axT, 67.4, 14.4, 19.2, 1.8, '#c6f6d5'); axT.text(77.0, 15.3, '512 kB L2 + 10 MB L3', ha='center', fontsize=5.9)
-axT.text(77, 22.4, 'one slice = the unit that is fused', ha='center', fontsize=6.6,
+box(axT, 66, 13.0, 22, 8.2, 'white', ec=BLUE, lw=1.0)
+box(axT, 67.4, 17.0, 8.8, 2.9, '#2c5282'); axT.text(71.8, 18.45, 'core $2k$', ha='center', va='center', color='w', fontsize=6.4)
+box(axT, 77.4, 17.0, 9.2, 2.9, '#2c5282'); axT.text(82.0, 18.45, 'core $2k{+}1$', ha='center', va='center', color='w', fontsize=6.4)
+box(axT, 67.4, 13.8, 19.2, 2.6, '#c6f6d5'); axT.text(77.0, 15.1, '512 kB L2 + 10 MB L3', ha='center', va='center', fontsize=6.4)
+axT.text(77, 22.4, 'one slice = the unit that is disabled', ha='center', fontsize=6.6,
          color=BLUE, fontweight='bold', zorder=6,
          bbox=dict(fc='white', ec='none', pad=1.2, alpha=1.0))
 axT.plot([62.9, 67.5], [25.2, 21.3], color=BLUE, lw=.6, ls='--', zorder=1)
 axT.plot([65.7, 87.5], [25.2, 21.3], color=BLUE, lw=.6, ls='--', zorder=1)
 
 # ---------------- taxonomy strip ----------------
-axB.text(50, 10.6, 'what a change in the recovered map means, and how often (steady state)',
+axB.text(50, 10.6, 'what a map change is consistent with, and how often (of 105 steady-state events)',
          ha='center', fontsize=7.3, fontweight='bold')
-kinds = [('RELABEL', '19%', 'p0/p1 tags swap;\nno silicon moves', GREY),
-         ('CPU-SWAP', '70%', 'one socket changes;\nprocessor replaced', BLUE),
-         ('NODE-SWAP', '11%', 'both change, no mirror;\nwhole node replaced', RED),
-         ('GUARD', '3 events', 'one slice deconfigured;\nfirmware, reversible', GREEN)]
+kinds = [('RELABEL', '19%', 'p0/p1 maps exchange;\ntags swapped', GREY),
+         ('CPU-SWAP', '70%', 'one socket changes;\nnew or moved-in CPU', BLUE),
+         ('NODE-SWAP', '11%', 'both change, no mirror;\nnew or moved-in dies', RED),
+         ('GUARD', '9 episodes', 'core or slice lost at boot;\nGARD-consistent', GREEN)]
 for i, (name, share, desc, col) in enumerate(kinds):
     x = 2.0 + i * 24.6
     box(axB, x, .6, 22.4, 8.4, 'white', ec=col, lw=1.1)
-    axB.text(x + 11.2, 6.9, name, ha='center', fontsize=7.0, color=col, fontweight='bold')
-    axB.text(x + 11.2, 4.9, share, ha='center', fontsize=7.4, color=col)
-    axB.text(x + 11.2, 2.2, desc, ha='center', fontsize=6.1, color=GREY, linespacing=1.45)
+    # name and share share one line, leaving the description room below (va='center'
+    # throughout, so the vertical gaps do not depend on the glyphs)
+    axB.text(x + 11.2, 6.9, f'{name}  ·  {share}', ha='center', va='center', fontsize=7.0,
+             color=col, fontweight='bold')
+    axB.text(x + 11.2, 3.3, desc, ha='center', va='center', fontsize=6.1, color=GREY,
+             linespacing=1.45)
 fig.savefig(FIG / 'f0_hierarchy.pdf')
 print('wrote f0_hierarchy.pdf')

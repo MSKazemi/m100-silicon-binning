@@ -1,0 +1,853 @@
+{
+ "source": "IBM POWER9 Processor Registers Specification Vol. 1 v1.2 (29 Mar 2021), Fig. 2, p. 33; core-box centroids segmented from the embedded figure image",
+ "slice_xy_column_units": [
+  [
+   0.0,
+   0.0617
+  ],
+  [
+   0.0,
+   0.3086
+  ],
+  [
+   0.0,
+   1.1975
+  ],
+  [
+   0.0,
+   0.9506
+  ],
+  [
+   1.0,
+   0.0617
+  ],
+  [
+   1.0,
+   0.3086
+  ],
+  [
+   1.0,
+   1.1975
+  ],
+  [
+   1.0,
+   0.9506
+  ],
+  [
+   1.7881,
+   0.0617
+  ],
+  [
+   1.7881,
+   0.3086
+  ],
+  [
+   1.7881,
+   1.1975
+  ],
+  [
+   1.7881,
+   0.9506
+  ]
+ ],
+ "months": {
+  "22-08": {
+   "sockets": 1948,
+   "pooled": {
+    "ibm": -0.8237,
+    "linear": -0.7905,
+    "opt": -0.7928,
+    "ibm_noquad": -0.7335,
+    "linear_noquad": -0.8139,
+    "order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     11,
+     10
+    ],
+    "ibm_relabel_null_mean": 0.0003,
+    "ibm_relabel_null_sd": 0.1223,
+    "ibm_relabel_z": -6.7399,
+    "ibm_relabel_p": 4.999750012499375e-05,
+    "ibm_relabel_B": 20000
+   },
+   "proportions_sensitivity": {
+    "geometries": 90,
+    "col_scale": [
+     0.5,
+     0.75,
+     1,
+     1.5,
+     2,
+     3
+    ],
+    "gap_scale": [
+     0,
+     0.5,
+     1,
+     2,
+     3
+    ],
+    "pitch_scale": [
+     0.5,
+     1,
+     2
+    ],
+    "ibm_min": -0.8459,
+    "ibm_max": -0.311,
+    "n_better_than_best_1d": 34,
+    "equal_column_spacing": -0.8045
+   },
+   "rack_bootstrap": {
+    "replicates": 1000,
+    "ibm_ci": [
+     -0.8316,
+     -0.8127
+    ],
+    "linear_ci": [
+     -0.8005,
+     -0.7781
+    ],
+    "best_1d_ci": [
+     -0.8027,
+     -0.7802
+    ],
+    "ibm_minus_linear_ci": [
+     -0.0419,
+     -0.0236
+    ],
+    "ibm_minus_best_1d_ci": [
+     -0.0394,
+     -0.0218
+    ],
+    "frac_ibm_better_than_best_1d": 1.0,
+    "noquad_ibm_minus_linear_ci": [
+     0.0642,
+     0.097
+    ],
+    "noquad_frac_ibm_better": 0.0
+   },
+   "crossquad_regressions": {
+    "topology": {
+     "coldist": {
+      "beta": -0.1693,
+      "ci": [
+       -0.1773,
+       -0.1597
+      ]
+     },
+     "sameband": {
+      "beta": 0.0431,
+      "ci": [
+       0.0356,
+       0.0511
+      ]
+     },
+     "within_r2": 0.204
+    },
+    "rank": {
+     "drank": {
+      "beta": -0.0745,
+      "ci": [
+       -0.0767,
+       -0.0719
+      ]
+     },
+     "within_r2": 0.293
+    },
+    "topology+rank": {
+     "coldist": {
+      "beta": -0.0493,
+      "ci": [
+       -0.0599,
+       -0.0379
+      ]
+     },
+     "sameband": {
+      "beta": 0.0409,
+      "ci": [
+       0.0359,
+       0.046
+      ]
+     },
+     "drank": {
+      "beta": -0.0635,
+      "ci": [
+       -0.0661,
+       -0.0609
+      ]
+     },
+     "within_r2": 0.3051
+    },
+    "topology+rank+index": {
+     "coldist": {
+      "beta": -0.0593,
+      "ci": [
+       -0.071,
+       -0.0464
+      ]
+     },
+     "sameband": {
+      "beta": 0.0413,
+      "ci": [
+       0.0361,
+       0.0466
+      ]
+     },
+     "drank": {
+      "beta": -0.0762,
+      "ci": [
+       -0.0829,
+       -0.0695
+      ]
+     },
+     "didx": {
+      "beta": 0.0117,
+      "ci": [
+       0.0065,
+       0.0175
+      ]
+     },
+     "within_r2": 0.3065
+    },
+    "diagram_distance+rank": {
+     "dphys": {
+      "beta": -0.1134,
+      "ci": [
+       -0.1234,
+       -0.1025
+      ]
+     },
+     "drank": {
+      "beta": -0.0573,
+      "ci": [
+       -0.0592,
+       -0.055
+      ]
+     },
+     "within_r2": 0.3169
+    },
+    "pairs": 48950,
+    "stringent": {
+     "spec": "socket FE + slice effects + categorical index and rank distance",
+     "sameband": {
+      "beta": 0.0444,
+      "ci": [
+       0.0397,
+       0.0493
+      ]
+     },
+     "coldist": {
+      "beta": 0.0005,
+      "ci": [
+       -0.0077,
+       0.0093
+      ]
+     }
+    },
+    "leave_one_column_out": {
+     "without_column_0": {
+      "coldist": -0.0625,
+      "sameband": 0.0738,
+      "drank": -0.0583
+     },
+     "without_column_1": {
+      "coldist": -0.0942,
+      "sameband": 0.038,
+      "drank": -0.0512
+     },
+     "without_column_2": {
+      "coldist": 0.0147,
+      "sameband": 0.0178,
+      "drank": -0.0933
+     }
+    }
+   },
+   "observed_diagnostics": {
+    "natural_experiment": 0.1427,
+    "rank_slope_within_slice_pair": -0.0796,
+    "crossquad_coldist": -0.0493,
+    "crossquad_sameband": 0.0409,
+    "crossquad_drank": -0.0635,
+    "rank_adjacent_crossquad_by_logical_group": {
+     "0": 0.0146,
+     "1": 0.1232
+    },
+    "logical_group_gap": 0.1086
+   },
+   "physical_models": {
+    "field": {
+     "theta": [
+      1.9088,
+      0.3653
+     ],
+     "r2": 0.469,
+     "natural_experiment": 0.0604,
+     "rank_slope_within_slice_pair": -0.0198,
+     "crossquad_coldist": -0.129,
+     "crossquad_sameband": 0.1073,
+     "crossquad_drank": -0.0071,
+     "rank_adjacent_crossquad_by_logical_group": {
+      "0": -0.1038,
+      "1": -0.0634
+     },
+     "logical_group_gap": 0.0404
+    },
+    "dark_source": {
+     "theta": [
+      0.6979,
+      1.8266
+     ],
+     "r2": 0.4722,
+     "natural_experiment": 0.0753,
+     "rank_slope_within_slice_pair": -0.0171,
+     "crossquad_coldist": -0.1299,
+     "crossquad_sameband": 0.0979,
+     "crossquad_drank": -0.005,
+     "rank_adjacent_crossquad_by_logical_group": {
+      "0": -0.0993,
+      "1": -0.0552
+     },
+     "logical_group_gap": 0.0441
+    },
+    "dark_source+logical_order": {
+     "theta": [
+      0.255,
+      4.2612,
+      1.9105,
+      16.6381
+     ],
+     "r2": 0.535,
+     "natural_experiment": 0.0928,
+     "rank_slope_within_slice_pair": -0.0642,
+     "crossquad_coldist": -0.0624,
+     "crossquad_sameband": -0.0051,
+     "crossquad_drank": -0.0443,
+     "rank_adjacent_crossquad_by_logical_group": {
+      "0": 0.0007,
+      "1": 0.0465
+     },
+     "logical_group_gap": 0.0458
+    },
+    "dark_source_sweep": [
+     {
+      "lam": 0.1,
+      "noise": 0.1,
+      "natural_experiment": 0.0339,
+      "rank_slope_within_slice_pair": -0.0053,
+      "logical_group_gap": 0.0165
+     },
+     {
+      "lam": 0.1,
+      "noise": 1.0,
+      "natural_experiment": 0.0189,
+      "rank_slope_within_slice_pair": -0.003,
+      "logical_group_gap": 0.0092
+     },
+     {
+      "lam": 0.2,
+      "noise": 0.1,
+      "natural_experiment": 0.0936,
+      "rank_slope_within_slice_pair": -0.0157,
+      "logical_group_gap": 0.0472
+     },
+     {
+      "lam": 0.2,
+      "noise": 1.0,
+      "natural_experiment": 0.0563,
+      "rank_slope_within_slice_pair": -0.0094,
+      "logical_group_gap": 0.0286
+     },
+     {
+      "lam": 0.4,
+      "noise": 0.1,
+      "natural_experiment": 0.1467,
+      "rank_slope_within_slice_pair": -0.0315,
+      "logical_group_gap": 0.0777
+     },
+     {
+      "lam": 0.4,
+      "noise": 1.0,
+      "natural_experiment": 0.093,
+      "rank_slope_within_slice_pair": -0.0191,
+      "logical_group_gap": 0.05
+     }
+    ]
+   }
+  },
+  "22-02": {
+   "sockets": 1954,
+   "pooled": {
+    "ibm": -0.8164,
+    "linear": -0.8164,
+    "opt": -0.8194,
+    "ibm_noquad": -0.7146,
+    "linear_noquad": -0.8296,
+    "order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     11,
+     10
+    ],
+    "ibm_relabel_null_mean": 0.0004,
+    "ibm_relabel_null_sd": 0.1218,
+    "ibm_relabel_z": -6.7046,
+    "ibm_relabel_p": 4.999750012499375e-05,
+    "ibm_relabel_B": 20000
+   },
+   "proportions_sensitivity": {
+    "geometries": 90,
+    "col_scale": [
+     0.5,
+     0.75,
+     1,
+     1.5,
+     2,
+     3
+    ],
+    "gap_scale": [
+     0,
+     0.5,
+     1,
+     2,
+     3
+    ],
+    "pitch_scale": [
+     0.5,
+     1,
+     2
+    ],
+    "ibm_min": -0.8387,
+    "ibm_max": -0.2738,
+    "n_better_than_best_1d": 17,
+    "equal_column_spacing": -0.8069
+   },
+   "rack_bootstrap": {
+    "replicates": 333,
+    "ibm_ci": [
+     -0.8232,
+     -0.8089
+    ],
+    "linear_ci": [
+     -0.8221,
+     -0.8098
+    ],
+    "best_1d_ci": [
+     -0.8251,
+     -0.8123
+    ],
+    "ibm_minus_linear_ci": [
+     -0.0082,
+     0.0095
+    ],
+    "ibm_minus_best_1d_ci": [
+     -0.0046,
+     0.0119
+    ],
+    "frac_ibm_better_than_best_1d": 0.2553,
+    "noquad_ibm_minus_linear_ci": [
+     0.1011,
+     0.1326
+    ],
+    "noquad_frac_ibm_better": 0.0
+   },
+   "crossquad_regressions": {
+    "topology": {
+     "coldist": {
+      "beta": -0.1974,
+      "ci": [
+       -0.2063,
+       -0.1882
+      ]
+     },
+     "sameband": {
+      "beta": 0.0393,
+      "ci": [
+       0.0306,
+       0.0488
+      ]
+     },
+     "within_r2": 0.2562
+    },
+    "rank": {
+     "drank": {
+      "beta": -0.0876,
+      "ci": [
+       -0.0902,
+       -0.0854
+      ]
+     },
+     "within_r2": 0.3694
+    },
+    "topology+rank": {
+     "coldist": {
+      "beta": -0.0572,
+      "ci": [
+       -0.0688,
+       -0.0455
+      ]
+     },
+     "sameband": {
+      "beta": 0.0368,
+      "ci": [
+       0.0307,
+       0.0424
+      ]
+     },
+     "drank": {
+      "beta": -0.0742,
+      "ci": [
+       -0.077,
+       -0.0716
+      ]
+     },
+     "within_r2": 0.3819
+    },
+    "topology+rank+index": {
+     "coldist": {
+      "beta": -0.0706,
+      "ci": [
+       -0.0847,
+       -0.0579
+      ]
+     },
+     "sameband": {
+      "beta": 0.0375,
+      "ci": [
+       0.0315,
+       0.0432
+      ]
+     },
+     "drank": {
+      "beta": -0.0912,
+      "ci": [
+       -0.0977,
+       -0.0846
+      ]
+     },
+     "didx": {
+      "beta": 0.0156,
+      "ci": [
+       0.009,
+       0.0214
+      ]
+     },
+     "within_r2": 0.3841
+    },
+    "diagram_distance+rank": {
+     "dphys": {
+      "beta": -0.0996,
+      "ci": [
+       -0.11,
+       -0.088
+      ]
+     },
+     "drank": {
+      "beta": -0.0725,
+      "ci": [
+       -0.0747,
+       -0.0706
+      ]
+     },
+     "within_r2": 0.3862
+    },
+    "pairs": 49099,
+    "stringent": {
+     "spec": "socket FE + slice effects + categorical index and rank distance",
+     "sameband": {
+      "beta": 0.0419,
+      "ci": [
+       0.0375,
+       0.0472
+      ]
+     },
+     "coldist": {
+      "beta": 0.0184,
+      "ci": [
+       0.0055,
+       0.031
+      ]
+     }
+    },
+    "leave_one_column_out": {
+     "without_column_0": {
+      "coldist": -0.0781,
+      "sameband": 0.0687,
+      "drank": -0.0783
+     },
+     "without_column_1": {
+      "coldist": -0.1667,
+      "sameband": 0.0307,
+      "drank": -0.0301
+     },
+     "without_column_2": {
+      "coldist": 0.0277,
+      "sameband": 0.0222,
+      "drank": -0.1144
+     }
+    }
+   },
+   "observed_diagnostics": {
+    "natural_experiment": 0.1482,
+    "rank_slope_within_slice_pair": -0.0942,
+    "crossquad_coldist": -0.0572,
+    "crossquad_sameband": 0.0368,
+    "crossquad_drank": -0.0742,
+    "rank_adjacent_crossquad_by_logical_group": {
+     "0": 0.0416,
+     "1": 0.1636
+    },
+    "logical_group_gap": 0.122
+   }
+  },
+  "21-05": {
+   "sockets": 1958,
+   "pooled": {
+    "ibm": -0.8281,
+    "linear": -0.7985,
+    "opt": -0.8014,
+    "ibm_noquad": -0.7409,
+    "linear_noquad": -0.8285,
+    "order": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     11,
+     10
+    ],
+    "ibm_relabel_null_mean": 0.0004,
+    "ibm_relabel_null_sd": 0.122,
+    "ibm_relabel_z": -6.7891,
+    "ibm_relabel_p": 4.999750012499375e-05,
+    "ibm_relabel_B": 20000
+   },
+   "proportions_sensitivity": {
+    "geometries": 90,
+    "col_scale": [
+     0.5,
+     0.75,
+     1,
+     1.5,
+     2,
+     3
+    ],
+    "gap_scale": [
+     0,
+     0.5,
+     1,
+     2,
+     3
+    ],
+    "pitch_scale": [
+     0.5,
+     1,
+     2
+    ],
+    "ibm_min": -0.8486,
+    "ibm_max": -0.3435,
+    "n_better_than_best_1d": 30,
+    "equal_column_spacing": -0.8197
+   },
+   "rack_bootstrap": {
+    "replicates": 333,
+    "ibm_ci": [
+     -0.8356,
+     -0.8183
+    ],
+    "linear_ci": [
+     -0.8061,
+     -0.7894
+    ],
+    "best_1d_ci": [
+     -0.8085,
+     -0.7922
+    ],
+    "ibm_minus_linear_ci": [
+     -0.0406,
+     -0.0173
+    ],
+    "ibm_minus_best_1d_ci": [
+     -0.0385,
+     -0.0146
+    ],
+    "frac_ibm_better_than_best_1d": 1.0,
+    "noquad_ibm_minus_linear_ci": [
+     0.0665,
+     0.1093
+    ],
+    "noquad_frac_ibm_better": 0.0
+   },
+   "crossquad_regressions": {
+    "topology": {
+     "coldist": {
+      "beta": -0.1703,
+      "ci": [
+       -0.1779,
+       -0.1642
+      ]
+     },
+     "sameband": {
+      "beta": 0.0549,
+      "ci": [
+       0.0429,
+       0.0694
+      ]
+     },
+     "within_r2": 0.1706
+    },
+    "rank": {
+     "drank": {
+      "beta": -0.0747,
+      "ci": [
+       -0.0773,
+       -0.0726
+      ]
+     },
+     "within_r2": 0.2474
+    },
+    "topology+rank": {
+     "coldist": {
+      "beta": -0.0472,
+      "ci": [
+       -0.0572,
+       -0.0371
+      ]
+     },
+     "sameband": {
+      "beta": 0.0528,
+      "ci": [
+       0.0435,
+       0.0632
+      ]
+     },
+     "drank": {
+      "beta": -0.0652,
+      "ci": [
+       -0.069,
+       -0.0626
+      ]
+     },
+     "within_r2": 0.26
+    },
+    "topology+rank+index": {
+     "coldist": {
+      "beta": -0.0589,
+      "ci": [
+       -0.0714,
+       -0.0492
+      ]
+     },
+     "sameband": {
+      "beta": 0.0534,
+      "ci": [
+       0.044,
+       0.0637
+      ]
+     },
+     "drank": {
+      "beta": -0.0801,
+      "ci": [
+       -0.0866,
+       -0.0744
+      ]
+     },
+     "didx": {
+      "beta": 0.0138,
+      "ci": [
+       0.0085,
+       0.0198
+      ]
+     },
+     "within_r2": 0.2616
+    },
+    "diagram_distance+rank": {
+     "dphys": {
+      "beta": -0.1031,
+      "ci": [
+       -0.1166,
+       -0.0901
+      ]
+     },
+     "drank": {
+      "beta": -0.0591,
+      "ci": [
+       -0.0618,
+       -0.0569
+      ]
+     },
+     "within_r2": 0.264
+    },
+    "pairs": 49197,
+    "stringent": {
+     "spec": "socket FE + slice effects + categorical index and rank distance",
+     "sameband": {
+      "beta": 0.0585,
+      "ci": [
+       0.0525,
+       0.0667
+      ]
+     },
+     "coldist": {
+      "beta": 0.0019,
+      "ci": [
+       -0.0125,
+       0.0149
+      ]
+     }
+    },
+    "leave_one_column_out": {
+     "without_column_0": {
+      "coldist": -0.0938,
+      "sameband": 0.0933,
+      "drank": -0.0588
+     },
+     "without_column_1": {
+      "coldist": -0.1035,
+      "sameband": 0.0454,
+      "drank": -0.0461
+     },
+     "without_column_2": {
+      "coldist": 0.0338,
+      "sameband": 0.0346,
+      "drank": -0.0932
+     }
+    }
+   },
+   "observed_diagnostics": {
+    "natural_experiment": 0.1068,
+    "rank_slope_within_slice_pair": -0.0824,
+    "crossquad_coldist": -0.0472,
+    "crossquad_sameband": 0.0528,
+    "crossquad_drank": -0.0652,
+    "rank_adjacent_crossquad_by_logical_group": {
+     "0": 0.0039,
+     "1": 0.0989
+    },
+    "logical_group_gap": 0.095
+   }
+  }
+ }
+}

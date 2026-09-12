@@ -1,0 +1,113 @@
+{
+ "baseline_P_slice0": {
+  "A": 0.8818181818181818,
+  "B": 0.39166666666666666,
+  "fleet": 0.6121304791029561
+ },
+ "steady": {
+  "A": {
+   "n": 54,
+   "nodes": 42,
+   "out_s0": 45,
+   "in_s0": 33,
+   "in_rate": 0.6111111111111112,
+   "in_rate_node_boot_ci": [
+    0.4807692307692308,
+    0.7321428571428571
+   ],
+   "binom_p_vs_own_lot_rate": 3.4116071791826754e-07,
+   "binom_p_vs_fleet_rate": 1.0,
+   "by_kind": {
+    "CPU-SWAP": {
+     "sum": 22,
+     "count": 40
+    },
+    "NODE-SWAP": {
+     "sum": 11,
+     "count": 14
+    }
+   }
+  },
+  "B": {
+   "n": 42,
+   "nodes": 34,
+   "out_s0": 21,
+   "in_s0": 21,
+   "in_rate": 0.5,
+   "in_rate_node_boot_ci": [
+    0.35555555555555557,
+    0.65
+   ],
+   "binom_p_vs_own_lot_rate": 0.15736695996407252,
+   "binom_p_vs_fleet_rate": 0.15440839584092325,
+   "by_kind": {
+    "CPU-SWAP": {
+     "sum": 19,
+     "count": 34
+    },
+    "NODE-SWAP": {
+     "sum": 2,
+     "count": 8
+    }
+   }
+  },
+  "A_vs_B_arriving": {
+   "difference": 0.11111111111111116,
+   "fisher_p": 0.3054730291973111,
+   "node_permutation_p": 0.29592601849537614
+  }
+ },
+ "all": {
+  "A": {
+   "n": 107,
+   "nodes": 67,
+   "out_s0": 88,
+   "in_s0": 69,
+   "in_rate": 0.6448598130841121,
+   "in_rate_node_boot_ci": [
+    0.5339785255882836,
+    0.7523833097595474
+   ],
+   "binom_p_vs_own_lot_rate": 1.7413996481404352e-10,
+   "binom_p_vs_fleet_rate": 0.551917624424836,
+   "by_kind": {
+    "CPU-SWAP": {
+     "sum": 30,
+     "count": 49
+    },
+    "NODE-SWAP": {
+     "sum": 39,
+     "count": 58
+    }
+   }
+  },
+  "B": {
+   "n": 82,
+   "nodes": 53,
+   "out_s0": 38,
+   "in_s0": 48,
+   "in_rate": 0.5853658536585366,
+   "in_rate_node_boot_ci": [
+    0.475,
+    0.6986342630797162
+   ],
+   "binom_p_vs_own_lot_rate": 0.0004139871130912082,
+   "binom_p_vs_fleet_rate": 0.650883165695592,
+   "by_kind": {
+    "CPU-SWAP": {
+     "sum": 23,
+     "count": 38
+    },
+    "NODE-SWAP": {
+     "sum": 25,
+     "count": 44
+    }
+   }
+  },
+  "A_vs_B_arriving": {
+   "difference": 0.05949395942557556,
+   "fisher_p": 0.45107247345659446,
+   "node_permutation_p": 0.4836290927268183
+  }
+ }
+}

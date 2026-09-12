@@ -12,6 +12,12 @@ signal. A reader can see the three lines of evidence coincide without taking it 
 Node 347's episode predates ganglia collection (both cpu_num and boottime begin later), so its
 strips are drawn as "no coverage" rather than silently blank -- absence of evidence, marked as
 such.
+
+After the episode, two of the three sockets come back with a DIFFERENT map (411 from 11-16, 946
+from 09-03). An earlier version classified every cell against the pre-episode configuration only,
+so the new map's cores were drawn as "harvested" and the old map's as "configured but silent" --
+a map change rendered as a four-core loss. Cells on a reconfigured day are now drawn as "reporting
+in the new map" and "old map, replaced", and each panel title says which outcome followed.
 """
 import os
 import tempfile
@@ -38,8 +44,11 @@ plt.rcParams.update({'font.size': 8, 'figure.dpi': 200, 'savefig.bbox': 'tight',
                      'axes.labelcolor': INK, 'xtick.color': INK, 'ytick.color': INK})
 
 # 0 harvested · 1 configured+full · 2 configured+partial · 3 configured but SILENT
-CMAP = ListedColormap([PALE, BLUE, '#90cdf4', ORANGE])
-NORM = BoundaryNorm([-.5, .5, 1.5, 2.5, 3.5], CMAP.N)
+# 4 reporting, not in the prior configuration (the socket came back with a different map)
+# 5 prior configuration, no longer reporting because the map changed (NOT a silent core)
+PURPLE, LAVENDER = '#6b46c1', '#e9d8fd'
+CMAP = ListedColormap([PALE, BLUE, '#90cdf4', ORANGE, PURPLE, LAVENDER])
+NORM = BoundaryNorm([-.5, .5, 1.5, 2.5, 3.5, 4.5, 5.5], CMAP.N)
 
 EPISODES = [(347, 1, '2020-03-13', '2020-03-16', (8, 9)),
             (946, 0, '2020-08-31', '2020-09-01', (16, 17)),
@@ -75,20 +84,32 @@ for ax, (n, s, d0, d1, lost) in zip(axes, EPISODES):
     conf = set(pre[pre.n > .9 * EXPECT].core.unique()) | set(lost)
 
     grid = np.zeros((24, len(days)), dtype=int)
+    newmap_from = None
     for j, d in enumerate(days):
         gg = g[g.day == d].set_index('core')['n'].to_dict()
+        # A day on which cores outside the prior configuration report is a reconfiguration: the
+        # socket has a different map, so a prior-configuration core that stops reporting has been
+        # replaced, not silenced. Drawing it orange would misread a map change as a larger loss.
+        reconf = any(c not in conf for c, v in gg.items() if v > 0) and pd.Timestamp(d) > pd.Timestamp(d0, tz='UTC')
+        if reconf and newmap_from is None:
+            newmap_from = pd.Timestamp(d)
         for c in range(24):
+            v = gg.get(c, 0)
             if c not in conf:
-                grid[c, j] = 0
-            elif gg.get(c, 0) == 0:
-                grid[c, j] = 3
-            elif gg.get(c, 0) > .9 * EXPECT:
+                grid[c, j] = 4 if (reconf and v > 0) else 0
+            elif v == 0:
+                grid[c, j] = 5 if reconf else 3
+            elif v > .9 * EXPECT:
                 grid[c, j] = 1
             else:
                 grid[c, j] = 2
 
     ax.pcolormesh(np.arange(len(days) + 1), np.arange(25), grid, cmap=CMAP, norm=NORM,
                   edgecolors='white', linewidth=.3)
+    # Colour must not be the only thing that distinguishes the state the figure turns on, so the
+    # "configured but SILENT" cells also carry a hatch and survive greyscale printing.
+    for c_, j_ in zip(*np.where(grid == 3)):
+        ax.add_patch(plt.Rectangle((j_, c_), 1, 1, fill=False, hatch='////', ec='#7b341e', lw=0.0))
     ax.set_ylim(30.5, 0)                       # room for the two strips below the grid
     ax.set_yticks([x + .5 for x in (0, 8, 16, 23)])
     ax.set_yticklabels([0, 8, 16, 23], fontsize=6)
@@ -127,21 +148,26 @@ for ax, (n, s, d0, d1, lost) in zip(axes, EPISODES):
     ax.set_xticklabels([str(pd.Timestamp(d).date())[5:] for d in days],
                        fontsize=5.5, rotation=90)
     covered = any(o.get(pd.Timestamp(d)) is not None for d in days)
-    note = '' if covered else '   (Ganglia collection had not yet begun; no OS or boot coverage)'
+    note = '' if covered else '  (before Ganglia collection: no OS or boot coverage)'
+    after = (f'; different map from {str(newmap_from.date())[5:]}' if newmap_from is not None
+             else '; same map restored')
     ax.set_title(f'node {n} p{s}: slice {lost[0] // 2} (cores {lost[0]},{lost[1]}) silent '
-                 f'{d0[5:]}–{d1[5:]}{note}', fontsize=7)
+                 f'{d0[5:]}–{d1[5:]}{after}{note}', fontsize=7)
     ax.grid(False)
     for sp in ax.spines.values():
         sp.set_visible(False)
 
 axes[0].legend(handles=[
-    Patch(fc=PALE, ec=GREY, lw=.3, label='harvested at manufacture'),
+    Patch(fc=PALE, ec=GREY, lw=.3, label='harvested (not configured)'),
     Patch(fc=BLUE, label='configured, fully sampled'),
     Patch(fc='#90cdf4', label='configured, partial'),
-    Patch(fc=ORANGE, label='configured but SILENT / OS count $\\neq$ 128'),
+    Patch(fc=ORANGE, hatch='////', ec='#7b341e', lw=0,
+          label='configured but SILENT (hatched) / OS count $\\neq$ 128'),
+    Patch(fc=PURPLE, label='reporting in the new map'),
+    Patch(fc=LAVENDER, label='old map, replaced'),
     Patch(fc=GREEN, label='reboot observed'),
     Patch(fc='#f7fafc', ec=GREY, lw=.3, label='no coverage')],
-    fontsize=5.8, ncol=3, frameon=False, loc='upper center', bbox_to_anchor=(.5, 1.72))
+    fontsize=5.8, ncol=4, frameon=False, loc='upper center', bbox_to_anchor=(.5, 1.72))
 
 fig.savefig(FIG / 'f9_guard_episodes.pdf')
 fig.savefig(SCRATCH / 'f9.png', dpi=150)

@@ -1,6 +1,6 @@
 """The lot boundary, tested properly instead of by a maximised Welch t.
 
-The paper locates the procurement boundary by scanning every candidate split and reporting the
+The paper locates the lot boundary by scanning every candidate split and reporting the
 largest Welch t it finds (t = 26.6). That statistic is a *maximum* over ~48 dependent tests, so
 its null distribution is not Student's t and the quoted value cannot be read as a significance
 level. Four things replace it here:
@@ -10,18 +10,25 @@ level. Four things replace it here:
      share more harvested slices than chance). The calibrated p-value and the simultaneous
      envelope for the changepoint profile both come from this.
 
-  2. A BOOTSTRAP CI FOR THE BREAKPOINT. Resample racks with replacement, re-find the argmax,
-     take percentiles. A boundary reported without an interval invites the reading that it is
-     known exactly.
+  2. RESAMPLING STABILITY OF THE BREAKPOINT. Resample sockets (and, separately, whole nodes)
+     within each rack, holding every rack in place, and re-find the argmax. This is a stability
+     check CONDITIONAL on the racks, not a confidence interval for a population changepoint;
+     rack-level uncertainty (whole racks resampled within each side, a parametric beta-binomial
+     rack bootstrap, and the rack-level profile likelihood) is in cohort_boundary.py.
 
   3. HOW MANY POPULATIONS? Segment the rack-ordered fleet into k = 1..5 populations by dynamic
      programming over a per-segment 12-slice Bernoulli likelihood, and choose k by *rack-held-out*
-     likelihood rather than by in-sample fit, which always prefers more segments.
+     likelihood rather than by in-sample fit, which always prefers more segments. The product of
+     twelve Bernoullis ignores that every map has exactly four harvested slices, so it is a
+     composite score, not a likelihood for maps; cohort_boundary.py repeats the selection with
+     three models defined on the 495 valid maps only.
 
-  4. DOES IT PREDICT? Leave-one-rack-out: fit the two lot models on the other 48 racks and
-     classify each socket of the held-out rack by likelihood ratio. An operator cares whether a
-     harvest map assigns an unseen rack to the right delivery, which is a prediction, not a
-     p-value.
+  4. DOES IT PREDICT? Leave-one-rack-out, NESTED: for each held-out rack, re-find the boundary
+     from the other 48 racks only, fit the two lot models on those 48, and classify each socket
+     of the held-out rack by likelihood ratio. The reference label is the side of the boundary
+     the full data assign the rack: the lots are inferred, not documented deliveries, so this
+     measures whether the inferred cohorts are predictable from maps, which is a prediction,
+     not a p-value.
 
 Everything runs off the derived daily tables; no raw scan.
 """
@@ -108,10 +115,13 @@ rack_ids = np.arange(NRACK)
 for b in range(B):
     perm = rng.permutation(rack_ids)                  # relabel whole racks
     null_max[b] = np.abs(profile(s0, perm[rack])).max()
-p_perm = (null_max >= obs_max).mean()
+b_exceed = int((null_max >= obs_max).sum())
 print(f'  rack-permutation null    : max|t| = {null_max.mean():.2f} +/- {null_max.std():.2f}, '
       f'99th pct {np.percentile(null_max, 99):.2f}, max seen {null_max.max():.2f}')
-print(f'  calibrated p             : < {max(p_perm, 1 / B):.2e}  ({int(p_perm * B)}/{B} exceed)')
+# Finite Monte-Carlo p-value, (b+1)/(B+1): with b = 0 it is the floor of a B-draw test, not a
+# bound below which the true p-value is known to lie.
+print(f'  calibrated p             : {(b_exceed + 1) / (B + 1):.2e}  ((b+1)/(B+1); '
+      f'{b_exceed}/{B} null draws reach the observed max)')
 print('  The maximised Welch t is not itself a p-value; this is.')
 env95 = np.percentile(null_max, 95)
 np.save(root / 'analysis' / 'changepoint_profile.npy',
@@ -119,24 +129,34 @@ np.save(root / 'analysis' / 'changepoint_profile.npy',
 np.save(root / 'analysis' / 'changepoint_null.npy', null_max)
 
 
-# ------------------------------------------------------------------ 2. bootstrap CI for the break
-print('\n=== 2. bootstrap CI for the breakpoint (sockets resampled within rack) ===')
-# The clusters are racks, but a changepoint lives in the rack ORDER, so racks cannot be
-# resampled with replacement -- that shuffles the very sequence the parameter is defined on
-# (doing so returns a CI spanning the whole scan, which is an artefact, not a finding).
-# The correct cluster bootstrap here keeps every rack in place and resamples the sockets
-# inside it, preserving both the ordering and the within-rack dependence.
+# ------------------------------------------------------------------ 2. resampling stability of the break
+print('\n=== 2. resampling stability of the breakpoint (racks held in place) ===')
+# A changepoint lives in the rack ORDER, so racks cannot simply be resampled with replacement --
+# that shuffles the very sequence the parameter is defined on. Holding every rack in place and
+# resampling what is inside it keeps the order but conditions on the racks: the spread it
+# returns is a STABILITY check, not a confidence interval for a population changepoint. It is
+# reported that way. Nodes are resampled as well as sockets because the two sockets of a node
+# are not independent. Rack-level uncertainty is in cohort_boundary.py.
 rack_idx = [np.where(rack == r)[0] for r in range(NRACK)]
-boot_cut = []
+node_blocks = [[np.where(node == nd)[0] for nd in np.unique(node[ix])] for ix in rack_idx]
+boot_cut, boot_node = [], []
 for _ in range(2000):
     idx = np.concatenate([ix[rng.integers(0, len(ix), len(ix))] for ix in rack_idx if len(ix)])
     pr = profile(s0[idx], rack[idx])
     boot_cut.append(CANDS[int(np.argmax(np.abs(pr)))])
-boot_cut = np.array(boot_cut)
+for _ in range(2000):
+    idx = np.concatenate([nbs[j] for nbs in node_blocks
+                          for j in rng.integers(0, len(nbs), len(nbs))])
+    pr = profile(s0[idx], rack[idx])
+    boot_node.append(CANDS[int(np.argmax(np.abs(pr)))])
+boot_cut, boot_node = np.array(boot_cut), np.array(boot_node)
 lo, hi = np.percentile(boot_cut, [2.5, 97.5])
-print(f'  breakpoint rack = {obs_cut}   95% CI [{lo:.0f}, {hi:.0f}]   '
-      f'modal {np.bincount(boot_cut).argmax()}  '
-      f'({100 * (boot_cut == obs_cut).mean():.0f}% of resamples pick it exactly)')
+print(f'  breakpoint rack = {obs_cut}   sockets resampled within rack: rack {obs_cut} in '
+      f'{100 * (boot_cut == obs_cut).mean():.1f}% of {len(boot_cut)} (2.5-97.5 pct [{lo:.0f}, {hi:.0f}])')
+lo, hi = np.percentile(boot_node, [2.5, 97.5])
+print(f'  nodes (both sockets) resampled within rack: rack {obs_cut} in '
+      f'{100 * (boot_node == obs_cut).mean():.1f}% of {len(boot_node)} (2.5-97.5 pct [{lo:.0f}, {hi:.0f}])')
+print('  Conditional on the racks, so a stability check rather than a confidence interval.')
 
 
 # ------------------------------------------------------------------ 3. how many populations?
@@ -205,32 +225,58 @@ for r in range(NRACK):
     cd = [c for c in range(1, rk.max() + 1)
           if (rk < c).sum() >= MIN_SOCK and (rk >= c).sum() >= MIN_SOCK]
     pr = profile(s0[m], rk, cd)
-    # map back to original rack numbering: dropping rack r shifts every rack above it down one
+    # map back to original rack numbering: reduced index c is original rack c + 1 once c >= r.
+    # A boundary that falls in the gap left by the held-out rack has two valid names (r or
+    # r + 1). An earlier version compared NAMES, so one gap fold (rack 21 held out, boundary
+    # 0..20 | 22..48, exactly the full-data split) counted as a miss ("48 of 49"). The count
+    # below compares the PARTITION of the remaining racks instead.
     cut = cd[int(np.argmax(np.abs(pr)))]
-    loro.append(cut + 1 if cut > r else cut)
+    loro.append(cut + 1 if cut >= r else cut)
 loro = np.array(loro)
 vals, cnt = np.unique(loro, return_counts=True)
-print(f'  boundary recovered in {cnt.max()}/{NRACK} leave-one-rack-out fits; '
-      f'values {dict(zip(vals.tolist(), cnt.tolist()))}')
+same = sum(1 for r, c in enumerate(loro)
+           if [x for x in range(NRACK) if x != r and x < c] == [x for x in range(NRACK)
+                                                                 if x != r and x < obs_cut])
+print(f'  boundary value per fold: {dict(zip(vals.tolist(), cnt.tolist()))} (a boundary that falls '
+      f'in the gap left by the held-out rack is named after the next rack)')
+print(f'  fits that split the remaining racks exactly as the full-data boundary does: '
+      f'{same}/{NRACK}')
 
 
 # ------------------------------------------------------------------ 5. held-out lot classification
-print('\n=== 5. can a harvest map assign an UNSEEN rack to the right lot? ===')
+print('\n=== 5. can a harvest map assign an UNSEEN rack to its cohort? (nested) ===')
+# Nested: in every fold the boundary itself is re-found from the 48 training racks, so the
+# held-out rack influences neither the boundary nor the lot models that classify it.
 lot = (rack >= obs_cut).astype(int)
 sock_ok = rack_ok = 0
+fold_cuts, missed = [], []
 for r in range(NRACK):
     tr, te = rack != r, rack == r
-    pA = np.clip(X[tr & (lot == 0)].mean(0), EPS, 1 - EPS)
-    pB = np.clip(X[tr & (lot == 1)].mean(0), EPS, 1 - EPS)
+    rk = np.searchsorted(np.unique(rack[tr]), rack[tr])
+    cd = [c for c in range(1, rk.max() + 1)
+          if (rk < c).sum() >= MIN_SOCK and (rk >= c).sum() >= MIN_SOCK]
+    c_red = cd[int(np.argmax(np.abs(profile(s0[tr], rk, cd))))]
+    c_fold = c_red + 1 if c_red >= r else c_red            # back to original rack numbering
+    fold_cuts.append(c_fold)
+    lot_tr = (rack[tr] >= c_fold).astype(int)
+    pA = np.clip(X[tr][lot_tr == 0].mean(0), EPS, 1 - EPS)
+    pB = np.clip(X[tr][lot_tr == 1].mean(0), EPS, 1 - EPS)
     Xt = X[te]
     llA = (Xt * np.log(pA) + (1 - Xt) * np.log(1 - pA)).sum(1)
     llB = (Xt * np.log(pB) + (1 - Xt) * np.log(1 - pB)).sum(1)
     pred = (llB > llA).astype(int)
     truth = lot[te][0]
     sock_ok += (pred == truth).sum()
-    rack_ok += int((pred.mean() > 0.5) == bool(truth))
+    ok = int((pred.mean() > 0.5) == bool(truth))
+    rack_ok += ok
+    if not ok:
+        missed.append((r, round(float(pred.mean()), 3)))
+v, c = np.unique(fold_cuts, return_counts=True)
+print(f'  boundary re-found inside each fold: {dict(zip(v.tolist(), c.tolist()))}')
 print(f'  socket-level accuracy : {100 * sock_ok / N:.1f}%  ({sock_ok:,}/{N:,})')
 print(f'  rack-level accuracy   : {100 * rack_ok / NRACK:.1f}%  ({rack_ok}/{NRACK} racks)')
+print(f'  misclassified racks (share of sockets voting Lot B): {missed}')
 print(f'  Chance is {100 * max(lot.mean(), 1 - lot.mean()):.1f}% (majority class) at socket level.')
-print('\nThis is the operationally meaningful statement: a harvest map recovered from telemetry')
-print('assigns a rack the model has never seen to the correct delivery at the rate above.')
+print('\nA harvest map recovered from telemetry assigns a rack the pipeline has never seen, with the')
+print('boundary and both lot models re-estimated without it, to the side of the boundary the full')
+print('data put it on. The lots are inferred cohorts; no delivery record is used or implied.')

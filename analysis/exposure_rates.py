@@ -2,8 +2,8 @@
 
 Two defects motivated this script.
 
-1. The reported annualised replacement rate divided a *steady-state* numerator (96 processor
-   replacements, counted only after the commissioning window closes on 2020-06-01) by a
+1. The reported annualised replacement rate divided a *steady-state* numerator (96 die changes,
+   counted only after the commissioning window closes on 2020-06-01) by a
    *full-record* denominator. `change_taxonomy.py` hard-coded 2.5 years and
    `rate_intervals.py` hard-coded 2.55; neither is the steady-state span, and the "932-day
    record" quoted in the paper is 2.55 x 365.25 rounded, not a figure measured from the data.
@@ -83,7 +83,7 @@ print(f'  exposure, observed  : {expo_obs:8,.0f} socket-years')
 print(f'  exposure, calendar  : {expo_cal:8,.0f} socket-years  '
       f'(coverage {100 * expo_obs / expo_cal:.1f}%)')
 
-print('\n=== annualised processor replacement rate ===')
+print('\n=== annualised die-change rate (sockets receiving a different die) ===')
 print('  numerator: 96 dies, from the steady-state rows of the taxonomy')
 print('  (68 CPU-SWAP + 6 CPU-SWAP? + 2 x 11 NODE-SWAP)')
 K = 96
@@ -95,8 +95,12 @@ for lab, expo in [('calendar exposure  <- primary', expo_cal),
           f'[{100 * lo:.2f}, {100 * hi:.2f}]')
 print(f'\n  Calendar is primary here: a replacement is recovered by comparing maps ACROSS a')
 print('  reporting gap, so an unobserved day is still a day at risk.')
-print(f'  The paper reports 1.9% -- that is {K}/1960/2.55, a steady-state numerator over a')
-print('  full-record denominator. On matched exposure the rate is higher, not lower.')
+print(f'  (An earlier draft reported 1.9% = {K}/1960/2.55, a steady-state numerator over a full-record')
+print('  denominator. On matched exposure the rate is higher, not lower.)')
+print('  These Poisson intervals assume independent single-die events. NODE-SWAPs move two dies at once')
+print('  and events cluster by rack, and 42 of the 96 are dies moved between sockets rather than new')
+print('  processors: the node/rack-cluster bootstrap and the new-silicon rate are in')
+print('  lifecycle_taxonomy_errors.py.')
 
 print('\n=== core-guard episodes, separated by era ===')
 GUARD = [('347 p1', '2020-03-13', 'commissioning'),
@@ -112,6 +116,27 @@ print(f'    rate = {1e4 * r:.2f} per 10,000 socket-years   95% CI '
       f'[{1e4 * lo:.2f}, {1e4 * hi:.2f}]  (a factor of {hi / max(lo, 1e-9):.0f} wide)')
 print('  Reporting all three against the full record mixes an excluded-commissioning event')
 print('  with two steady-state ones. Both counts are stated in the paper instead.')
+
+# The slice-level criterion above (fully-sampled days, even count) excludes single-core
+# deconfigurations by construction. lifecycle_os_crosscheck.py finds every departure of the OS
+# logical-CPU count from 128 matched by a BMC loss of exactly that many cores, all in steady state:
+# 3 of one slice (120) and 6 of one core (124). Their detector is the OS count, so their exposure is
+# the OS-observed socket-time in steady state.
+os_ = pd.concat([pd.read_parquet(f) for f in sorted((root / 'os_all').glob('os_*.parquet'))],
+                ignore_index=True)
+os_['day'] = pd.to_datetime(os_['day'], utc=True)
+osd = os_[(os_.day >= CUT) & (os_.node < 980)].drop_duplicates(['node', 'day'])
+expo_os = 2 * len(osd) / DAYS_PER_YEAR
+dev = os_[(os_.day >= CUT) & os_.value.isin([120, 124])]
+k_os = 0                                          # episodes = runs of consecutive deviation days
+for _, g in dev.groupby('node'):
+    d = pd.DatetimeIndex(sorted(g.day.unique()))
+    k_os += 1 + int((np.diff(d.asi8) > 86_400 * 10 ** 9).sum())
+lo, hi = pois(k_os, expo_os)
+print(f'\n  OS-confirmed deconfigurations, any granularity, steady state: {k_os} over {expo_os:,.0f} '
+      f'OS-observed socket-years')
+print(f'    rate = {1e4 * k_os / expo_os:.1f} per 10,000 socket-years   95% CI '
+      f'[{1e4 * lo:.1f}, {1e4 * hi:.1f}]')
 
 print('\n=== proportions restated on the same footing (Clopper-Pearson) ===')
 for lab, k, n in [('sockets that never change configuration', 1756, 1962),

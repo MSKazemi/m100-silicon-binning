@@ -34,3 +34,15 @@ reviews/
 design/
 OPEN_ISSUES.md
 paper/review_*.md
+
+# local tooling and environment — never published
+.claude/
+.env
+.env.*
+*.local
+.vscode/
+.DS_Store
+
+# review bundles mailed around while the paper was out for comment
+m100_paper_review.zip
+paper_*.zip

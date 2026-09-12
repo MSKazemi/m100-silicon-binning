@@ -7,22 +7,27 @@ This is a research artefact, so the most valuable contributions are not the usua
 **1. Replication on another machine.** The single largest open limitation is that every result
 comes from one system (see [`LIMITATIONS.md`](LIMITATIONS.md), OI-10). If you have per-core BMC or
 OpenBMC telemetry from any AC922, POWER9, or other fleet whose management controller exposes one
-sensor per *physical* core position, the recovery method should transfer directly. A replication —
+sensor per core position without renumbering the survivors, the recovery method should transfer
+directly. A replication —
 agreeing **or disagreeing** — is more useful to us than any code change. Disagreement is
 especially useful: it would delimit exactly when the technique works.
 
 **2. Telling us a number is wrong.** Every figure in the paper is derived by a script in
 [`analysis/`](analysis/) from the public M100 ExaData release. If you re-run one and get something
-different, open an issue with the script, the command, and both numbers. This project has already
-corrected four of its own results that way; see the "Threats to validity" section of the paper.
+different, open an issue with the script, the command, and both numbers. This project has
+corrected several of its own results, most recently after an external review in 2026-09; see
+[`CHANGELOG.md`](CHANGELOG.md) and the "Threats to validity" section of the paper.
 
 **3. Pointing at prior work we missed.** The novelty statement is an *awareness* claim, not a
-priority claim — it rests on a systematic but necessarily incomplete search. If you know of
-earlier work recovering per-die disable maps from deployed telemetry, please say so.
+priority claim — it rests on a systematic but necessarily incomplete search. The closest prior
+work we know of is McCalpin's surveys of disabled cores on TACC's Stampede2 and Smith's reading of
+one POWER9 machine (see `LIMITATIONS.md`, OI-4). If you know of earlier work recovering per-die
+disable maps from published out-of-band telemetry, please say so.
 
-**4. Checking the floorplan inference.** The sensor index is recovered as the physical slice
-ordering from thermal coupling alone. An annotated POWER9 die shot, or the hostboot sensor-ID map,
-would confirm it directly and settle OI-1's residual caveat.
+**4. Checking the die layout.** Where each sensor index sits on the die rests on IBM's chip
+diagram (POWER9 Registers Specification v1.2, Fig. 2), which is not to scale, and on the sensor
+index being the firmware core number. An annotated POWER9 die photograph, or an AC922 BMC sensor
+map tying `pX_coreY_temp` to core chiplets, would settle OI-1's residual caveat.
 
 ## What to expect from the code
 
@@ -41,9 +46,14 @@ Two hard-won rules the code enforces, and any change should preserve:
 ## Running things
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+.venv/bin/python -m pytest -q tests/          # about 20 s; CI runs the same
 .venv/bin/python analysis/binning_stats.py
 ```
+
+`requirements-lock.txt` reproduces the exact environment of the published numbers. If a change
+alters a reported number, update every surface that quotes it (paper, `README.md`, `docs/`,
+`LIMITATIONS.md`, `CHANGELOG.md`); `tests/test_consistency.py` checks the headline ones.
 
 Most results need only the derived tables committed here. The thermal, reboot, and power sections
 need a pass over the raw M100 ExaData archives; the scripts that perform it are included.

@@ -1,0 +1,4 @@
+# Everything needed to run the test suite, on top of requirements-lock.txt (or requirements.txt).
+#   .venv/bin/pip install -r requirements-lock.txt -r requirements-dev.txt
+#   .venv/bin/python -m pytest -q tests/
+pytest==9.1.1

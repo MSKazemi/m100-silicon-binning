@@ -1,0 +1,820 @@
+{
+ "denominators": {
+  "node_events": 105,
+  "socket_transitions": 136,
+  "kinds": {
+   "CPU-SWAP": 68,
+   "RELABEL": 20,
+   "NODE-SWAP": 11,
+   "CPU-SWAP?": 6
+  },
+  "cpu_swap_incl_q": 74,
+  "dies": 96
+ },
+ "FN": {
+  "collision_lotA": 0.020746716309856243,
+  "collision_lotB": 0.002637902035492397,
+  "collision_A_socket_B_die": 0.004251893939393939,
+  "collision_B_socket_A_die": 0.004251893939393939,
+  "dies_lotA": 54,
+  "dies_lotB": 42,
+  "expected_missed_same_lot": 1.2551430468198532,
+  "expected_missed_worst": 1.3234002191973375,
+  "mirror_collision_per_node_swap": 0.0002598366109444152
+ },
+ "FP2_overlap": {
+  "n": 96,
+  "observed": [
+   8.0,
+   40.0,
+   38.0,
+   10.0
+  ],
+  "expected": [
+   8.751087405004464,
+   35.29100137154824,
+   38.17227739551795,
+   13.785633827929384
+  ],
+  "chi2": 1.733141680576427,
+  "p_asymptotic": 0.6295909511785902,
+  "B": 20000,
+  "b": 12028,
+  "p_mc": 0.6014199290035498
+ },
+ "FP1_remap": [
+  {
+   "era": "commissioning",
+   "day": "2020-03-20",
+   "changes": 63,
+   "nodes": 33,
+   "common_permutation": null,
+   "per_socket_namespace": {
+    "0": false,
+    "1": false
+   },
+   "per_lot": {
+    "A": false,
+    "B": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "commissioning",
+   "day": "2020-03-21",
+   "changes": 21,
+   "nodes": 12,
+   "common_permutation": null,
+   "per_socket_namespace": {
+    "0": false,
+    "1": false
+   },
+   "per_lot": {
+    "A": false,
+    "B": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "commissioning",
+   "day": "2020-05-19",
+   "changes": 3,
+   "nodes": 2,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {
+    "A": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2021-02-24",
+   "changes": 4,
+   "nodes": 2,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {
+    "A": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2021-04-03",
+   "changes": 7,
+   "nodes": 5,
+   "common_permutation": null,
+   "per_socket_namespace": {
+    "0": false,
+    "1": false
+   },
+   "per_lot": {
+    "A": false,
+    "B": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2021-07-02",
+   "changes": 3,
+   "nodes": 2,
+   "common_permutation": [
+    11,
+    10,
+    6,
+    0,
+    9,
+    5,
+    2,
+    4,
+    8,
+    7,
+    1,
+    3
+   ],
+   "per_socket_namespace": {},
+   "per_lot": {
+    "B": true
+   },
+   "p_by_chance": 0.02,
+   "traced_die_moves": 3
+  },
+  {
+   "era": "steady",
+   "day": "2021-07-07",
+   "changes": 3,
+   "nodes": 3,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {},
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2021-11-05",
+   "changes": 4,
+   "nodes": 3,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {},
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2021-11-09",
+   "changes": 4,
+   "nodes": 3,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {
+    "A": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2021-11-26",
+   "changes": 3,
+   "nodes": 3,
+   "common_permutation": [
+    10,
+    4,
+    9,
+    11,
+    5,
+    1,
+    6,
+    8,
+    0,
+    7,
+    2,
+    3
+   ],
+   "per_socket_namespace": {
+    "0": true
+   },
+   "per_lot": {},
+   "p_by_chance": 0.02,
+   "traced_die_moves": 2
+  },
+  {
+   "era": "steady",
+   "day": "2022-06-16",
+   "changes": 4,
+   "nodes": 3,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {
+    "A": false
+   },
+   "p_by_chance": null
+  },
+  {
+   "era": "steady",
+   "day": "2022-09-17",
+   "changes": 4,
+   "nodes": 3,
+   "common_permutation": null,
+   "per_socket_namespace": {},
+   "per_lot": {
+    "A": false
+   },
+   "p_by_chance": null
+  }
+ ],
+ "FP3_half_mirror": [
+  {
+   "node": 115,
+   "day": "2021-04-03"
+  },
+  {
+   "node": 441,
+   "day": "2020-10-02"
+  },
+  {
+   "node": 521,
+   "day": "2021-04-03"
+  },
+  {
+   "node": 543,
+   "day": "2021-07-02"
+  }
+ ],
+ "FP4_die_moves": {
+  "changes": 96,
+  "traced_same_day": 42,
+  "expected_same_day": 1.2196969696969688,
+  "traced_same_day_cross_node": 38,
+  "traced_same_day_within_node_only": 4,
+  "traced_7d": 50,
+  "expected_7d": 4.4243265993266006,
+  "traced_7d_cross_node": 43,
+  "traced_7d_within_node_only": 7,
+  "reciprocal_pairs": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     600,
+     0
+    ]
+   ],
+   [
+    [
+     1,
+     1
+    ],
+    [
+     600,
+     1
+    ]
+   ],
+   [
+    [
+     15,
+     0
+    ],
+    [
+     70,
+     0
+    ]
+   ],
+   [
+    [
+     15,
+     1
+    ],
+    [
+     487,
+     1
+    ]
+   ],
+   [
+    [
+     34,
+     0
+    ],
+    [
+     102,
+     0
+    ]
+   ],
+   [
+    [
+     34,
+     1
+    ],
+    [
+     106,
+     1
+    ]
+   ],
+   [
+    [
+     80,
+     0
+    ],
+    [
+     787,
+     0
+    ]
+   ],
+   [
+    [
+     85,
+     0
+    ],
+    [
+     949,
+     0
+    ]
+   ],
+   [
+    [
+     85,
+     1
+    ],
+    [
+     298,
+     1
+    ]
+   ],
+   [
+    [
+     102,
+     1
+    ],
+    [
+     811,
+     1
+    ]
+   ],
+   [
+    [
+     142,
+     0
+    ],
+    [
+     151,
+     0
+    ]
+   ],
+   [
+    [
+     142,
+     1
+    ],
+    [
+     151,
+     1
+    ]
+   ],
+   [
+    [
+     259,
+     0
+    ],
+    [
+     861,
+     0
+    ]
+   ],
+   [
+    [
+     304,
+     0
+    ],
+    [
+     737,
+     1
+    ]
+   ],
+   [
+    [
+     429,
+     1
+    ],
+    [
+     435,
+     1
+    ]
+   ],
+   [
+    [
+     443,
+     1
+    ],
+    [
+     972,
+     1
+    ]
+   ],
+   [
+    [
+     458,
+     0
+    ],
+    [
+     806,
+     0
+    ]
+   ]
+  ],
+  "reciprocal_pairs_cross_node": 17,
+  "reciprocal_pairs_7d": [
+   [
+    [
+     0,
+     0
+    ],
+    [
+     600,
+     0
+    ]
+   ],
+   [
+    [
+     1,
+     1
+    ],
+    [
+     600,
+     1
+    ]
+   ],
+   [
+    [
+     15,
+     0
+    ],
+    [
+     70,
+     0
+    ]
+   ],
+   [
+    [
+     15,
+     1
+    ],
+    [
+     487,
+     1
+    ]
+   ],
+   [
+    [
+     34,
+     0
+    ],
+    [
+     102,
+     0
+    ]
+   ],
+   [
+    [
+     34,
+     1
+    ],
+    [
+     106,
+     1
+    ]
+   ],
+   [
+    [
+     80,
+     0
+    ],
+    [
+     787,
+     0
+    ]
+   ],
+   [
+    [
+     85,
+     0
+    ],
+    [
+     949,
+     0
+    ]
+   ],
+   [
+    [
+     85,
+     1
+    ],
+    [
+     298,
+     1
+    ]
+   ],
+   [
+    [
+     102,
+     1
+    ],
+    [
+     811,
+     1
+    ]
+   ],
+   [
+    [
+     142,
+     0
+    ],
+    [
+     151,
+     0
+    ]
+   ],
+   [
+    [
+     142,
+     1
+    ],
+    [
+     151,
+     1
+    ]
+   ],
+   [
+    [
+     212,
+     0
+    ],
+    [
+     739,
+     0
+    ]
+   ],
+   [
+    [
+     259,
+     0
+    ],
+    [
+     861,
+     0
+    ]
+   ],
+   [
+    [
+     304,
+     0
+    ],
+    [
+     737,
+     1
+    ]
+   ],
+   [
+    [
+     429,
+     1
+    ],
+    [
+     435,
+     1
+    ]
+   ],
+   [
+    [
+     443,
+     1
+    ],
+    [
+     972,
+     1
+    ]
+   ],
+   [
+    [
+     458,
+     0
+    ],
+    [
+     806,
+     0
+    ]
+   ]
+  ],
+  "by_kind": {
+   "CPU-SWAP": [
+    23,
+    68
+   ],
+   "CPU-SWAP?": [
+    1,
+    6
+   ],
+   "NODE-SWAP": [
+    18,
+    22
+   ]
+  }
+ },
+ "PE1_os_corroborated": {
+  "events": [
+   {
+    "node": 39,
+    "socket": 0,
+    "os": [
+     124
+    ],
+    "deconfig": "2020-11-16..2020-11-18",
+    "change_day": "2020-11-19",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 145,
+    "socket": 1,
+    "os": [
+     124
+    ],
+    "deconfig": "2022-08-11..2022-08-12",
+    "change_day": "2022-08-13",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 166,
+    "socket": 1,
+    "os": [
+     124
+    ],
+    "deconfig": "2022-06-03..2022-06-07",
+    "change_day": "2022-06-08",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 216,
+    "socket": 1,
+    "os": [
+     124
+    ],
+    "deconfig": "2022-07-03..2022-07-06",
+    "change_day": "2022-07-07",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 347,
+    "socket": 1,
+    "os": [
+     120
+    ],
+    "deconfig": "2020-10-21..2020-10-22",
+    "change_day": "2020-10-23",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 411,
+    "socket": 1,
+    "os": [
+     120
+    ],
+    "deconfig": "2021-11-12..2021-11-16",
+    "change_day": "2021-11-17",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 584,
+    "socket": 1,
+    "os": [
+     124
+    ],
+    "deconfig": "2020-09-18..2020-09-21",
+    "change_day": "2020-09-23",
+    "days_after": 2,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 742,
+    "socket": 1,
+    "os": [
+     124
+    ],
+    "deconfig": "2020-06-21..2020-06-25",
+    "change_day": "2020-06-26",
+    "days_after": 1,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   },
+   {
+    "node": 946,
+    "socket": 0,
+    "os": [
+     120
+    ],
+    "deconfig": "2020-08-30..2020-09-02",
+    "change_day": "2020-09-08",
+    "days_after": 6,
+    "kind": "CPU-SWAP",
+    "new_map_traced": false,
+    "new_map_traced_7d": false
+   }
+  ],
+  "cpu_swaps_corroborated": 9,
+  "cpu_swaps": 68,
+  "p_cpu_swap_within_7d_by_chance": 0.00028571428571428574
+ },
+ "rate": {
+  "label": "die-change rate: sockets receiving a different die, per socket-year",
+  "dies": 96,
+  "exposure_socket_years": 4561.259411362078,
+  "rate": 0.02104681872749101,
+  "poisson": [
+   0.01704799074161269,
+   0.025701767960687127
+  ],
+  "node_bootstrap": {
+   "point": 0.021046818727491003,
+   "lo": 0.016223589435774302,
+   "hi": 0.026089285714285704,
+   "se": 0.002506949095959012,
+   "clusters": 980,
+   "B": 20000
+  },
+  "rack_bootstrap": {
+   "point": 0.021046818727490996,
+   "lo": 0.01556587635054022,
+   "hi": 0.02696623649459784,
+   "se": 0.0029257626366646474,
+   "clusters": 49,
+   "B": 20000
+  },
+  "rack_dispersion": 1.8706597222222208
+ },
+ "rate_new_dies": {
+  "label": "changes to a map no other socket gave up the same day (new silicon)",
+  "new_same_day": 54,
+  "new_7d": 46,
+  "rate": 0.011838835534213693,
+  "poisson": [
+   0.00889369762033132,
+   0.015447112308104954
+  ],
+  "node_bootstrap": {
+   "point": 0.01183883553421369,
+   "lo": 0.008550270108043212,
+   "hi": 0.015346638655462175,
+   "se": 0.0017195798376889774,
+   "clusters": 980,
+   "B": 20000
+  },
+  "rack_bootstrap": {
+   "point": 0.011838835534213686,
+   "lo": 0.008331032412965187,
+   "hi": 0.015565876350540216,
+   "se": 0.0018696049542019867,
+   "clusters": 49,
+   "B": 20000
+  },
+  "fn_collision_add": 0.7176063280257269,
+  "rate_7d": 0.010084933973589442,
+  "poisson_7d": [
+   0.007383439171444768,
+   0.013451888651135386
+  ],
+  "rack_bootstrap_7d": {
+   "point": 0.010084933973589436,
+   "lo": 0.0067963685474189675,
+   "hi": 0.013592737094837935,
+   "se": 0.001699597116266599,
+   "clusters": 49,
+   "B": 20000
+  },
+  "range_rate": [
+   0.010084933973589442,
+   0.011996161891543462
+  ]
+ }
+}

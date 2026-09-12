@@ -1,0 +1,59 @@
+{
+ "v1_reproduced": 0.44835031671156317,
+ "a_infold_standardisation": 0.44835031671156317,
+ "a_max_abs_score_change": 1.4210854715202004e-14,
+ "b_infold_rarity": 0.4630919296449335,
+ "c_no_fold_intercept": 0.46072807092388796,
+ "d_risk_set_concordance_within_fold": 0.46066786642671465,
+ "d_risk_set_concordance_pooled": 0.46094238931306397,
+ "fold_rate_vs_intercept_corr": -0.9335572784637837,
+ "e_full_pipeline_null_mean": 0.4767818739830925,
+ "e_full_pipeline_null_sd": 0.05038170968519456,
+ "e_full_pipeline_p_upper": 0.728,
+ "e_full_pipeline_p_lower": 0.274,
+ "n_perm": 499,
+ "f_other_partitions_pooled_auc_mean": 0.49539051409254725,
+ "f_other_partitions_pooled_auc_sd": 0.01987066747550978,
+ "f_v1_partition_pooled_auc_rank": 2,
+ "f_other_partitions_risk_set_C_mean": 0.5158189554178505,
+ "f_v1_partition_risk_set_C_rank": 1,
+ "f_n_partitions": 50,
+ "per_fold": {
+  "fold": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   5,
+   6
+  ],
+  "test_events": [
+   12,
+   17,
+   9,
+   20,
+   11,
+   11,
+   12
+  ],
+  "test_rate_pct": [
+   0.15741833923652104,
+   0.22400843325866385,
+   0.11691348402182385,
+   0.2639567110993797,
+   0.14250550589454591,
+   0.1421923474663909,
+   0.15676028739386022
+  ],
+  "train_intercept": [
+   -6.434241673552096,
+   -6.487557714215753,
+   -6.3452473085713486,
+   -6.501749870909822,
+   -6.3613474642867365,
+   -6.408059369097846,
+   -6.401892133621162
+  ]
+ }
+}

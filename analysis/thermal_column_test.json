@@ -1,0 +1,129 @@
+{
+ "test": "S[4c+1,4c+3] - S[4c+1,4c+2] on sockets with all three slices active; >0 follows IBM's diagram, <0 follows the index / OS order",
+ "rack_bootstrap_B": 2000,
+ "months": {
+  "22-08": {
+   "observed": {
+    "mean": -0.0546,
+    "rack_ci": [
+     -0.0661,
+     -0.0455
+    ],
+    "sockets": 1541,
+    "frac_positive": 0.3271,
+    "by_column": [
+     -0.1177,
+     -0.0687,
+     -0.0021
+    ]
+   },
+   "rank_slope_within_slice_pair": {
+    "slope": -0.0796,
+    "rack_ci": [
+     -0.0855,
+     -0.0732
+    ],
+    "pairs": 54544,
+    "B": 400
+   },
+   "physical_model_predictions": {
+    "field": {
+     "theta": [
+      1.9088,
+      0.3653
+     ],
+     "d": 0.0864
+    },
+    "dark_source": {
+     "theta": [
+      0.6979,
+      1.8266
+     ],
+     "d": 0.0745
+    },
+    "dark_source_sweep": [
+     {
+      "lam": 0.1,
+      "noise": 0.1,
+      "d": 0.0041
+     },
+     {
+      "lam": 0.1,
+      "noise": 1.0,
+      "d": 0.0023
+     },
+     {
+      "lam": 0.2,
+      "noise": 0.1,
+      "d": 0.0534
+     },
+     {
+      "lam": 0.2,
+      "noise": 1.0,
+      "d": 0.032
+     },
+     {
+      "lam": 0.4,
+      "noise": 0.1,
+      "d": 0.1405
+     },
+     {
+      "lam": 0.4,
+      "noise": 1.0,
+      "d": 0.0861
+     }
+    ]
+   }
+  },
+  "22-02": {
+   "observed": {
+    "mean": -0.0701,
+    "rack_ci": [
+     -0.0823,
+     -0.0604
+    ],
+    "sockets": 1550,
+    "frac_positive": 0.3052,
+    "by_column": [
+     -0.096,
+     -0.1006,
+     -0.0123
+    ]
+   },
+   "rank_slope_within_slice_pair": {
+    "slope": -0.0942,
+    "rack_ci": [
+     -0.1015,
+     -0.0866
+    ],
+    "pairs": 54712,
+    "B": 400
+   }
+  },
+  "21-05": {
+   "observed": {
+    "mean": -0.0255,
+    "rack_ci": [
+     -0.0407,
+     -0.0138
+    ],
+    "sockets": 1555,
+    "frac_positive": 0.535,
+    "by_column": [
+     -0.0508,
+     -0.0597,
+     0.0361
+    ]
+   },
+   "rank_slope_within_slice_pair": {
+    "slope": -0.0824,
+    "rack_ci": [
+     -0.0885,
+     -0.076
+    ],
+    "pairs": 54824,
+    "B": 400
+   }
+  }
+ }
+}

@@ -10,7 +10,7 @@ type: software
 authors:
   - given-names: Mohsen
     family-names: Seyedkazemi Ardebili
-    email: mohsen.seyedkazemi@unibo.it
+    email: mohsen.seyedkazemi@gmail.com
     affiliation: >-
       Department of Electrical, Electronic and Information Engineering,
       University of Bologna, Italy
@@ -31,18 +31,31 @@ authors:
 repository-code: https://github.com/MSKazemi/m100-silicon-binning
 url: https://mskazemi.com/m100-silicon-binning/
 abstract: >-
-  Processor vendors sell partially defective dies by permanently fusing off the
-  faulty units, and the resulting per-die maps of which units were disabled are
-  proprietary. This work shows that the out-of-band sensor telemetry
-  supercomputers already collect discloses them: a baseboard management
-  controller exposes one thermal sensor per physical core position and does not
-  renumber survivors, so the set of reporting sensors is the harvest map. Maps
-  are recovered for all 1,962 POWER9 sockets of CINECA's Marconi100 from a
-  public dataset and tracked across 1.67 million socket-days. Harvesting
-  operates exactly at the POWER9 slice with zero exceptions and is per-die
-  rather than per-SKU; a thermal probe independently recovers the sensor index
-  as the physical ordering of slices on the die; and a sharp procurement
-  boundary separates two lots with different binning statistics.
+  Vendors sell large processor dies as lower-core-count parts by disabling
+  cores, defective or not, without saying which. On CINECA's Marconi100
+  supercomputer the baseboard management controller exposes one thermal sensor
+  per core position without renumbering survivors, so the positions that never
+  report form each die's harvest map. From public telemetry we recover maps for
+  1,962 POWER9 sockets over 1.67 million socket-days. In every map the eight
+  disabled cores of the 24-core die form four complete slices, core pairs
+  sharing an L2/L3 block, although the hardware can disable single cores; 443
+  of 495 possible patterns occur, varying from die to die. Disabled slices
+  cluster above all within the six quads, slice pairs adjacent in IBM's chip
+  diagram, where thermal coupling across 1,948 sockets is also strongest. A
+  sharp boundary at rack 22, which places 47 of 49 held-out racks in the
+  right lot, separates two populations of parts with different disable statistics, most plausibly
+  procurement lots. An independent boot signal places a boot inside 133 of 136
+  steady-state map changes and never shows a change without one. Nine
+  steady-state core-guard episodes, removing a slice or core at boot, are each
+  matched by the operating system's own CPU count, whose window brackets the
+  sensor one. Maps travel with their dies, so map
+  changes trace processors between nodes: sockets change die at 2.1% per year,
+  but new processors enter at an inferred 1.0-1.2%. An equivalence analysis
+  bounds the map's association with socket power to a few watts, below the
+  spread between nominally identical sockets, and a survival model finds no
+  useful prediction of which dies get replaced.
+  The disclosure lies in which sensors exist, not their values, so coarser
+  sampling does not remove it.
 keywords:
   - silicon harvesting
   - core harvesting
@@ -57,6 +70,9 @@ keywords:
   - Marconi100
   - reproducible research
 license: MIT
+# v1.0.0 is the only tagged release. The abstract above describes the corrected results of
+# the 2026-09 review round, which are in the repository but not yet tagged (CHANGELOG.md,
+# Unreleased); cite the commit if you need exactly those numbers.
 version: 1.0.0
 date-released: '2026-08-08'
 references:
@@ -74,7 +90,7 @@ references:
       - family-names: Seyedkazemi Ardebili
         given-names: Mohsen
       - family-names: Mauri
-        given-names: Andrea
+        given-names: Alessio
       - family-names: Guarrasi
         given-names: Massimiliano
       - family-names: Galetti

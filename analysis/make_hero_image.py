@@ -2,7 +2,7 @@
 
 A repository whose first screen is prose asks the reader to take the finding on trust. This
 renders the actual recovered data — every socket's harvest map, ordered by rack — so the two
-procurement lots are visible as a band rather than asserted as a statistic.
+rack-aligned lots are visible as a band rather than asserted as a statistic.
 
 Written as `docs/assets/hero.png` (README, docs home) and `docs/assets/social-preview.png`
 (1280x640, the GitHub social card every share renders).
@@ -54,9 +54,9 @@ def draw(ax, show_labels=True):
     if show_labels:
         ax.set_xlabel('slice position on the die  (0 – 11)')
         ax.set_ylabel('rack cabinet  (20 nodes each)')
-        ax.text(12.3, 8, 'Lot A\nslice 0 fused on\n88.2% of dies',
+        ax.text(12.3, 8, 'Lot A\nslice 0 disabled\non 88.2% of dies',
                 ha='left', va='center', fontsize=9, color=INK)
-        ax.annotate('procurement\nboundary — rack 22', xy=(11.5, BOUNDARY - .5),
+        ax.annotate('lot boundary\n— rack 22', xy=(11.5, BOUNDARY - .5),
                     xytext=(12.3, BOUNDARY - .5), ha='left', va='center',
                     fontsize=9, color=ORANGE, weight='bold',
                     arrowprops=dict(arrowstyle='-', color=ORANGE, lw=1.4))
@@ -70,9 +70,9 @@ def draw(ax, show_labels=True):
 fig, ax = plt.subplots(figsize=(7.6, 4.2), dpi=170)
 im = draw(ax)
 cb = fig.colorbar(im, ax=ax, fraction=.033, pad=.30)
-cb.set_label('P(slice fused off)', fontsize=8.5)
+cb.set_label('P(slice disabled)', fontsize=8.5)
 cb.ax.tick_params(labelsize=7.5)
-ax.set_title('Which slices the vendor fused off, across every POWER9 die on Marconi100\n'
+ax.set_title('Which slices are disabled, across the POWER9 dies of Marconi100\n'
              '1,962 sockets recovered from public BMC telemetry',
              fontsize=11, color=INK, pad=12)
 fig.savefig(OUT / 'hero.png', facecolor='white')
@@ -99,16 +99,16 @@ txt.text(0, .96, 'Which 16 of 24?', fontsize=30, weight='bold', color=INK, va='t
 txt.text(0, .78, 'Recovering per-die CPU core-harvest maps\nfrom out-of-band BMC telemetry',
          fontsize=15, color=INK, va='top', linespacing=1.5)
 txt.text(0, .555,
-         'Vendors fuse off defective cores and never say which.\n'
-         'A BMC exposes one sensor per physical core position\n'
-         'and does not renumber survivors — so the sensors that\n'
+         'Vendors disable cores, defective or not, and do not say which.\n'
+         'A BMC exposes one sensor per core position and does\n'
+         'not renumber survivors — so the sensors that never\n'
          'report ARE the harvest map.',
          fontsize=11.5, color='#4a5568', va='top', linespacing=1.65)
 for i, line in enumerate([
-        'slice-granular fusing — 1,962 / 1,962, zero exceptions',
+        'whole slices disabled — 1,962 / 1,962 maps, no exception',
         'per-die, not per-SKU — 443 of 495 patterns',
-        'two procurement lots — unseen racks placed 95.9% right',
-        'recovery costs ~2 minutes of ordinary telemetry']):
+        'two rack-aligned lots — 47 of 49 held-out racks placed right',
+        'one 20 s interval gives the exact map 99.95% of the time']):
     txt.text(.012, .305 - i * .064, '—', fontsize=11, color=ORANGE, va='top', weight='bold')
     txt.text(.055, .305 - i * .064, line, fontsize=11, color=INK, va='top')
 txt.text(0, .015, 'github.com/MSKazemi/m100-silicon-binning',

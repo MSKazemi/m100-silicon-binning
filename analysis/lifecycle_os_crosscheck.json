@@ -1,0 +1,393 @@
+{
+ "os_to_bmc": {
+  "episodes": [
+   {
+    "node": 39,
+    "start": "2020-11-16",
+    "end": "2020-11-18",
+    "os_value": [
+     124
+    ],
+    "cores_expected": 1,
+    "bmc_lost": {
+     "0": [
+      5
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2020-11-19",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 7,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 145,
+    "start": "2022-08-11",
+    "end": "2022-08-12",
+    "os_value": [
+     124
+    ],
+    "cores_expected": 1,
+    "bmc_lost": {
+     "1": [
+      6
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2022-08-13",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 7,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 166,
+    "start": "2022-06-03",
+    "end": "2022-06-07",
+    "os_value": [
+     124
+    ],
+    "cores_expected": 1,
+    "bmc_lost": {
+     "1": [
+      21
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2022-06-08",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 4,
+    "lost_slice_active_after": false
+   },
+   {
+    "node": 216,
+    "start": "2022-07-03",
+    "end": "2022-07-06",
+    "os_value": [
+     124
+    ],
+    "cores_expected": 1,
+    "bmc_lost": {
+     "1": [
+      18
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2022-07-07",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 5,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 347,
+    "start": "2020-10-21",
+    "end": "2020-10-22",
+    "os_value": [
+     120
+    ],
+    "cores_expected": 2,
+    "bmc_lost": {
+     "1": [
+      8,
+      9
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2020-10-23",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 5,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 411,
+    "start": "2021-11-12",
+    "end": "2021-11-16",
+    "os_value": [
+     120
+    ],
+    "cores_expected": 2,
+    "bmc_lost": {
+     "1": [
+      12,
+      13
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2021-11-17",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 6,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 584,
+    "start": "2020-09-18",
+    "end": "2020-09-21",
+    "os_value": [
+     124
+    ],
+    "cores_expected": 1,
+    "bmc_lost": {
+     "1": [
+      19
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2020-09-23",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 5,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 742,
+    "start": "2020-06-21",
+    "end": "2020-06-25",
+    "os_value": [
+     124
+    ],
+    "cores_expected": 1,
+    "bmc_lost": {
+     "1": [
+      21
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2020-06-26",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 6,
+    "lost_slice_active_after": true
+   },
+   {
+    "node": 946,
+    "start": "2020-08-30",
+    "end": "2020-09-02",
+    "os_value": [
+     120
+    ],
+    "cores_expected": 2,
+    "bmc_lost": {
+     "0": [
+      16,
+      17
+     ]
+    },
+    "match": true,
+    "onset_is_boot_day": true,
+    "next_clean_day": "2020-09-08",
+    "map_changed": true,
+    "partner_unchanged": true,
+    "active_slices_kept": 6,
+    "lost_slice_active_after": false
+   }
+  ],
+  "n": 9,
+  "matched": 9,
+  "followed_by_change": 9,
+  "followed_by_cpu_swap_signature": 9
+ },
+ "bmc_to_os": [
+  {
+   "node": 39,
+   "socket": 0,
+   "lost": [
+    5
+   ],
+   "start": "2020-11-17",
+   "end": "2020-11-17",
+   "days": 1,
+   "fully_sampled_days": 0,
+   "era": "steady",
+   "os": "OS deviates [124]"
+  },
+  {
+   "node": 166,
+   "socket": 1,
+   "lost": [
+    21
+   ],
+   "start": "2020-03-12",
+   "end": "2020-03-15",
+   "days": 4,
+   "fully_sampled_days": 4,
+   "era": "commissioning",
+   "os": "no OS coverage"
+  },
+  {
+   "node": 166,
+   "socket": 1,
+   "lost": [
+    21
+   ],
+   "start": "2022-06-04",
+   "end": "2022-06-06",
+   "days": 3,
+   "fully_sampled_days": 3,
+   "era": "steady",
+   "os": "OS deviates [124]"
+  },
+  {
+   "node": 216,
+   "socket": 1,
+   "lost": [
+    18
+   ],
+   "start": "2022-07-04",
+   "end": "2022-07-05",
+   "days": 2,
+   "fully_sampled_days": 0,
+   "era": "steady",
+   "os": "OS deviates [124]"
+  },
+  {
+   "node": 296,
+   "socket": 1,
+   "lost": [
+    23
+   ],
+   "start": "2020-12-31",
+   "end": "2021-01-18",
+   "days": 19,
+   "fully_sampled_days": 16,
+   "era": "steady",
+   "os": "OS reports 128 throughout"
+  },
+  {
+   "node": 296,
+   "socket": 1,
+   "lost": [
+    23
+   ],
+   "start": "2021-01-20",
+   "end": "2021-01-20",
+   "days": 1,
+   "fully_sampled_days": 0,
+   "era": "steady",
+   "os": "OS reports 128 throughout"
+  },
+  {
+   "node": 347,
+   "socket": 1,
+   "lost": [
+    8,
+    9
+   ],
+   "start": "2020-03-13",
+   "end": "2020-03-16",
+   "days": 4,
+   "fully_sampled_days": 4,
+   "era": "commissioning",
+   "os": "no OS coverage"
+  },
+  {
+   "node": 356,
+   "socket": 1,
+   "lost": [
+    18
+   ],
+   "start": "2021-01-20",
+   "end": "2021-01-20",
+   "days": 1,
+   "fully_sampled_days": 0,
+   "era": "steady",
+   "os": "OS reports 128 throughout"
+  },
+  {
+   "node": 411,
+   "socket": 1,
+   "lost": [
+    12,
+    13
+   ],
+   "start": "2021-11-13",
+   "end": "2021-11-15",
+   "days": 3,
+   "fully_sampled_days": 3,
+   "era": "steady",
+   "os": "OS deviates [120]"
+  },
+  {
+   "node": 584,
+   "socket": 1,
+   "lost": [
+    19
+   ],
+   "start": "2020-09-19",
+   "end": "2020-09-20",
+   "days": 2,
+   "fully_sampled_days": 0,
+   "era": "steady",
+   "os": "OS deviates [124]"
+  },
+  {
+   "node": 742,
+   "socket": 1,
+   "lost": [
+    21
+   ],
+   "start": "2020-06-22",
+   "end": "2020-06-24",
+   "days": 3,
+   "fully_sampled_days": 3,
+   "era": "steady",
+   "os": "OS deviates [124]"
+  },
+  {
+   "node": 946,
+   "socket": 0,
+   "lost": [
+    16,
+    17
+   ],
+   "start": "2020-08-31",
+   "end": "2020-09-02",
+   "days": 3,
+   "fully_sampled_days": 2,
+   "era": "steady",
+   "os": "OS deviates [120]"
+  }
+ ],
+ "census_non16": {
+  "by_active": {
+   "14": 10,
+   "15": 37,
+   "17": 1,
+   "18": 26,
+   "20": 78,
+   "22": 92,
+   "23": 1,
+   "24": 11
+  },
+  "above16": 209,
+  "above16_fully_sampled": 0,
+  "above16_exact_union": 192,
+  "above16_within_union": 4,
+  "above16_outside_union": 13,
+  "cores24_days": 11,
+  "cores24_sockets": 11,
+  "odd": {
+   "core lost, OS reports [124] (deconfiguration)": 11,
+   "no earlier clean map": 1,
+   "core lost, OS count not collected": 4,
+   "union across a reconfiguration": 2,
+   "core lost, OS reports 128 throughout (sensor dropout)": 21
+  },
+  "below16_fully_sampled": {
+   "14": 9,
+   "15": 26
+  }
+ }
+}

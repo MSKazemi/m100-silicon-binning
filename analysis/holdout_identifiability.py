@@ -63,11 +63,18 @@ rack = K[:, 0] // 20
 lot = np.where(rack < 22, 'A', 'B')
 cnt = Counter(pat); n = len(pat)
 H = -sum((c/n) * np.log2(c/n) for c in cnt.values())
+import sys; sys.path.insert(0, str(root / 'analysis'))
+import cohort_models as cm                                    # noqa: E402
+cvec = np.array(list(cnt.values()))
 print('\n=== E2  identifiability of a harvest map ===')
 print(f'  sockets {n}, distinct maps {len(cnt)} of 495 possible')
-print(f'  entropy H = {H:.2f} bits   effective distinct maps 2^H = {2**H:.0f}')
+print(f'  entropy (log base 2, plug-in/maximum-likelihood) H = {H:.2f} bits   '
+      f'effective distinct maps 2^H = {2**H:.0f}')
+print(f'  bias-corrected: Miller-Madow {cm.entropy_miller_madow(cvec):.2f} bits '
+      f'(2^H = {2**cm.entropy_miller_madow(cvec):.0f}), Chao-Shen {cm.entropy_chao_shen(cvec):.2f} bits '
+      f'(2^H = {2**cm.entropy_chao_shen(cvec):.0f}); uncertainty in cohort_diversity.py')
 print(f'  max possible entropy log2(495) = {np.log2(495):.2f} bits '
-      f'({100*H/np.log2(495):.1f}% of uniform)')
+      f'({100*H/np.log2(495):.1f}% of uniform, plug-in)')
 uniq = sum(1 for p_ in pat if cnt[p_] == 1)
 print(f'  sockets whose map is unique in the fleet : {uniq} ({100*uniq/n:.1f}%)')
 print(f'  mean sockets sharing a given map          : {n/len(cnt):.2f}')
@@ -75,8 +82,15 @@ for lab, key in [('map + lot', list(zip(pat, lot))), ('map + rack', list(zip(pat
     c2 = Counter(key); u2 = sum(1 for k in key if c2[k] == 1)
     H2 = -sum((c/n) * np.log2(c/n) for c in c2.values())
     print(f'  {lab:<12}: H = {H2:.2f} bits, uniquely identified {u2} ({100*u2/n:.1f}%)')
-print('  -> the map is a partial, not a unique, identifier: it is provenance evidence,')
-print('     not a fingerprint, which is the claim the paper actually makes.')
+bynode = {}
+for (nn, ss), p_ in zip(K, pat):
+    bynode.setdefault(int(nn), {})[int(ss)] = p_
+pairs = [(v[0], v[1]) for v in bynode.values() if len(v) == 2]
+cp_ = Counter(pairs); up = sum(1 for k in pairs if cp_[k] == 1)
+print(f'  a node\'s two maps, as a (p0, p1) pair : unique for {up} of {len(pairs)} nodes '
+      f'({100*up/len(pairs):.1f}%)')
+print('  -> one socket\'s map is a partial identifier across the whole fleet; with the rack known,')
+print('     or with both maps of a node, it is a strong one (see cohort_diversity.py).')
 
 # ---------------------------------------------------------------- E3 widened guard search
 print('\n=== E3  guard search, widened ===')

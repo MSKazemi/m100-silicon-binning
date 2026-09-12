@@ -67,17 +67,27 @@ for n, d0, d1 in events:
     a_ = [P.get((n, s, d1)) for s in (0, 1)]
     if any(v is None for v in b + a_): continue
     db, da = b[0] - b[1], a_[0] - a_[1]
-    rows.append((n, str(d0.date()), str(d1.date()), db, da,
-                 np.sign(db) != np.sign(da) and min(abs(db), abs(da)) > 1.0))
-R = pd.DataFrame(rows, columns=['node', 'before', 'after', 'dP_before', 'dP_after', 'flipped'])
+    rows.append((n, str(d0.date()), str(d1.date()), db, da, np.sign(db) != np.sign(da)))
+R = pd.DataFrame(rows, columns=['node', 'before', 'after', 'dP_before', 'dP_after', 'sign_flip'])
 print(f'  with per-socket power on both sides: {len(R)}')
 if len(R):
     print(R.to_string(index=False, float_format=lambda x: f'{x:+.2f}'))
-    k, nn = int(R.flipped.sum()), len(R)
-    print(f'\n  power difference flips sign: {k}/{nn} ({100*k/nn:.0f}%)')
     from scipy.stats import beta
-    lo = beta.ppf(.025, k, nn-k+1) if k else 0.0
-    hi = beta.ppf(.975, k+1, nn-k) if k < nn else 1.0
-    print(f'  95% CI [{100*lo:.0f}, {100*hi:.0f}]%')
+
+    def cp(k, nn):
+        lo = beta.ppf(.025, k, nn - k + 1) if k else 0.0
+        hi = beta.ppf(.975, k + 1, nn - k) if k < nn else 1.0
+        return 100 * lo, 100 * hi
+
+    # A sign flip is only informative where the difference is large enough on BOTH sides that its
+    # sign is not noise. The paper quotes the 2 W threshold; 1 W is shown so the choice is visible.
+    margin = R[['dP_before', 'dP_after']].abs().min(axis=1)
+    for thresh in (1.0, 2.0):
+        sel = R[margin > thresh]
+        k, nn = int(sel.sign_flip.sum()), len(sel)
+        lo, hi = cp(k, nn)
+        tag = '  (the figure the paper and LIMITATIONS.md OI-8 quote)' if thresh == 2.0 else ''
+        print(f'  power difference flips sign, |dP| > {thresh:.0f} W on both sides: '
+              f'{k}/{nn} ({100*k/nn:.0f}%), 95% CI [{lo:.0f}, {hi:.0f}]%{tag}')
     print('\n  A collector-side tag swap should flip EVERY per-socket metric together.')
     print('  A physical die exchange need not: power follows the die.')

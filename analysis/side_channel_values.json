@@ -1,0 +1,39 @@
+{
+ "month": "22-08",
+ "nodes_sampled": 300,
+ "sockets": 596,
+ "auc_gap_vs_adjacent": 0.6545552479537795,
+ "auc_ci95_node_bootstrap": [
+  0.6373464296114213,
+  0.6723480501521859
+ ],
+ "mean_coupling_by_gap": {
+  "0": 0.2234280416392419,
+  "1": 0.08610771994418184,
+  "2": 0.09564308641166634,
+  "3": 0.20398098662956893,
+  "4": 0.13411769706414423
+ },
+ "n_by_gap": {
+  "0": 3100,
+  "1": 761,
+  "2": 261,
+  "3": 45,
+  "4": 5
+ },
+ "decoder_exact": {
+  "uniform": 0.0016778523489932886,
+  "marginal": 0.020134228187919462,
+  "prior_only": 0.028523489932885907,
+  "template_uniform": 0.026845637583892617,
+  "template_marginal": 0.031879194630872486
+ },
+ "decoder_mean_harvested_slices_right_of_4": {
+  "uniform": 1.3590604026845639,
+  "marginal": 1.7298657718120805,
+  "prior_only": 1.8003355704697988,
+  "template_uniform": 1.558724832214765,
+  "template_marginal": 1.5906040268456376
+ },
+ "decoder_median_rank_of_truth": 44.5
+}

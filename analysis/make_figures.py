@@ -1,5 +1,8 @@
-"""Build the pooled 24x24 thermal correlation matrix, recover die topology by classical
-MDS, and emit every figure used in the paper (vector PDF for LaTeX)."""
+"""Build the legacy pooled 24x24 thermal correlation matrix (three-day 2020-04 sample, needs raw
+IPMI data), its classical MDS, and the paper's Fig. 2 slice schematic (f1_slice_schematic.pdf).
+The other paper figures come from make_fig_hierarchy.py, make_figures4.py (Figs. 3-4),
+make_fig_thermal_census.py (Fig. 5), layout_hypotheses.py (Fig. 6), make_fig_lots.py (Figs. 7-8),
+make_figures3.py, make_figures2.py, make_fig_guard_v2.py and make_fig_equivalence.py."""
 import os, pandas as pd, numpy as np
 import matplotlib
 matplotlib.use('Agg')
@@ -121,29 +124,11 @@ ax.text(-.15, .68, 'L3', ha='right', va='center', fontsize=7)
 ax.set_xlim(-2.2, NP + .2); ax.set_ylim(.05, 2.05); ax.axis('off'); ax.grid(False)
 fig.savefig(FIG / 'f1_slice_schematic.pdf'); plt.close(fig)
 
-# F2 -- marginals, lot A vs lot B
-fig, ax = plt.subplots(figsize=(5.0, 2.4))
-x = np.arange(NP)
-def binci(v):
-    n = len(v); pm = v.mean()
-    return 100 * pm, 196 * np.sqrt(pm * (1 - pm) / n)     # 1.96*100*SE
-mA = np.array([binci(M[lotA][:, k]) for k in range(NP)])
-mB = np.array([binci(M[~lotA][:, k]) for k in range(NP)])
-ax.bar(x - .21, mA[:, 0], .42, yerr=mA[:, 1], capsize=1.6, error_kw=dict(lw=.7),
-       label=f'Lot A, racks 0–21 (n={lotA.sum()})', color=RED)
-ax.bar(x + .21, mB[:, 0], .42, yerr=mB[:, 1], capsize=1.6, error_kw=dict(lw=.7),
-       label=f'Lot B, racks 22–48 (n={(~lotA).sum()})', color=BLUE)
-ax.axhline(100 / 3, ls='--', lw=.9, color='k', label='uniform (4/12)')
-ax.set_xticks(x); ax.set_xlabel('slice index $k$'); ax.set_ylabel('P(slice harvested) [%]')
-ax.legend(fontsize=6.5, frameon=False); fig.savefig(FIG / 'f2_marginals.pdf'); plt.close(fig)
-
-# F3 -- co-disable z heatmap
-fig, ax = plt.subplots(figsize=(3.5, 3.0))
-im = ax.imshow(Z, cmap='RdBu_r', vmin=-20, vmax=20)
-ax.set_xlabel('slice $j$'); ax.set_ylabel('slice $i$')
-ax.set_xticks(range(NP)); ax.set_yticks(range(NP)); ax.grid(False)
-fig.colorbar(im, ax=ax, label='co-harvest $z$ vs curveball null', shrink=.85)
-fig.savefig(FIG / 'f3_cooccurrence.pdf'); plt.close(fig)
+# F2 (Fig. 3, per-lot marginals) and F3 (Fig. 4, co-harvest effect size) are produced by
+# make_figures4.py. The versions once drawn here (binomial socket-level intervals; a z heatmap
+# against the 200-draw null above, whose trade rejects every swap between sockets sharing a
+# slice) are superseded and must not overwrite the paper figures. The null loop is kept only so
+# that the random stream, and hence the 120-node thermal subsample below, is unchanged.
 
 # F4 is produced by make_fig_thermal_v2.py from the full-month, both-socket matrix.
 # It was previously generated here from the three-day 2020-04 sample, which overstated the
@@ -161,29 +146,13 @@ ax.set_ylabel(f'axis 2 ({100*var[1]:.0f}%)')
 fig.colorbar(sc, ax=ax, label='IPMI core index', shrink=.9)
 fig.savefig(FIG / 'f5_mds_layout.pdf'); plt.close(fig)
 
-# F6 -- rack x slice heatmap
-tab = np.array([[M[(rack == r), k].mean() for k in range(NP)] for r in sorted(set(rack))])
-fig, ax = plt.subplots(figsize=(5.2, 3.2))
-im = ax.imshow(100 * tab, aspect='auto', cmap='magma_r', vmin=0, vmax=100)
-ax.axhline(21.5, color='#38b2ac', lw=2.2)
-ax.text(6.0, 19.6, 'lot boundary (node 439)', color='#0d7377', fontsize=6.8,
-        ha='center', va='center', fontweight='bold',
-        bbox=dict(fc='white', ec='#38b2ac', lw=.6, pad=1.6, alpha=.92))
-ax.set_xlabel('slice index $k$'); ax.set_ylabel('rack'); ax.grid(False)
-ax.set_xticks(range(NP))
-fig.colorbar(im, ax=ax, label='P(slice harvested) [%]', shrink=.9)
-fig.savefig(FIG / 'f6_rack_heatmap.pdf'); plt.close(fig)
+# F6 (Fig. 7, rack x slice heatmap) and F7 (Fig. 8, pattern rank-frequency) moved to
+# make_fig_lots.py, which needs only the committed harvest maps and uses the rack-indexed
+# population (racks 0-48). Do not regenerate them here.
 
-# F7 -- pattern rank-frequency, lot A vs B
-fig, ax = plt.subplots(figsize=(5.0, 2.3))
-for m, lab, col in [(M[lotA], 'Lot A', RED), (M[~lotA], 'Lot B', BLUE)]:
-    v = pd.Series([tuple(np.flatnonzero(r)) for r in m]).value_counts().values
-    ax.plot(np.arange(1, len(v)+1), 100*v/v.sum(), '-', color=col, lw=1.4,
-            label=f'{lab}: {len(v)} distinct patterns')
-ax.set_xscale('log'); ax.set_yscale('log')
-ax.set_xlabel('pattern rank'); ax.set_ylabel('share of sockets [%]')
-ax.legend(fontsize=6.5, frameon=False); fig.savefig(FIG / 'f7_pattern_rank.pdf'); plt.close(fig)
-
-np.save(root / 'thermal_corr_24x24.npy', CORR)
+if Cn[np.triu_indices(NC, 1)].min() > 0:      # never overwrite the matrix without raw data
+    np.save(root / 'thermal_corr_24x24.npy', CORR)
+else:
+    print('no raw IPMI data under', base, '- thermal_corr_24x24.npy left untouched')
 print('figures written to', FIG)
 for f in sorted(FIG.glob('*.pdf')): print(' ', f.name)

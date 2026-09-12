@@ -98,7 +98,8 @@ if trans:
     if tot:
         print(f'  transitions with both sockets observable: {tot}')
         print(f'    pure p0<->p1 swap (dies unchanged): {swap} ({100*swap/tot:.1f}%)')
-        print(f'    genuinely different silicon       : {other} ({100*other/tot:.1f}%)')
+        print(f'    not a mirror (a different die here): {other} ({100*other/tot:.1f}%)'
+              '  [new, or moved from another socket: lifecycle_taxonomy_errors.py]')
     for e in ex:
         print(f'    node {e[0]} p{e[1]} {e[2]}->{e[3]}: lost {e[4]} gained {e[5]}')
 

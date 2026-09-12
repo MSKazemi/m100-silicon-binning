@@ -1,7 +1,15 @@
-% ---------------------------------------------------------------- primary sources (verified)
+% refs.bib -- every entry re-verified on 2026-09-11 against the publisher's DOI metadata
+% (Crossref / DataCite), the arXiv API, the primary document itself, or a frozen repository
+% commit. Entries carry metadata only: no explanatory prose.
+%
+% IEEEtran.bst 1.14 ignores the doi field, so every DOI is also rendered through \bibdoi in the
+% note field, in IEEE reference style ("..., doi: 10.xxxx/yyyy.").
+@preamble{ "\providecommand{\bibdoi}[1]{doi:~\href{https://doi.org/#1}{\nolinkurl{#1}}}" }
+
+% ---------------------------------------------------------------- dataset
 @article{borghesi2023m100,
   author  = {Borghesi, Andrea and Di Santi, Carmine and Molan, Martin and
-             Ardebili, Mohsen Seyedkazemi and Mauri, Andrea and Guarrasi, Massimiliano and
+             Seyedkazemi Ardebili, Mohsen and Mauri, Alessio and Guarrasi, Massimiliano and
              Galetti, Daniela and Cestari, Mirko and Barchi, Francesco and Benini, Luca and
              Beneventi, Francesco and Bartolini, Andrea},
   title   = {{M100 ExaData}: a data collection campaign on the {CINECA}'s {Marconi100} {Tier-0} supercomputer},
@@ -9,49 +17,201 @@
   volume  = {10},
   number  = {1},
   pages   = {288},
+  month   = may,
   year    = {2023},
-  doi     = {10.1038/s41597-023-02174-3}
+  doi     = {10.1038/s41597-023-02174-3},
+  note    = {\bibdoi{10.1038/s41597-023-02174-3}}
 }
 
+@misc{m100_zenodo,
+  author       = {Borghesi, Andrea and others},
+  title        = {{M100} datasets 1--12: monthly archives 2020-03 to 2022-09, version 1.0.0},
+  howpublished = {Zenodo, 12 records},
+  month        = jan,
+  year         = {2023},
+  note         = {First record \bibdoi{10.5281/zenodo.7588815}}
+}
+% The twelve record ids (7588815, 7589131, 7589320, 7589630, 7589942, 7590061, 7590308, 7590547,
+% 7590555, 7590565, 7590574, 7590583) are listed in README.md and docs/reproduce.md.
+
+@misc{exadata_repo,
+  author       = {{M100 ExaData contributors}},
+  title        = {{M100 ExaData} reference repository: {IPMI} plugin documentation and rack layout},
+  howpublished = {GitLab repository \texttt{ecs-lab/exadata}, commit \texttt{db994a3}},
+  year         = {2023},
+  url          = {https://gitlab.com/ecs-lab/exadata/-/tree/db994a39/documentation},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@misc{cineca_m100_status,
+  author       = {{CINECA HPC}},
+  title        = {Marconi status update},
+  howpublished = {HPC Cineca newsletter},
+  year         = {2020},
+  url          = {https://www.hpc.cineca.it/newsletter/marconi-status-update/},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@misc{cineca_m100_eol,
+  author       = {{CINECA HPC}},
+  title        = {{Marconi100}: final dismission date},
+  howpublished = {HPC Cineca newsletter},
+  year         = {2024},
+  url          = {https://www.hpc.cineca.it/newsletter/m100-final-dismission-date/},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+% ---------------------------------------------------------------- POWER9 and the AC922
 @inproceedings{thompto2016power9,
   author    = {Thompto, Brian},
-  title     = {{POWER9}: Processor for the Cognitive Era},
-  booktitle = {Hot Chips 28 Symposium (HCS)},
+  title     = {{POWER9}: Processor for the cognitive era},
+  booktitle = {2016 IEEE Hot Chips 28 Symposium (HCS)},
+  pages     = {1--19},
+  month     = aug,
   year      = {2016},
   publisher = {IEEE},
-  note      = {Slide 11 documents 24 cores organised as 12 slices, each with 10\,MB L3,
-               attached to a 7\,TB/s on-chip fabric at 256\,GB/s $\times$ 12}
+  doi       = {10.1109/HOTCHIPS.2016.7936223},
+  note      = {\bibdoi{10.1109/HOTCHIPS.2016.7936223}}
 }
 
+@inproceedings{gonzalez2017power9,
+  author    = {Gonzalez, Christopher and Fluhr, Eric and Dreps, Daniel and Hogenmiller, David and
+               Rao, Rahul and Paredes, Jose and Floyd, Michael and Sperling, Michael and
+               Kruse, Ryan and Ramadurai, Vinod and Nett, Ryan and Islam, Saiful and
+               Pille, Juergen and Plass, Donald},
+  title     = {{POWER9}: A processor family optimized for cognitive computing with 25{Gb/s}
+               accelerator links and 16{Gb/s} {PCIe} {Gen4}},
+  booktitle = {2017 IEEE International Solid-State Circuits Conference (ISSCC)},
+  pages     = {50--51},
+  month     = feb,
+  year      = {2017},
+  publisher = {IEEE},
+  doi       = {10.1109/ISSCC.2017.7870255},
+  note      = {\bibdoi{10.1109/ISSCC.2017.7870255}}
+}
+
+@manual{ibm_p9um,
+  author       = {{IBM}},
+  title        = {{POWER9} Processor User's Manual, {OpenPOWER} Version 2.1},
+  organization = {International Business Machines Corporation},
+  month        = oct,
+  year         = {2019},
+  url          = {https://openpowerfoundation.org/resources/ibmpower9usermanual/},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@manual{ibm_p9regs,
+  author       = {{IBM}},
+  title        = {{POWER9} Registers Specification, Volume 1, Version 1.2},
+  organization = {International Business Machines Corporation},
+  month        = mar,
+  year         = {2021},
+  url          = {https://wiki.raptorcs.com/w/images/f/f5/POWER9_Registers_vol1_version1.2_pub.pdf},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@misc{smith2020p9layout,
+  author       = {Smith, Stewart},
+  title        = {My {POWER9} {CPU} core layout},
+  howpublished = {Blog post},
+  month        = mar,
+  year         = {2020},
+  url          = {https://www.flamingspork.com/blog/2020/03/22/my-power9-cpu-core-layout/},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@inproceedings{skadron2003hotspot,
+  author    = {Skadron, Kevin and Stan, Mircea R. and Huang, Wei and Velusamy, Sivakumar and
+               Sankaranarayanan, Karthik and Tarjan, David},
+  title     = {Temperature-aware microarchitecture},
+  booktitle = {Proc.\ 30th Annual International Symposium on Computer Architecture (ISCA)},
+  pages     = {2--13},
+  year      = {2003},
+  publisher = {ACM},
+  doi       = {10.1145/859618.859620},
+  note      = {\bibdoi{10.1145/859618.859620}}
+}
+
+% UNCITED, kept deliberately: superseded in the text by gonzalez2017power9 (the ISSCC paper) for
+% POWER9 microarchitecture, but retained so an unrevised citation still resolves.
 @misc{wikichip_power9,
+  author       = {{WikiChip}},
   title        = {{POWER9} --- Microarchitectures --- {IBM}},
   howpublished = {WikiChip},
-  note         = {\url{https://en.wikichip.org/wiki/ibm/microarchitectures/power9};
-                  slice = 2 SMT4 cores + 512\,kB L2 + 10\,MB L3; die 695\,mm$^2$, 14\,nm},
-  year         = {2024}
+  year         = {2024},
+  url          = {https://en.wikichip.org/wiki/ibm/microarchitectures/power9}
 }
 
 @techreport{ibm_ac922,
-  author      = {{IBM}},
-  title       = {{IBM Power System AC922} Data Sheet},
-  institution = {IBM Corporation},
-  year        = {2019},
-  note        = {Model 8335-GTG: 2 sockets, 16-core POWER9 at 2.6/3.1\,GHz, 4$\times$ NVIDIA V100}
+  author      = {Caldeira, Alexandre Bicas},
+  title       = {{IBM Power System AC922} Introduction and Technical Overview},
+  institution = {IBM Redbooks},
+  type        = {Redpaper},
+  number      = {REDP-5472-00},
+  month       = mar,
+  year        = {2018},
+  url         = {https://www.redbooks.ibm.com/redpapers/pdfs/redp5472.pdf}
 }
 
 @misc{cineca_m100,
   author       = {Baccarelli, Isabella},
   title        = {Introduction to the {CINECA} {Marconi100} {HPC} system},
-  howpublished = {CINECA HPC user training},
+  howpublished = {Slides, CINECA SuperComputing Applications and Innovation Department},
+  month        = may,
   year         = {2020},
-  note         = {\url{https://indico.euro-fusion.org/event/341/attachments/293/664/M100.pdf}}
+  url          = {https://indico.euro-fusion.org/event/341/attachments/293/664/M100.pdf},
+  note         = {{Accessed}: Sep.~11, 2026}
 }
 
-@misc{exadata_repo,
-  author       = {{M100 ExaData contributors}},
-  title        = {{M100 ExaData} reference repository: plugin documentation and rack layout},
-  howpublished = {\texttt{documentation/plugins/ipmi.md}, \texttt{documentation/racks\_spatial\_distribution.md}},
-  year         = {2023}
+@misc{top500_m100,
+  author       = {{TOP500}},
+  title        = {{Marconi-100}: {IBM} {Power System AC922}, {IBM} {POWER9} {16C} 3\,{GHz},
+                  {NVIDIA} {Volta} {V100}, dual-rail {Mellanox} {EDR} {InfiniBand}},
+  howpublished = {TOP500 system entry 179845},
+  year         = {2020},
+  url          = {https://top500.org/system/179845/},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+% ---------------------------------------------------------------- firmware and deconfiguration
+@misc{ibm_deconfig,
+  author       = {{IBM}},
+  title        = {Field core override function overview},
+  howpublished = {IBM Documentation, {POWER9} scale-out servers},
+  month        = apr,
+  year         = {2023},
+  url          = {https://www.ibm.com/docs/en/power9/0009-ESS?topic=hardware-field-core-override-function-overview},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@misc{hostboot_p9,
+  author       = {{OpenPOWER}},
+  title        = {Hostboot {POWER9} firmware: hardware-availability code (\texttt{src/usr/hwas})},
+  howpublished = {GitHub repository \texttt{open-power/hostboot}, commit \texttt{39736a7}},
+  year         = {2026},
+  url          = {https://github.com/open-power/hostboot/tree/39736a7/src/usr/hwas},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+@misc{skiboot_gard,
+  author       = {{OpenPOWER}},
+  title        = {\texttt{opal-gard}(1): {GUARD} partition manipulation tool for {OpenPower} hardware},
+  howpublished = {skiboot release v7.1, \texttt{external/gard/opal-gard.1}},
+  year         = {2023},
+  url          = {https://github.com/open-power/skiboot/blob/v7.1/external/gard/opal-gard.1},
+  note         = {{Accessed}: Sep.~11, 2026}
+}
+
+% UNCITED, kept deliberately: the processor-ID layout it documents is now cited through
+% hostboot_p9 and ibm_p9regs. Retained as the primary source for that layout.
+@misc{skiboot_dt,
+  author       = {{OpenPOWER}},
+  title        = {skiboot {POWER9} processor-ID layout (\texttt{include/chip.h}) and
+                  {Witherspoon} test device tree (\texttt{hdata/test/op920.wsp.dts})},
+  howpublished = {skiboot release v7.1},
+  year         = {2023},
+  url          = {https://github.com/open-power/skiboot/tree/v7.1},
+  note         = {{Accessed}: Sep.~11, 2026}
 }
 
 % ---------------------------------------------------------------- method
@@ -62,12 +222,78 @@
              fixed row and column totals},
   journal = {Nature Communications},
   volume  = {5},
+  number  = {1},
   pages   = {4114},
+  month   = jun,
   year    = {2014},
-  doi     = {10.1038/ncomms5114}
+  doi     = {10.1038/ncomms5114},
+  note    = {\bibdoi{10.1038/ncomms5114}}
 }
 
-% ---------------------------------------------------------------- verified 2026-08-05
+@article{prentice1978grouped,
+  author  = {Prentice, Ross L. and Gloeckler, Lynn A.},
+  title   = {Regression analysis of grouped survival data with application to breast cancer data},
+  journal = {Biometrics},
+  volume  = {34},
+  number  = {1},
+  pages   = {57--67},
+  month   = mar,
+  year    = {1978},
+  doi     = {10.2307/2529588},
+  note    = {\bibdoi{10.2307/2529588}}
+}
+
+@article{heagerty2005survival,
+  author  = {Heagerty, Patrick J. and Zheng, Yingye},
+  title   = {Survival model predictive accuracy and {ROC} curves},
+  journal = {Biometrics},
+  volume  = {61},
+  number  = {1},
+  pages   = {92--105},
+  year    = {2005},
+  doi     = {10.1111/j.0006-341X.2005.030814.x},
+  note    = {\bibdoi{10.1111/j.0006-341X.2005.030814.x}}
+}
+
+@book{hosmer2013applied,
+  author    = {Hosmer, David W. and Lemeshow, Stanley and Sturdivant, Rodney X.},
+  title     = {Applied Logistic Regression},
+  edition   = {3rd},
+  publisher = {Wiley},
+  address   = {Hoboken, NJ},
+  year      = {2013},
+  doi       = {10.1002/9781118548387},
+  note      = {\bibdoi{10.1002/9781118548387}}
+}
+
+@article{besag1989generalized,
+  author  = {Besag, Julian and Clifford, Peter},
+  title   = {Generalized {Monte Carlo} significance tests},
+  journal = {Biometrika},
+  volume  = {76},
+  number  = {4},
+  pages   = {633--642},
+  year    = {1989},
+  doi     = {10.1093/biomet/76.4.633},
+  note    = {\bibdoi{10.1093/biomet/76.4.633}}
+}
+
+@inproceedings{carstens2018global,
+  author    = {Carstens, Corrie Jacobien and Hamann, Michael and Meyer, Ulrich and
+               Penschuck, Manuel and Tran, Hung and Wagner, Dorothea},
+  title     = {Parallel and {I/O}-efficient randomisation of massive networks using global
+               curveball trades},
+  booktitle = {26th Annual European Symposium on Algorithms (ESA 2018)},
+  series    = {LIPIcs},
+  volume    = {112},
+  pages     = {11:1--11:15},
+  year      = {2018},
+  publisher = {Schloss Dagstuhl--Leibniz-Zentrum f{\"u}r Informatik},
+  doi       = {10.4230/LIPIcs.ESA.2018.11},
+  note      = {\bibdoi{10.4230/LIPIcs.ESA.2018.11}}
+}
+
+% ---------------------------------------------------------------- yield, salvage, segmentation
 @article{koren1993negbinom,
   author  = {Koren, Israel and Koren, Zahava and Stapper, Charles H.},
   title   = {A unified negative-binomial distribution for yield analysis of
@@ -75,13 +301,15 @@
   journal = {IEEE Transactions on Computers},
   volume  = {42},
   number  = {6},
-  pages   = {724--737},
+  pages   = {724--734},
+  month   = jun,
   year    = {1993},
-  doi     = {10.1109/12.277291}
+  doi     = {10.1109/12.277291},
+  note    = {\bibdoi{10.1109/12.277291}}
 }
 
 @article{bae2007waferyield,
-  author  = {Bae, Suk Joo and Hwang, Jeong Yun and Kuo, Way},
+  author  = {Bae, Suk Joo and Hwang, Jung Yoon and Kuo, Way},
   title   = {Yield prediction via spatial modeling of clustered defect counts
              across a wafer map},
   journal = {IIE Transactions},
@@ -89,9 +317,49 @@
   number  = {12},
   pages   = {1073--1083},
   year    = {2007},
-  doi     = {10.1080/07408170701275335}
+  doi     = {10.1080/07408170701275335},
+  note    = {\bibdoi{10.1080/07408170701275335}}
 }
 
+@inproceedings{shivakumar2003redundancy,
+  author    = {Shivakumar, Premkishore and Keckler, Stephen W. and Moore, Charles R. and
+               Burger, Doug},
+  title     = {Exploiting microarchitectural redundancy for defect tolerance},
+  booktitle = {Proc.\ 21st Int.\ Conf.\ on Computer Design (ICCD '03)},
+  pages     = {481--488},
+  year      = {2003},
+  publisher = {IEEE},
+  doi       = {10.1109/ICCD.2003.1240944},
+  note      = {\bibdoi{10.1109/ICCD.2003.1240944}}
+}
+
+@inproceedings{powell2009salvaging,
+  author    = {Powell, Michael D. and Biswas, Arijit and Gupta, Shantanu and
+               Mukherjee, Shubhendu S.},
+  title     = {Architectural core salvaging in a multi-core processor for hard-error tolerance},
+  booktitle = {Proc.\ 36th Annual Int.\ Symp.\ on Computer Architecture (ISCA '09)},
+  pages     = {93--104},
+  month     = jun,
+  year      = {2009},
+  publisher = {ACM},
+  doi       = {10.1145/1555754.1555769},
+  note      = {\bibdoi{10.1145/1555754.1555769}}
+}
+
+@article{deneckere1996damaged,
+  author  = {Deneckere, Raymond J. and McAfee, R. Preston},
+  title   = {Damaged goods},
+  journal = {Journal of Economics \& Management Strategy},
+  volume  = {5},
+  number  = {2},
+  pages   = {149--174},
+  month   = jun,
+  year    = {1996},
+  doi     = {10.1111/j.1430-9134.1996.00149.x},
+  note    = {\bibdoi{10.1111/j.1430-9134.1996.00149.x}}
+}
+
+% ---------------------------------------------------------------- variability and field reliability in HPC
 @inproceedings{inadomi2015variation,
   author    = {Inadomi, Yuichi and Patki, Tapasya and Inoue, Koji and Aoyagi, Mutsumi and
                Rountree, Barry and Schulz, Martin and Lowenthal, David and Wada, Yasutaka and
@@ -100,8 +368,12 @@
                power-constrained supercomputing},
   booktitle = {Proc.\ Int.\ Conf.\ for High Performance Computing, Networking, Storage and
                Analysis (SC '15)},
+  pages     = {78:1--78:12},
+  month     = nov,
   year      = {2015},
-  publisher = {ACM}
+  publisher = {ACM},
+  doi       = {10.1145/2807591.2807638},
+  note      = {\bibdoi{10.1145/2807591.2807638}}
 }
 
 @inproceedings{acun2016variation,
@@ -109,9 +381,11 @@
   title     = {Variation among processors under {Turbo Boost} in {HPC} systems},
   booktitle = {Proc.\ 2016 Int.\ Conf.\ on Supercomputing (ICS '16)},
   pages     = {6:1--6:12},
+  month     = jun,
   year      = {2016},
   publisher = {ACM},
-  doi       = {10.1145/2925426.2926289}
+  doi       = {10.1145/2925426.2926289},
+  note      = {\bibdoi{10.1145/2925426.2926289}}
 }
 
 @inproceedings{sinha2022gpuvariability,
@@ -121,61 +395,41 @@
                large-scale, accelerator-rich systems},
   booktitle = {Proc.\ Int.\ Conf.\ for High Performance Computing, Networking, Storage and
                Analysis (SC '22)},
+  pages     = {1--15},
+  month     = nov,
   year      = {2022},
-  note      = {arXiv:2208.11035}
+  publisher = {IEEE},
+  doi       = {10.1109/SC41404.2022.00070},
+  note      = {\bibdoi{10.1109/SC41404.2022.00070}}
 }
 
-% ---------------------------------------------------------------- RAS / deconfiguration
-@misc{ibm_deconfig,
-  author       = {{IBM}},
-  title        = {{POWER9}: Deconfiguring hardware, examples of the reason processor cores
-                  were unconfigured, and field core override function overview},
-  howpublished = {IBM Documentation},
-  year         = {2021},
-  note         = {\url{https://www.ibm.com/docs/en/power9?topic=configuration-deconfiguring-hardware};
-                  covers predictive/functional deconfiguration, Dynamic Processor Deallocation,
-                  and field core override (feature code 2319)}
-}
-
-@misc{skiboot_gard,
-  author       = {{OpenPOWER}},
-  title        = {\texttt{opal-gard}: manipulate the {GUARD} partition on {OpenPower} hardware},
-  howpublished = {skiboot, \texttt{external/gard/opal-gard.1}},
-  year         = {2023},
-  note         = {\url{https://github.com/open-power/skiboot}; GARD records live in a PNOR flash
-                  partition and support \texttt{list}, \texttt{show} and \texttt{clear}}
-}
-
-% ---------------------------------------------------------------- positioning (scout 2026-08-05)
-@inproceedings{hardharvest2025,
-  author    = {Stojkovic, Jovan and others},
-  title     = {{HardHarvest}: Hardware-supported core harvesting for microservices},
-  booktitle = {Proc.\ 52nd Annual Int.\ Symp.\ on Computer Architecture (ISCA '25)},
-  year      = {2025},
-  doi       = {10.1145/3695053.3731071},
-  note      = {Uses ``core harvesting'' in the idle-cycle-reclamation sense, distinct from the
-               silicon-binning sense used here}
-}
-
-@article{jetta2025provenance,
-  author  = {Khan, M. S. M. and Xi, C. and Varshney, N. and others},
-  title   = {Inherent hardware identifiers: advancing {IC} traceability and provenance in the
-             multi-die era},
-  journal = {Journal of Electronic Testing},
-  volume  = {41},
-  pages   = {85--107},
-  year    = {2025},
-  doi     = {10.1007/s10836-025-06161-x}
+@inproceedings{ostrouchov2020titan,
+  author    = {Ostrouchov, George and Maxwell, Don and Ashraf, Rizwan A. and Engelmann, Christian and
+               Shankar, Mallikarjun and Rogers, James H.},
+  title     = {{GPU} lifetimes on {Titan} supercomputer: survival analysis and reliability},
+  booktitle = {Proc.\ Int.\ Conf.\ for High Performance Computing, Networking, Storage and
+               Analysis (SC '20)},
+  pages     = {1--14},
+  month     = nov,
+  year      = {2020},
+  publisher = {IEEE},
+  doi       = {10.1109/SC41405.2020.00045},
+  note      = {\bibdoi{10.1109/SC41405.2020.00045}}
 }
 
 @inproceedings{nodesentry2025,
-  author    = {Xia, Sibo and others},
-  title     = {{NodeSentry}: effective node-level anomaly detection in {HPC} systems via
-               coarse-grained clustering and fine-grained model sharing},
+  author    = {Xia, Sibo and Sun, Yongqian and Pan, Xijie and Yuan, Yuan and Zhang, Shenglin and
+               Hu, Shaoyu and Tao, Lei and Li, Yuqi and Feng, Jinghua},
+  title     = {Effective node-level anomaly detection in {HPC} systems via coarse-grained
+               clustering and fine-grained model sharing},
   booktitle = {Proc.\ Int.\ Conf.\ for High Performance Computing, Networking, Storage and
                Analysis (SC '25)},
+  pages     = {1180--1194},
+  month     = nov,
   year      = {2025},
-  doi       = {10.1145/3712285.3759794}
+  publisher = {ACM},
+  doi       = {10.1145/3712285.3759794},
+  note      = {\bibdoi{10.1145/3712285.3759794}}
 }
 
 @incollection{badnodes2020,
@@ -183,26 +437,140 @@
                Nestler, Britta},
   title     = {Bad nodes considered harmful: how to find and fix the problem},
   booktitle = {Sustained Simulation Performance 2018 and 2019},
+  editor    = {Resch, Michael M. and Kovalenko, Yevgeniya and Bez, Wolfgang and Focht, Erich and
+               Kobayashi, Hiroaki},
+  pages     = {123--130},
   publisher = {Springer},
+  address   = {Cham},
   year      = {2020},
-  doi       = {10.1007/978-3-030-39181-2_11}
+  doi       = {10.1007/978-3-030-39181-2_11},
+  note      = {\bibdoi{10.1007/978-3-030-39181-2_11}}
 }
 
-@misc{m100_setdiff,
-  title        = {{SeT-Diff}: towards semantic foundation models for {HPC} telemetry and time-series},
-  howpublished = {arXiv:2607.22548},
-  year         = {2025}
+% ---------------------------------------------------------------- disabled-unit maps and provenance
+% No DOI registered (DataCite, 2026-09-11); the repository handle is the persistent identifier.
+@techreport{mccalpin2021knl,
+  author      = {McCalpin, John D.},
+  title       = {Disabled core patterns and core defect rates in {Xeon Phi} x200
+                 (``{Knights Landing}'') processors},
+  institution = {Texas Advanced Computing Center, The University of Texas at Austin},
+  type        = {ACELab Technical Report},
+  number      = {TR-2021-04},
+  month       = oct,
+  year        = {2021},
+  url         = {https://hdl.handle.net/2152/89580},
+  note        = {{Accessed}: Sep.~11, 2026}
 }
 
-@misc{m100_energy,
-  title        = {Extracting practical, actionable energy insights from supercomputer telemetry and logs},
-  howpublished = {arXiv:2505.14796},
-  year         = {2025}
+@techreport{mccalpin2021capid,
+  author      = {McCalpin, John D.},
+  title       = {Mapping core and {L3} slice numbering to die location in {Intel} {Xeon
+                 Scalable} processors},
+  institution = {Texas Advanced Computing Center, The University of Texas at Austin},
+  type        = {ACELab Technical Report},
+  number      = {TR-2021-01b},
+  month       = feb,
+  year        = {2021},
+  doi         = {10.26153/tsw/13119},
+  note        = {\bibdoi{10.26153/tsw/13119}}
+}
+
+@article{jetta2025provenance,
+  author  = {Khan, M. Shafkat M. and Xi, Chengjie and Varshney, Nitin and Bahk, Je-Hyeong and
+             Asadizanjani, Navid},
+  title   = {Inherent hardware identifiers: advancing {IC} traceability and provenance in the
+             multi-die era},
+  journal = {Journal of Electronic Testing},
+  volume  = {41},
+  number  = {1},
+  pages   = {85--107},
+  year    = {2025},
+  doi     = {10.1007/s10836-025-06161-x},
+  note    = {\bibdoi{10.1007/s10836-025-06161-x}}
+}
+
+% ---------------------------------------------------------------- telemetry side and covert channels
+@inproceedings{masti2015thermal,
+  author    = {Masti, Ramya Jayaram and Rai, Devendra and Ranganathan, Aanjhan and
+               M{\"u}ller, Christian and Thiele, Lothar and {\v{C}}apkun, Srdjan},
+  title     = {Thermal covert channels on multi-core platforms},
+  booktitle = {Proc.\ 24th USENIX Security Symposium},
+  pages     = {865--880},
+  month     = aug,
+  year      = {2015},
+  publisher = {USENIX Association},
+  url       = {https://www.usenix.org/conference/usenixsecurity15/technical-sessions/presentation/masti}
+}
+
+@article{kim2022thermalbleed,
+  author  = {Kim, Taehun and Shin, Youngjoo},
+  title   = {{ThermalBleed}: A practical thermal side-channel attack},
+  journal = {IEEE Access},
+  volume  = {10},
+  pages   = {25718--25731},
+  year    = {2022},
+  doi     = {10.1109/ACCESS.2022.3156596},
+  note    = {\bibdoi{10.1109/ACCESS.2022.3156596}}
+}
+
+% ---------------------------------------------------------------- terminology contrast
+@inproceedings{hardharvest2025,
+  author    = {Stojkovic, Jovan and Liu, Chunao and Shahbaz, Muhammad and Torrellas, Josep},
+  title     = {{HardHarvest}: Hardware-supported core harvesting for microservices},
+  booktitle = {Proc.\ 52nd Annual Int.\ Symp.\ on Computer Architecture (ISCA '25)},
+  pages     = {708--722},
+  month     = jun,
+  year      = {2025},
+  publisher = {ACM},
+  doi       = {10.1145/3695053.3731071},
+  note      = {\bibdoi{10.1145/3695053.3731071}}
+}
+
+% ---------------------------------------------------------------- M100 ExaData downstream work
+@inproceedings{m100_setdiff,
+  author    = {Esposito, Giovanni B. and Antici, Francesco and Cesarini, Daniele and
+               Bartolini, Andrea},
+  title     = {{SeT-Diff}: towards semantic foundation models for {HPC} telemetry and time-series},
+  booktitle = {Proc.\ 23rd ACM Int.\ Conf.\ on Computing Frontiers (CF '26)},
+  pages     = {109--112},
+  month     = may,
+  year      = {2026},
+  publisher = {ACM},
+  doi       = {10.1145/3801487.3806064},
+  note      = {\bibdoi{10.1145/3801487.3806064}}
+}
+
+@inproceedings{antici2023pm100,
+  author    = {Antici, Francesco and Seyedkazemi Ardebili, Mohsen and Bartolini, Andrea and
+               Kiziltan, Zeynep},
+  title     = {{PM100}: A job power consumption dataset of a large-scale production {HPC} system},
+  booktitle = {Proc.\ SC '23 Workshops of the Int.\ Conf.\ on High Performance Computing,
+               Network, Storage, and Analysis (SC-W '23)},
+  pages     = {1812--1819},
+  month     = nov,
+  year      = {2023},
+  publisher = {ACM},
+  doi       = {10.1145/3624062.3624263},
+  note      = {\bibdoi{10.1145/3624062.3624263}}
 }
 
 @misc{m100_ontology,
+  author       = {Khan, Junaid Ahmed and Bartolini, Andrea},
   title        = {A unified ontology for scalable knowledge graph-driven operational data analytics
                   in high-performance computing systems},
   howpublished = {arXiv:2507.06107},
+  month        = jul,
+  year         = {2025}
+}
+
+% UNCITED, kept deliberately. Not M100 ExaData work (it analyses Polaris at Argonne); kept so
+% that an unrevised citation still resolves. The paper text should cite antici2023pm100 for M100 energy analytics instead.
+@misc{m100_energy,
+  author       = {Cornelius, Melanie and Cross, Greg and Shilpika, Shilpika and
+                  Dearing, Matthew T. and Lan, Zhiling},
+  title        = {Extracting practical, actionable energy insights from supercomputer telemetry
+                  and logs},
+  howpublished = {arXiv:2505.14796},
+  month        = may,
   year         = {2025}
 }

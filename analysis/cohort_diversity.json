@@ -1,0 +1,372 @@
+{
+ "D1_entropy": {
+  "n_sockets": 1962,
+  "distinct_maps": 443,
+  "log2_495": 8.951284714966972,
+  "singletons": 97,
+  "doubletons": 97,
+  "plugin": {
+   "H_bits": 8.07827971792295,
+   "effective_maps_2^H": 270.27414892537826,
+   "pct_of_log2_495": 90.24715418129516,
+   "socket_boot_se": 0.03884104736851243,
+   "rack_jackknife_se": 0.11948496074489659,
+   "ci95_rack_jackknife": [
+    7.844089194862953,
+    8.312470240982947
+   ],
+   "effective_maps_ci": [
+    229.77677851956722,
+    317.9090421929514
+   ]
+  },
+  "miller_madow": {
+   "H_bits": 8.240785122630626,
+   "effective_maps_2^H": 302.49869800676385,
+   "pct_of_log2_495": 92.06259643212603,
+   "socket_boot_se": 0.040131984431460814,
+   "rack_jackknife_se": 0.12286603719883543,
+   "ci95_rack_jackknife": [
+    7.999967689720909,
+    8.481602555540343
+   ],
+   "effective_maps_ci": [
+    255.99426674481364,
+    357.45121740169253
+   ]
+  },
+  "chao_shen": {
+   "H_bits": 8.326815310046975,
+   "effective_maps_2^H": 321.0858571752199,
+   "pct_of_log2_495": 93.02368961769416,
+   "socket_boot_se": 0.0408305717826523,
+   "rack_jackknife_se": 0.12017158502466321,
+   "ci95_rack_jackknife": [
+    8.091279003398634,
+    8.562351616695315
+   ],
+   "effective_maps_ci": [
+    272.72043648870925,
+    378.02861056294165
+   ]
+  }
+ },
+ "D2_diversity_by_lot": {
+  "A": {
+   "n": 880,
+   "richness": 230.0,
+   "richness_rarefied_800": 220.57533672317692,
+   "chao1": 325.0095588235294,
+   "H_plugin": 6.780835555192868,
+   "H_mm": 6.968549853126716,
+   "H_cs": 7.109290927226631,
+   "hill1_plugin": 109.96004218347058,
+   "hill1_cs": 138.0733356816354,
+   "hill2_unbiased": 48.20039880358923,
+   "rack_jackknife_se": {
+    "richness_rarefied_800": 10.635212913750076,
+    "chao1": 48.68792949910769,
+    "H_mm": 0.1035133708243203,
+    "H_cs": 0.09833145253060542,
+    "hill1_cs": 9.38939252287225,
+    "hill2_unbiased": 5.376080548782949
+   }
+  },
+  "B": {
+   "n": 1080,
+   "richness": 416.0,
+   "richness_rarefied_800": 371.3268428269853,
+   "chao1": 499.57740904621437,
+   "H_plugin": 8.403340693489433,
+   "H_mm": 8.680525157363933,
+   "H_cs": 8.839780447432677,
+   "hill1_plugin": 338.57712471221424,
+   "hill1_cs": 458.1831036767882,
+   "hill2_unbiased": 379.08913467794406,
+   "rack_jackknife_se": {
+    "richness_rarefied_800": 7.0558222607397045,
+    "chao1": 33.022453724293385,
+    "H_mm": 0.038232201664801,
+    "H_cs": 0.06187332548247734,
+    "hill1_cs": 19.632518443780572,
+    "hill2_unbiased": 18.72488239399692
+   }
+  },
+  "B_minus_A": {
+   "richness_rarefied_800": {
+    "estimate": 150.75150610380837,
+    "se": 12.76292997300958,
+    "rack_permutation_p": 0.0004997501249375312
+   },
+   "chao1": {
+    "estimate": 174.56785022268497,
+    "se": 58.83023821882059,
+    "rack_permutation_p": 0.0004997501249375312
+   },
+   "H_mm": {
+    "estimate": 1.7119753042372166,
+    "se": 0.11034817254287113,
+    "rack_permutation_p": 0.0004997501249375312
+   },
+   "H_cs": {
+    "estimate": 1.7304895202060457,
+    "se": 0.11617823790641381,
+    "rack_permutation_p": 0.0004997501249375312
+   },
+   "hill1_cs": {
+    "estimate": 320.1097679951528,
+    "se": 21.762271765464966,
+    "rack_permutation_p": 0.0004997501249375312
+   },
+   "hill2_unbiased": {
+    "estimate": 330.88873587435484,
+    "se": 19.481361932267934,
+    "rack_permutation_p": 0.0004997501249375312
+   }
+  }
+ },
+ "D3_identifiability": {
+  "map alone (fleet)": {
+   "unique_fraction": 0.04943934760448522,
+   "unique_count": 97,
+   "n": 1962
+  },
+  "map + lot": {
+   "unique_fraction": 0.12079510703363915,
+   "unique_count": 237,
+   "n": 1962
+  },
+  "map + rack": {
+   "unique_fraction": 0.7838939857288482,
+   "unique_count": 1538,
+   "n": 1962
+  },
+  "node: ordered (p0, p1) pair": {
+   "unique_fraction": 0.9296636085626911,
+   "unique_count": 912,
+   "n": 981
+  },
+  "node: unordered pair of maps": {
+   "unique_fraction": 0.9011213047910296,
+   "unique_count": 884,
+   "n": 981
+  },
+  "uniqueness_vs_racks_searched": {
+   "1": {
+    "sockets": 40,
+    "mean_unique_fraction": 0.7713750000000001,
+    "pct_2p5": 0.45,
+    "pct_97p5": 1.0
+   },
+   "2": {
+    "sockets": 80,
+    "mean_unique_fraction": 0.6934375,
+    "pct_2p5": 0.4375,
+    "pct_97p5": 0.9
+   },
+   "5": {
+    "sockets": 200,
+    "mean_unique_fraction": 0.5180625,
+    "pct_2p5": 0.369875,
+    "pct_97p5": 0.6402499999999998
+   },
+   "10": {
+    "sockets": 400,
+    "mean_unique_fraction": 0.34909999999999997,
+    "pct_2p5": 0.28,
+    "pct_97p5": 0.4125
+   },
+   "25": {
+    "sockets": 1000,
+    "mean_unique_fraction": 0.144445,
+    "pct_2p5": 0.127975,
+    "pct_97p5": 0.16002499999999997
+   },
+   "49": {
+    "sockets": 1960,
+    "mean_unique_fraction": 0.049489795918367344,
+    "pct_2p5": 0.049489795918367344,
+    "pct_97p5": 0.049489795918367344
+   }
+  },
+  "mean_sockets_sharing_a_map": 4.428893905191874,
+  "note": "Uniqueness is a census count for this fleet, not a sample proportion: a binomial (Clopper-Pearson) interval on 97/1962 treats sockets as independent trials, which they are not. The curve over racks searched shows how strongly it depends on the size of the population an adversary must search."
+ },
+ "D4_table_IX_442_vs_443": {
+  "0.50": {
+   "patterns": 442,
+   "sockets": 1962,
+   "patterns_lost": [
+    [
+     0,
+     2,
+     4,
+     9
+    ]
+   ],
+   "patterns_gained": [],
+   "maps_changed": 2,
+   "culprits": [
+    {
+     "socket": "node 806 p0",
+     "map_at_0.90_mode": [
+      0,
+      2,
+      4,
+      9
+     ],
+     "map_under_alternative": [
+      0,
+      2,
+      6,
+      8
+     ],
+     "clean_days_0.90": 781,
+     "days_supporting_mode_0.90": 358,
+     "clean_days_alternative": 824,
+     "days_supporting_choice_alternative": 391
+    }
+   ]
+  },
+  "0.80": {
+   "patterns": 442,
+   "sockets": 1962,
+   "patterns_lost": [
+    [
+     0,
+     2,
+     4,
+     9
+    ]
+   ],
+   "patterns_gained": [],
+   "maps_changed": 1,
+   "culprits": [
+    {
+     "socket": "node 806 p0",
+     "map_at_0.90_mode": [
+      0,
+      2,
+      4,
+      9
+     ],
+     "map_under_alternative": [
+      0,
+      2,
+      6,
+      8
+     ],
+     "clean_days_0.90": 781,
+     "days_supporting_mode_0.90": 358,
+     "clean_days_alternative": 796,
+     "days_supporting_choice_alternative": 371
+    }
+   ]
+  },
+  "first": {
+   "patterns": 442,
+   "sockets": 1962,
+   "patterns_lost": [
+    [
+     0,
+     2,
+     4,
+     9
+    ],
+    [
+     3,
+     9,
+     10,
+     11
+    ]
+   ],
+   "patterns_gained": [
+    [
+     3,
+     5,
+     6,
+     9
+    ]
+   ],
+   "maps_changed": 163,
+   "culprits": [
+    {
+     "socket": "node 806 p0",
+     "map_at_0.90_mode": [
+      0,
+      2,
+      4,
+      9
+     ],
+     "map_under_alternative": [
+      0,
+      2,
+      6,
+      8
+     ],
+     "clean_days_0.90": 781,
+     "days_supporting_mode_0.90": 358,
+     "clean_days_alternative": 781,
+     "days_supporting_choice_alternative": 357
+    },
+    {
+     "socket": "node 126 p1",
+     "map_at_0.90_mode": [
+      3,
+      9,
+      10,
+      11
+     ],
+     "map_under_alternative": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "clean_days_0.90": 770,
+     "days_supporting_mode_0.90": 677,
+     "clean_days_alternative": 770,
+     "days_supporting_choice_alternative": 93
+    }
+   ]
+  }
+ },
+ "D5_table_IV": [
+  {
+   "population": "Lot A, racks 0-21",
+   "sockets": 880,
+   "P_slice0_pct": 88.18181818181819,
+   "patterns": 230
+  },
+  {
+   "population": "Lot B, rack >= 22 (as tabulated)",
+   "sockets": 1082,
+   "P_slice0_pct": 39.27911275415896,
+   "patterns": 416
+  },
+  {
+   "population": "Lot B, racks 22-48 only",
+   "sockets": 1080,
+   "P_slice0_pct": 39.166666666666664,
+   "patterns": 416
+  },
+  {
+   "population": "Lot A, nodes 0-438",
+   "sockets": 878,
+   "P_slice0_pct": 88.38268792710706,
+   "patterns": 229
+  },
+  {
+   "population": "Lot B, node >= 439 (as tabulated)",
+   "sockets": 1084,
+   "P_slice0_pct": 39.20664206642066,
+   "patterns": 416
+  },
+  {
+   "population": "Lot B, nodes 439-979 only",
+   "sockets": 1082,
+   "P_slice0_pct": 39.094269870609985,
+   "patterns": 416
+  }
+ ]
+}

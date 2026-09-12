@@ -37,7 +37,7 @@ pool = np.concatenate([A, B]); nA = len(A)
 null = np.array([(lambda p: p[:nA].mean() - p[nA:].mean())(rng.permutation(pool))
                  for _ in range(5000)])
 print(f'  difference in clean-day rate A-B = {obs:+.4f}, permutation p = '
-      f'{(np.abs(null) >= abs(obs)).mean():.4f}')
+      f'{((np.abs(null) >= abs(obs)).sum() + 1) / (len(null) + 1):.4f}  ((b+1)/(B+1))')
 
 M = np.load(root / 'analysis' / 'harvest_maps_full.npy')
 K = np.load(root / 'analysis' / 'harvest_keys_full.npy')
@@ -47,7 +47,7 @@ r = np.corrcoef(per.s0, per.rate)[0, 1]
 null2 = np.array([np.corrcoef(rng.permutation(per.s0.values), per.rate.values)[0, 1]
                   for _ in range(5000)])
 print(f'  corr(slice-0 harvested, clean-day rate) = {r:+.4f}, '
-      f'permutation p = {(np.abs(null2) >= abs(r)).mean():.4f}')
+      f'permutation p = {((np.abs(null2) >= abs(r)).sum() + 1) / (len(null2) + 1):.4f}  ((b+1)/(B+1))')
 
 print('\n  lot contrast restricted to well-covered sockets:')
 for thr in (0.0, 0.5, 0.8, 0.9):

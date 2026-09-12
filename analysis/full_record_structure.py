@@ -4,6 +4,19 @@ Previously §IV-B..IV-G were estimated from a single month (2020-04). Since 89.5
 never change configuration, each socket is summarised by the MODAL harvest map over all its
 clean socket-days; sockets that do change contribute their dominant configuration. Also emits
 per-month marginals so staticity can be shown rather than asserted.
+
+WHICH NUMBERS THIS SCRIPT OWNS, AND WHICH IT DOES NOT.  It owns the structural counts, the
+marginals, harvest_maps_full.npy / harvest_keys_full.npy and per_month_marginals.csv.  It does NOT
+own the co-harvest null: the 200-draw curveball chain below is SUPERSEDED and is kept only as the
+cheap in-script sanity check that the clustering is there at all.  Its z, its pair count at the
+withdrawn |z| > 3.83 cut, and its per-pair z values disagree with the paper, which quotes
+curveball_null.py (100,000 exchangeable Besag-Clifford draws, Monte-Carlo Bonferroni / max-|z|;
+analysis/model_curveball.json).  Two further statistics are computed in more than one place, and
+the owner is: changepoint.py for the node-resampling share of the lot boundary (the paper's 99.6%;
+cohort_boundary.py prints 99.7% for the same statistic on its own resampling), thermal_socket_stats.py
+for the random-ordering null of the layout score (the paper's z = -6.41 on the 1,948-socket census;
+layout_hypotheses.py runs its own 4,000-draw null and prints -6.55), and within_node_overlap.py for
+the fleet within-node map overlap (binning_stats.py computes the 2020-04 version only).
 """
 import pandas as pd, numpy as np
 from itertools import combinations
@@ -81,7 +94,10 @@ print(f'\nmean index gap: obs {obs_g:.3f} vs null {ng.mean():.3f}+/-{ng.std():.3
 # Bonferroni over the C(12,2)=66 pair tests (reviewer finding Mo1)
 crit = 3.83  # two-sided alpha=0.05/66 -> |z|>3.83
 sig = [(i, j, Z[i, j]) for i, j in combinations(range(NP), 2) if abs(Z[i, j]) > crit]
-print(f'co-harvest pairs significant at Bonferroni |z|>{crit} ({len(sig)} of 66):')
+print('  NOTE: this 200-draw chain and the |z|>3.83 cut are SUPERSEDED -- the paper quotes')
+print('        curveball_null.py (100,000 draws, MC-Bonferroni / max-|z|). Do not cite the'
+      ' values below.')
+print(f'co-harvest pairs significant at the withdrawn Bonferroni |z|>{crit} cut ({len(sig)} of 66):')
 for i, j, z in sorted(sig, key=lambda x: -abs(x[2]))[:10]:
     print(f'   {i:2d}&{j:2d}  z={z:+6.1f}   |dk|={abs(i-j)}')
 adj = [abs(i-j) for i, j, z in sig if z > 0]

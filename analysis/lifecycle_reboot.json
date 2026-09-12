@@ -1,0 +1,323 @@
+{
+ "boottime": {
+  "nodes": 990,
+  "node_days": 668524,
+  "reboot_node_days": 11648,
+  "first_day": "2020-05-05",
+  "last_day": "2022-09-28"
+ },
+ "dayflag": {
+  "transitions_steady": 136,
+  "transitions_covered": 132,
+  "transitions_with_reboot": 126,
+  "controls_covered": 1194581,
+  "controls_with_reboot": 20830,
+  "by_gap": [
+   {
+    "gap": "2",
+    "t_n": 71,
+    "t_pct": 92.95774647887323,
+    "c_n": 16055,
+    "c_pct": 35.81438804110869
+   },
+   {
+    "gap": "3-4",
+    "t_n": 20,
+    "t_pct": 100.0,
+    "c_n": 21953,
+    "c_pct": 16.67653623650526
+   },
+   {
+    "gap": "5-8",
+    "t_n": 22,
+    "t_pct": 100.0,
+    "c_n": 1864,
+    "c_pct": 12.875536480686694
+   },
+   {
+    "gap": "9+",
+    "t_n": 19,
+    "t_pct": 94.73684210526315,
+    "c_n": 5912,
+    "c_pct": 66.28890392422193
+   }
+  ],
+  "gap_stratified_socket_level": {
+   "observed_pp": 93.71083782818944,
+   "null_mean_pp": 41.32412290421089,
+   "null_sd_pp": 3.5685644999524215,
+   "B": 4000,
+   "b": 0,
+   "p_mc": 0.00024993751562109475,
+   "p_exact": 7.992538760224681e-49
+  }
+ },
+ "non_coincident_dayflag": [
+  {
+   "node": 113,
+   "socket": 1,
+   "d0": "2021-04-27",
+   "d1": "2021-05-07",
+   "gap": 10,
+   "boot_days_in_interval": 1,
+   "boot_samples_those_days": [
+    381
+   ],
+   "ganglia_resumed": "2021-05-19",
+   "boot_epoch_in_interval": [
+    "2021-05-06 12:53:19+00:00"
+   ]
+  },
+  {
+   "node": 138,
+   "socket": 0,
+   "d0": "2021-04-22",
+   "d1": "2021-04-24",
+   "gap": 2,
+   "boot_days_in_interval": 1,
+   "boot_samples_those_days": [
+    464
+   ],
+   "ganglia_resumed": "2021-05-19",
+   "boot_epoch_in_interval": [
+    "2021-04-23 10:59:25+00:00"
+   ]
+  },
+  {
+   "node": 138,
+   "socket": 1,
+   "d0": "2021-04-22",
+   "d1": "2021-04-24",
+   "gap": 2,
+   "boot_days_in_interval": 1,
+   "boot_samples_those_days": [
+    464
+   ],
+   "ganglia_resumed": "2021-05-19",
+   "boot_epoch_in_interval": [
+    "2021-04-23 10:59:25+00:00"
+   ]
+  },
+  {
+   "node": 157,
+   "socket": 1,
+   "d0": "2021-04-21",
+   "d1": "2021-04-23",
+   "gap": 2,
+   "boot_days_in_interval": 1,
+   "boot_samples_those_days": [
+    609
+   ],
+   "ganglia_resumed": "2021-05-19",
+   "boot_epoch_in_interval": [
+    "2021-04-22 16:18:30+00:00"
+   ]
+  },
+  {
+   "node": 811,
+   "socket": 0,
+   "d0": "2021-04-22",
+   "d1": "2021-04-24",
+   "gap": 2,
+   "boot_days_in_interval": 1,
+   "boot_samples_those_days": [
+    460
+   ],
+   "ganglia_resumed": "2021-05-19",
+   "boot_epoch_in_interval": [
+    "2021-04-23 10:59:22+00:00"
+   ]
+  },
+  {
+   "node": 811,
+   "socket": 1,
+   "d0": "2021-04-22",
+   "d1": "2021-04-24",
+   "gap": 2,
+   "boot_days_in_interval": 1,
+   "boot_samples_those_days": [
+    460
+   ],
+   "ganglia_resumed": "2021-05-19",
+   "boot_epoch_in_interval": [
+    "2021-04-23 10:59:22+00:00"
+   ]
+  }
+ ],
+ "epoch": {
+  "transitions": 136,
+  "t_boot": 133,
+  "t_no_boot": 0,
+  "t_unresolved": 3,
+  "controls": 1457590,
+  "c_boot": 20815,
+  "c_no_boot": 1251855,
+  "c_unresolved": 184920,
+  "unresolved": [
+   {
+    "node": 113,
+    "socket": 0,
+    "d0": "2021-05-02",
+    "d1": "2021-05-04"
+   },
+   {
+    "node": 412,
+    "socket": 0,
+    "d0": "2020-08-07",
+    "d1": "2020-08-12"
+   },
+   {
+    "node": 412,
+    "socket": 1,
+    "d0": "2020-08-07",
+    "d1": "2020-08-12"
+   }
+  ],
+  "by_gap": [
+   {
+    "gap": "2",
+    "t_n": 72,
+    "t_pct": 100.0,
+    "c_n": 16123,
+    "c_pct": 35.91763319481486
+   },
+   {
+    "gap": "3-4",
+    "t_n": 20,
+    "t_pct": 100.0,
+    "c_n": 22040,
+    "c_pct": 16.64246823956443
+   },
+   {
+    "gap": "5-8",
+    "t_n": 22,
+    "t_pct": 100.0,
+    "c_n": 5092,
+    "c_pct": 4.713275726630008
+   },
+   {
+    "gap": "9+",
+    "t_n": 19,
+    "t_pct": 100.0,
+    "c_n": 5920,
+    "c_pct": 67.24662162162161
+   }
+  ]
+ },
+ "cluster": {
+  "day-flag": {
+   "node_intervals": 597442,
+   "transitions": 103,
+   "transitions_with_boot": 99,
+   "gap bin": {
+    "observed": 99,
+    "null_mean": 34.6839611933909,
+    "null_sd": 4.498404203495266,
+    "z": 14.29752327650669,
+    "informative_strata": 4,
+    "informative_transitions": 103,
+    "B": 200000,
+    "b": 0,
+    "p_mc": 4.9999750001249995e-06,
+    "p_exact": 9.681957455147008e-47
+   },
+   "node x gap bin": {
+    "observed": 99,
+    "null_mean": 48.95080197580198,
+    "null_sd": 4.586823813601194,
+    "z": 10.911515257200065,
+    "informative_strata": 90,
+    "informative_transitions": 98,
+    "B": 200000,
+    "b": 0,
+    "p_mc": 4.9999750001249995e-06,
+    "p_exact": 6.063499853936168e-31
+   },
+   "rack x gap bin": {
+    "observed": 99,
+    "null_mean": 35.98567266553658,
+    "null_sd": 4.523712387232569,
+    "z": 13.929781988861835,
+    "informative_strata": 66,
+    "informative_transitions": 103,
+    "B": 200000,
+    "b": 0,
+    "p_mc": 4.9999750001249995e-06,
+    "p_exact": 1.5070254184149212e-45
+   },
+   "excess_node_bootstrap": {
+    "point": 0.6295862578000472,
+    "lo": 0.5739367081265061,
+    "hi": 0.6793895876474145,
+    "se": 0.026550300097256355,
+    "clusters": 980,
+    "B": 10000
+   },
+   "excess_rack_bootstrap": {
+    "point": 0.6295862578000472,
+    "lo": 0.579570935893815,
+    "hi": 0.6811043878630725,
+    "se": 0.02603156226819352,
+    "clusters": 49,
+    "B": 10000
+   }
+  },
+  "epoch": {
+   "node_intervals": 636488,
+   "transitions": 104,
+   "transitions_with_boot": 104,
+   "gap bin": {
+    "observed": 104,
+    "null_mean": 33.722190441766415,
+    "null_sd": 4.385350968938691,
+    "z": 16.02558382578936,
+    "informative_strata": 4,
+    "informative_transitions": 104,
+    "B": 200000,
+    "b": 0,
+    "p_mc": 4.9999750001249995e-06,
+    "p_exact": 6.691479298190217e-63
+   },
+   "node x gap bin": {
+    "observed": 104,
+    "null_mean": 44.705852480852485,
+    "null_sd": 4.721196160157269,
+    "z": 12.55913660600206,
+    "informative_strata": 95,
+    "informative_transitions": 104,
+    "B": 200000,
+    "b": 0,
+    "p_mc": 4.9999750001249995e-06,
+    "p_exact": 1.4267420139234524e-42
+   },
+   "rack x gap bin": {
+    "observed": 104,
+    "null_mean": 34.719411985966346,
+    "null_sd": 4.408489125139158,
+    "z": 15.715267985797004,
+    "informative_strata": 66,
+    "informative_transitions": 104,
+    "B": 200000,
+    "b": 0,
+    "p_mc": 4.9999750001249995e-06,
+    "p_exact": 2.4422098138169952e-61
+   },
+   "excess_node_bootstrap": {
+    "point": 0.6796447541053265,
+    "lo": 0.6420007910075469,
+    "hi": 0.7163074600549041,
+    "se": 0.018963756550493222,
+    "clusters": 980,
+    "B": 10000
+   },
+   "excess_rack_bootstrap": {
+    "point": 0.6796447541053265,
+    "lo": 0.6466212389731572,
+    "hi": 0.7153973116341199,
+    "se": 0.01761033365143083,
+    "clusters": 49,
+    "B": 10000
+   }
+  }
+ }
+}

@@ -1,7 +1,16 @@
-"""Statistical characterisation of disabled core-pair patterns across the M100 fleet."""
+"""Statistical characterisation of disabled core-pair patterns across the M100 fleet.
+
+Single-month snapshot (2020-04). The paper's structural numbers are over the full record; see
+model_marginals.py (fixed-cardinality marginal test) and curveball_null.py (exchangeable curveball
+null, pair-level family-wise tests) for those.
+"""
 import pandas as pd, numpy as np
 from itertools import combinations
 from pathlib import Path
+
+from model_core import curveball_seq   # corrected trade; the copy formerly here dropped the shared
+                                       # slices from the second row and so rejected every trade
+                                       # between two rows that share a harvested slice
 
 root = Path(__file__).resolve().parent
 rng = np.random.default_rng(12345)
@@ -43,29 +52,11 @@ print(f'  uniform expectation = 4/12 = 33.3%')
 obs = M.sum(axis=0); exp = S * 4 / NP
 chi2 = ((obs - exp) ** 2 / exp).sum()
 print(f'  chi2 uniformity = {chi2:.1f} (df=11, crit_0.001=31.3) -> {"NON-uniform" if chi2>31.3 else "uniform"}')
+# every socket contributes four DISTINCT slices, so Var(n_k) is 8/11 of the multinomial value and
+# the statistic above is (8/11) chi2_11 under H0 -- the test above is conservative
+print(f'  fixed-cardinality corrected (11/8) chi2 = {chi2 * 11 / 8:.1f} on 11 df')
 
 # ---------- 3. curveball null preserving row AND column sums ----------
-def curveball(mat, n_swaps):
-    m = mat.copy()
-    rows = [set(np.flatnonzero(r)) for r in m]
-    R = len(rows)
-    for _ in range(n_swaps):
-        i, j = rng.integers(0, R, 2)
-        if i == j: continue
-        a, b = rows[i], rows[j]
-        ab, ba = a - b, b - a
-        if not ab or not ba: continue
-        swap = min(len(ab), len(ba))
-        pool = list(ab | ba)
-        rng.shuffle(pool)
-        na = (a & b) | set(pool[:len(a) - len(a & b)])
-        nb = (a | b) - na
-        if len(na) == len(a) and len(nb) == len(b):
-            rows[i], rows[j] = na, nb
-    out = np.zeros_like(mat)
-    for r, s in enumerate(rows): out[r, list(s)] = 1
-    return out
-
 def cooc(mat):
     m = mat.astype(np.int32)          # int8 matmul overflows at 127 -> must widen
     return m.T @ m
@@ -80,13 +71,13 @@ def mean_gap(mat):
     return tot / n
 
 print('\n--- null model: curveball (preserves per-socket count=4 AND per-pair marginals) ---')
-NSIM = 200
+NSIM, BURN, SPACE = 200, 20000, 20000   # burn-in, then one draw every 20,000 trades
 obs_c = cooc(M)
 obs_gap = mean_gap(M)
 null_c = np.zeros((NSIM, NP, NP)); null_gap = np.zeros(NSIM)
-cur = M.copy()
+cur = curveball_seq(M, BURN, rng)
 for s in range(NSIM):
-    cur = curveball(cur, 20000)
+    cur = curveball_seq(cur, SPACE, rng)
     assert (cur.sum(axis=1) == 4).all(), 'curveball broke row sums'
     assert (cur.sum(axis=0) == M.sum(axis=0)).all(), 'curveball broke column sums'
     null_c[s] = cooc(cur); null_gap[s] = mean_gap(cur)

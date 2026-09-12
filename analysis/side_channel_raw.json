@@ -1,0 +1,268 @@
+{
+ "month": "22-08",
+ "samples": 4195802239,
+ "sockets_modal16": 1960,
+ "days_scored": 31,
+ "count_check_mismatches": 0,
+ "socket_days_scored": 60707,
+ "window": [
+  {
+   "slots": 1,
+   "seconds": 20,
+   "p_exact": 0.9995268789553221,
+   "p_exact_given_reporting": 0.9999995307676868,
+   "windows": 262254240,
+   "model_uniform_independent": 0.9960163651793292
+  },
+  {
+   "slots": 2,
+   "seconds": 40,
+   "p_exact": 0.9997100233589666,
+   "p_exact_given_reporting": 0.999999122531706,
+   "windows": 262193533,
+   "model_uniform_independent": 0.9994447192106924
+  },
+  {
+   "slots": 3,
+   "seconds": 60,
+   "p_exact": 0.9997117835215342,
+   "p_exact_given_reporting": 0.9999990879864639,
+   "windows": 262132826,
+   "model_uniform_independent": 0.9996196582137595
+  },
+  {
+   "slots": 4,
+   "seconds": 80,
+   "p_exact": 0.9997130408214084,
+   "p_exact_given_reporting": 0.9999990534248647,
+   "windows": 262072119,
+   "model_uniform_independent": 0.9997455810132537
+  },
+  {
+   "slots": 5,
+   "seconds": 100,
+   "p_exact": 0.9997142834373947,
+   "p_exact_given_reporting": 0.9999990341181685,
+   "windows": 262011412,
+   "model_uniform_independent": 0.9998321195681151
+  },
+  {
+   "slots": 6,
+   "seconds": 120,
+   "p_exact": 0.9997155266293328,
+   "p_exact_given_reporting": 0.9999990148025723,
+   "windows": 261950705,
+   "model_uniform_independent": 0.9998909899437171
+  },
+  {
+   "slots": 7,
+   "seconds": 140,
+   "p_exact": 0.9997167703976232,
+   "p_exact_given_reporting": 0.99999899547807,
+   "windows": 261889998,
+   "model_uniform_independent": 0.9999305625497636
+  },
+  {
+   "slots": 9,
+   "seconds": 180,
+   "p_exact": 0.9997192558446968,
+   "p_exact_given_reporting": 0.9999989644447849,
+   "windows": 261768584,
+   "model_uniform_independent": 0.9999730912756868
+  },
+  {
+   "slots": 15,
+   "seconds": 300,
+   "p_exact": 0.9997242509460689,
+   "p_exact_given_reporting": 0.9999993380079234,
+   "windows": 261404342,
+   "model_uniform_independent": 0.9999986017918148
+  },
+  {
+   "slots": 30,
+   "seconds": 600,
+   "p_exact": 0.9997318591962923,
+   "p_exact_given_reporting": 0.9999993203393089,
+   "windows": 260493737,
+   "model_uniform_independent": 0.9999999990385223
+  },
+  {
+   "slots": 45,
+   "seconds": 900,
+   "p_exact": 0.9997381917712589,
+   "p_exact_given_reporting": 0.9999994374127829,
+   "windows": 259583132,
+   "model_uniform_independent": 0.9999999999992276
+  },
+  {
+   "slots": 90,
+   "seconds": 1800,
+   "p_exact": 0.9997471922637641,
+   "p_exact_given_reporting": 0.9999995326857191,
+   "windows": 256851317,
+   "model_uniform_independent": 1.0
+  },
+  {
+   "slots": 180,
+   "seconds": 3600,
+   "p_exact": 0.9997602905666577,
+   "p_exact_given_reporting": 0.9999995424297747,
+   "windows": 251387687,
+   "model_uniform_independent": 1.0
+  },
+  {
+   "slots": 360,
+   "seconds": 7200,
+   "p_exact": 0.9997819849167946,
+   "p_exact_given_reporting": 0.9999997379455646,
+   "windows": 240460427,
+   "model_uniform_independent": 1.0
+  },
+  {
+   "slots": 1080,
+   "seconds": 21600,
+   "p_exact": 0.9998669691716074,
+   "p_exact_given_reporting": 0.9999999491676774,
+   "windows": 196751387,
+   "model_uniform_independent": 1.0
+  },
+  {
+   "slots": 2160,
+   "seconds": 43200,
+   "p_exact": 0.9999678781172281,
+   "p_exact_given_reporting": 1.0,
+   "windows": 131187827,
+   "model_uniform_independent": 1.0
+  },
+  {
+   "slots": 4320,
+   "seconds": 86400,
+   "p_exact": 1.0,
+   "p_exact_given_reporting": 1.0,
+   "windows": 60707,
+   "model_uniform_independent": 1.0
+  }
+ ],
+ "window_model_optimistic_from_s": 80,
+ "single_interval": {
+  "measured": 0.9995268789553222,
+  "model_uniform_independent": 0.9960163651793292
+ },
+ "decimation": [
+  {
+   "every_k_slots": 3,
+   "seconds": 60,
+   "kept_per_day": 1440,
+   "measured": 1.0,
+   "model": 1.0
+  },
+  {
+   "every_k_slots": 15,
+   "seconds": 300,
+   "kept_per_day": 288,
+   "measured": 1.0,
+   "model": 1.0
+  },
+  {
+   "every_k_slots": 45,
+   "seconds": 900,
+   "kept_per_day": 96,
+   "measured": 1.0,
+   "model": 1.0
+  },
+  {
+   "every_k_slots": 180,
+   "seconds": 3600,
+   "kept_per_day": 24,
+   "measured": 1.0,
+   "model": 0.9999999827419735
+  },
+  {
+   "every_k_slots": 1080,
+   "seconds": 21600,
+   "kept_per_day": 4,
+   "measured": 1.0,
+   "model": 0.9997455810132537
+  },
+  {
+   "every_k_slots": 4320,
+   "seconds": 86400,
+   "kept_per_day": 1,
+   "measured": 0.9995268789553221,
+   "model": 0.9960163651793292
+  }
+ ],
+ "timestamp_deletion": [
+  {
+   "f": 0.9,
+   "measured": 1.0,
+   "bound_lo": 1.0,
+   "bound_hi": 1.0,
+   "iid_model": 1.0,
+   "draws": 62672
+  },
+  {
+   "f": 0.99,
+   "measured": 1.0,
+   "bound_lo": 0.9999999999837953,
+   "bound_hi": 0.9999999999837953,
+   "iid_model": 0.9999999997407264,
+   "draws": 62672
+  },
+  {
+   "f": 0.999,
+   "measured": 0.9868840949706408,
+   "bound_lo": 0.9866709439869426,
+   "bound_hi": 0.9866709439869426,
+   "iid_model": 0.8070790636365897,
+   "draws": 62672
+  },
+  {
+   "f": 0.9999,
+   "measured": 0.34910326780699513,
+   "bound_lo": 0.3506680982899916,
+   "bound_hi": 0.3506680982899916,
+   "iid_model": 5.243283174139016e-08,
+   "draws": 62672
+  }
+ ],
+ "bursty": [
+  {
+   "f": 0.99,
+   "L_slots": 15,
+   "measured": 0.4114277508297166,
+   "model": 0.41119635251324194,
+   "draws": 62672
+  },
+  {
+   "f": 0.999,
+   "L_slots": 15,
+   "measured": 0.0,
+   "model": 2.4987208483524865e-10,
+   "draws": 62672
+  },
+  {
+   "f": 0.99,
+   "L_slots": 180,
+   "measured": 0.0,
+   "model": 3.7501121880330354e-11,
+   "draws": 62672
+  }
+ ],
+ "missingness": {
+  "missing_fraction": 0.00047289821701262106,
+  "share_whole_socket_silent": 0.9994794168057156,
+  "share_whole_node_silent": 0.9992536459721828,
+  "mean_missing_run_slots": 2.5784396403748024,
+  "socket_gap_runs": 48155,
+  "socket_gap_mean_run_slots": 2.574083688090541,
+  "socket_gap_slots_in_runs_ge": {
+   "2": 0.6154491549352588,
+   "3": 0.6133193497640272,
+   "15": 0.5989835020773668,
+   "45": 0.575491105643177,
+   "180": 0.5559759590173854,
+   "1080": 0.4896293009559921
+  }
+ }
+}

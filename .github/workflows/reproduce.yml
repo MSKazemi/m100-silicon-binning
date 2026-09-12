@@ -1,12 +1,18 @@
 name: reproduce
 
-# For a research artefact, CI is not "do the tests pass" — it is "do the numbers still come out
-# of the committed data". This re-derives the headline results on every push and asserts them, so
-# a claim in the README cannot silently drift from the code that produced it.
+# For a research artefact, CI is not "do the tests pass" -- it is "do the numbers still come out of
+# the committed data". Every step below re-derives a result the paper reports and asserts its value,
+# so a claim in the README cannot silently drift from the code that produced it.
+#
+# What a green badge does and does not mean is spelled out in docs/reproduce.md: it means the
+# committed tables still give the asserted numbers on a clean machine, not that every number in the
+# paper was recomputed from the 49.9 TB archive. Four scripts need that archive and are not run
+# here; their committed outputs are checksummed instead, and the results read out of them are
+# asserted like everything else.
 #
 # Split into two jobs on purpose. The structural checks are seconds and megabytes, so they run on
 # every supported Python. The longitudinal ones load the full 31-month daily table and peak around
-# 4.4 GB (measured), so they run once rather than across the matrix.
+# 4.5 GB (measured), so they run once rather than across the matrix.
 
 on:
   push:
@@ -20,34 +26,139 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    # -o pipefail so a failing script cannot be hidden by the `| tee` that follows it.
+    shell: bash -euo pipefail {0}
+
 jobs:
   structural:
-    name: structural results (py${{ matrix.python-version }})
+    name: structural results (py${{ matrix.python-version }}, ${{ matrix.requirements }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.12']
+        include:
+          # 3.10 with the floors resolved to their newest compatible releases: the bit-rot leg.
+          - python-version: '3.10'
+            requirements: requirements.txt
+          # 3.12 with the exact environment that produced the published numbers.
+          - python-version: '3.12'
+            requirements: requirements-lock.txt
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-      - run: pip install -r requirements.txt
+      - run: pip install -r ${{ matrix.requirements }} -r requirements-dev.txt
+      - run: pip freeze
 
-      - name: Fusing is slice-granular and marginals are non-uniform
+      - name: The committed derived tables are the ones the results were computed from
+        run: sha256sum -c DATA.sha256
+
+      - name: Test suite
+        run: python -m pytest -q tests/
+
+      - name: Fusing is slice-granular and the marginals are non-uniform
         run: |
           python analysis/binning_stats.py | tee /tmp/binning.txt
-          grep -q "sockets with exactly 4 disabled pairs: 1960" /tmp/binning.txt
-          grep -q "observed distinct patterns: 442"            /tmp/binning.txt
-          grep -q "NON-uniform"                                /tmp/binning.txt
+          grep -qF "sockets with exactly 4 disabled pairs: 1960"  /tmp/binning.txt
+          grep -qF "possible patterns C(12,4) = 495"              /tmp/binning.txt
+          grep -qF "observed distinct patterns: 442"              /tmp/binning.txt
+          grep -qF "NON-uniform"                                  /tmp/binning.txt
+          grep -qF "observed 4.243"                               /tmp/binning.txt
 
-      - name: Sensor index recovers the physical die ordering
+      - name: Marginal uniformity under the four-per-socket constraint
+        run: |
+          python analysis/model_marginals.py | tee /tmp/marg.txt
+          grep -qF "p = (b+1)/(B+1) = 5.0e-05"  /tmp/marg.txt
+          grep -qF "NON-uniform under every"    /tmp/marg.txt
+
+      - name: The side channel, and which mitigations work
+        run: |
+          python analysis/side_channel.py | tee /tmp/sc.txt
+          grep -qF "iid 99.9% deletion, one day: exact recovery 0.81"                   /tmp/sc.txt
+          grep -qF "iid 99.99% deletion, one month: exact recovery 1.0000"              /tmp/sc.txt
+          grep -qF "iid deletion needed for one-month recovery 0.5: 99.998%"            /tmp/sc.txt
+          grep -qF "slice-aware attacker, iid 99.9% deletion, one day: exact recovery 0.9985" /tmp/sc.txt
+          grep -qF "single 20 s interval, measured on raw timestamps: 0.9995"           /tmp/sc.txt
+
+      - name: The pairwise-interaction model, its clustered uncertainty and the quad split
+        run: |
+          python analysis/yield_model.py | tee /tmp/ym.txt
+          grep -qF "difference z = +4.47"  /tmp/ym.txt
+          python analysis/gamma_clustered_se.py | tee /tmp/gse.txt
+          grep -qF "rack bootstrap z = +4.16"  /tmp/gse.txt
+          python analysis/model_quad.py | tee /tmp/mq.txt
+          grep -qF "within-quad  g_in    +0.925"  /tmp/mq.txt
+          grep -qF "cross-quad   g_x     +0.283"  /tmp/mq.txt
+
+      - name: Model-replicate checks, with the optimiser and the constraint asserted
+        run: |
+          python analysis/ppc.py | tee /tmp/ppc.txt
+          grep -qF "cells beyond the max-|z| family-wise bound |z| > 3.34: 10 of 66"  /tmp/ppc.txt
+          python - <<'PY'
+          import json, numpy as np, sys
+          sys.path.insert(0, 'analysis')
+          import model_core as mc
+          m = np.load('analysis/harvest_maps_full.npy')
+          f = mc.fit_newton(mc.pattern_counts(m))
+          # the fit is identified only with sum(beta) = 0, and Newton must actually have converged
+          assert abs(float(np.sum(f['beta']))) < 1e-8, f['beta']
+          assert f['grad_norm'] < 1e-6, f['grad_norm']
+          d = json.load(open('analysis/model_ppc.json'))['Fleet']
+          assert d['B'] == 10_000 and d['residual_cells_fwer_sig'] == 10, d['B']
+          assert round(d['residual_fwer_crit_abs_z'], 2) == 3.34, d['residual_fwer_crit_abs_z']
+          print('sum(beta) =', float(np.sum(f['beta'])), ' |grad| =', f['grad_norm'])
+          print('replicates:', d['B'], 'cells outside the band:', d['residual_cells_fwer_sig'])
+          PY
+
+      - name: The committed curveball null is the one the paper reports
+        run: |
+          python - <<'PY'
+          import json
+          d = json.load(open('analysis/model_curveball.json'))['main']
+          assert d['B'] == 100_000, d['B']
+          assert round(d['gap_z'], 1) == -20.7, d['gap_z']
+          assert d['n_sig_maxT'] == 20 and d['n_sig_maxT_pos'] == 9, d['n_sig_maxT']
+          assert len(d['near_pos_maxT']) == 8 and d['far_pos_maxT'] == [[7, 10]]
+          assert abs(d['bonferroni_alpha'] - 0.05 / 66) < 1e-12
+          print('curveball null OK: z =', round(d['gap_z'], 2), ';', d['n_sig_maxT'], 'of 66 pairs')
+          PY
+
+      - name: Every number in Sec. IV-C has a committed producer
+        run: |
+          python analysis/within_node_overlap.py | tee /tmp/wno.txt
+          grep -qF "nodes with a harvest map on both sockets: 981"          /tmp/wno.txt
+          grep -qF "identical maps within a node          : 12 (1.2%)"      /tmp/wno.txt
+          grep -qF "mean overlap (harvested slices shared): 1.641 of 4"     /tmp/wno.txt
+          grep -qF "fleet-wide map-reassignment null      : 1.470 +/- 0.026" /tmp/wno.txt
+          grep -qF "within-node overlap z = +6.6"                          /tmp/wno.txt
+
+      - name: Thermal layout scores from the committed matrix
         run: |
           THERM_MATRIX=thermal_corr_allnodes.npy python analysis/layout_hypotheses.py \
             | tee /tmp/layout.txt
-          grep -q "best candidate: 1 x 12 linear" /tmp/layout.txt
+          grep -qF "1 x 12 linear                      corr(distance, thermal r) = -0.791"  /tmp/layout.txt
+          grep -qF "IBM's documented layout (Registers Spec v1.2 Fig. 2, diagram proportions): -0.824" /tmp/layout.txt
+          grep -qF "over the 60 pairs in different quads the 1 x 12 index order fits better (-0.814 vs -0.734)" /tmp/layout.txt
+          grep -qF "identity ranks 2 of 239,500,800"  /tmp/layout.txt
+
+      - name: Thermal results read out of the per-socket summaries
+        run: |
+          python - <<'PY'
+          import json
+          s = json.load(open('analysis/thermal_socket_stats.json'))
+          q, c = s['quad_decomposition'], s['contrast_clustered']['rack']
+          assert round(q['samequad']['pooled'], 2) == 0.48, q['samequad']['pooled']
+          assert round(q['within']['pooled'], 2) == 0.37, q['within']['pooled']
+          assert round(q['crossquad']['pooled'], 2) == 0.10, q['crossquad']['pooled']
+          assert [round(x, 3) for x in c['contrast_ci']] == [0.047, 0.076], c['contrast_ci']
+          assert s['replication']['max_abs_diff_vs_committed_matrix'] < 1e-8
+          print('thermal summaries OK; per-socket matrices reproduce the pooled one to',
+                s['replication']['max_abs_diff_vs_committed_matrix'])
+          PY
 
       - name: Figures build
         run: python analysis/make_hero_image.py
@@ -61,22 +172,56 @@ jobs:
         with:
           python-version: '3.12'
           cache: pip
-      - run: pip install -r requirements.txt
+      - run: pip install -r requirements-lock.txt -r requirements-dev.txt
 
-      - name: Procurement-lot boundary reproduces
+      - name: The committed derived tables are the ones the results were computed from
+        run: sha256sum -c DATA.sha256
+
+      - name: The lot boundary reproduces, with its calibrated p
         run: |
           python analysis/changepoint.py | tee /tmp/cp.txt
-          grep -q "observed argmax boundary : rack 22"          /tmp/cp.txt
-          grep -q "breakpoint rack = 22"                        /tmp/cp.txt
-          grep -qE "rack-level accuracy   : 9[0-9]\.[0-9]%"     /tmp/cp.txt
+          grep -qF "observed argmax boundary : rack 22"                     /tmp/cp.txt
+          grep -qF "calibrated p             : 2.50e-04"                    /tmp/cp.txt
+          grep -qF "breakpoint rack = 22"                                   /tmp/cp.txt
+          grep -qF "exactly as the full-data boundary does: 49/49"          /tmp/cp.txt
+          grep -qE "rack-level accuracy   : 95\.9%  \(47/49 racks\)"        /tmp/cp.txt
 
-      - name: Changes coincide with reboots
+      - name: Changes coincide with reboots, by day flag and by boot epoch
         run: |
           python analysis/reboot_evidence.py | tee /tmp/reboot.txt
-          grep -q "map transitions with boot coverage : 132" /tmp/reboot.txt
-          grep -q "of which a reboot is observed    : 126"   /tmp/reboot.txt
+          grep -qF "map transitions with boot coverage : 132"  /tmp/reboot.txt
+          grep -qF "of which a reboot is observed    : 126"    /tmp/reboot.txt
+          grep -qF "transitions: 136  boot inside the interval 133  no boot 0  unresolved 3" /tmp/reboot.txt
 
-      - name: The reliability null is still null
+      - name: Every OS departure from 128 logical CPUs is seen by the BMC
+        run: |
+          python analysis/lifecycle_os_crosscheck.py | tee /tmp/os.txt
+          grep -qF "starting the same day: 9 of 9 episodes on 9 nodes"  /tmp/os.txt
+          python analysis/lifecycle_taxonomy_errors.py | tee /tmp/tax.txt
+          grep -qF "96 dies / 4,561 socket-years = 2.10% per socket-year"  /tmp/tax.txt
+          grep -qF "new processors enter service at 1.0-1.2% per socket-year"  /tmp/tax.txt
+
+      - name: The power association is bounded to a few watts
+        run: |
+          python analysis/equivalence.py | tee /tmp/eq.txt
+          grep -qF "epoch design keeps 636,026 node-days"                          /tmp/eq.txt
+          grep -qF "meanidx  +2.73 W over the full range [-0.19, +5.56]"           /tmp/eq.txt
+          grep -qF "nadj     -0.99 W over the full range [-3.99, +2.11]"           /tmp/eq.txt
+          grep -qF "lowhalf  -1.51 W over the full range [-4.73, +1.77]"           /tmp/eq.txt
+
+      - name: The reliability null is still null, and the first release's 0.448 was an artefact
         run: |
           python analysis/survival.py | tee /tmp/surv.txt
-          grep -q "No held-out discrimination" /tmp/surv.txt
+          grep -qF "risk-set concordance              : 0.551"  /tmp/surv.txt
+          grep -qF "No held-out discrimination"                 /tmp/surv.txt
+          python analysis/survival_legacy_check.py | tee /tmp/legacy.txt
+          grep -qF "v1 pooled person-month AUC, reproduced          : 0.4484"  /tmp/legacy.txt
+          grep -qF "v1 partition 0.4484 is above 2 of them"                    /tmp/legacy.txt
+
+      - name: OI-8 -- relabelling flips the socket power difference
+        run: |
+          python analysis/oi8_and_os_full.py | tee /tmp/oi8.txt
+          grep -qF "power difference flips sign, |dP| > 2 W on both sides: 12/15 (80%), 95% CI [52, 96]%" /tmp/oi8.txt
+
+      - name: The public pages still say what the freshly written result files say
+        run: python -m pytest -q tests/test_consistency.py
