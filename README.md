@@ -284,3 +284,9 @@ Cestari, M., Barchi, F., Benini, L., Beneventi, F., Bartolini, A.
 
 Code is [MIT](LICENSE). The manuscript text and figures are CC BY 4.0, matching the licence of the
 underlying M100 ExaData release.
+
+<!-- legal-notice: start -->
+### Legal notice and responsible use
+
+The materials in this repository are made available without warranties to the extent permitted by applicable law. **Please read the [Disclaimer and Responsible-Use Notice](DISCLAIMER.md)** before relying on or deploying them. This notice does not change any existing software license or limit rights that cannot legally be waived.
+<!-- legal-notice: end -->
